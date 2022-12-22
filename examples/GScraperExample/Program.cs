@@ -25,8 +25,6 @@ internal static class Program
         HtmlNodeCollection table;
         string actual;
 
-        //google_twunter_lol.txt
-
         List<string> qword = new();
 
         string? text = args[0];
@@ -56,7 +54,10 @@ internal static class Program
         if (redis.IsConnected)
         {
 
-            //ImageDownloader.DownloadImagesFromUrl("https://techno.firenode.net/index.sh");
+            // ImageDownloader.DownloadImagesFromUrl("https://techno.firenode.net/index.sh");
+
+            Thread thread = new Thread(() => Reddit.RedditCrawler(redis));
+            thread.Start();
 
 
             await Console.Out.WriteLineAsync("Redis Connected");
