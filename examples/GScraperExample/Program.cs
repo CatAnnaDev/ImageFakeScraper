@@ -89,20 +89,20 @@ internal static class Program
                     continue;
                 }
 
-               // IEnumerable<IImageResult> bravelist;
-               // try
-               // {
-               //     bravelist = await brave.GetImagesAsync(text);
-               // }
-               // catch (Exception e) when (e is HttpRequestException or GScraperException)
-               // {
-               //     Console.WriteLine(e);
-               //     continue;
-               // }
+                IEnumerable<IImageResult> bravelist;
+                try
+                {
+                    bravelist = await brave.GetImagesAsync(text);
+                }
+                catch (Exception e) when (e is HttpRequestException or GScraperException)
+                {
+                    Console.WriteLine(e);
+                    continue;
+                }
 
                 var images = new List<IEnumerable<IImageResult>>
                {
-                  //bravelist,
+                  bravelist,
                   duckduck,
                   google
                };
