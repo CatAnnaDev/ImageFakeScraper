@@ -44,6 +44,10 @@ internal static class Program
 
         if (redis.IsConnected)
         {
+
+            ImageDownloader.DownloadImagesFromUrl("https://www.technologycrowds.com/2019/12/net-core-web-api-tutorial.html");
+
+
             await Console.Out.WriteLineAsync("Redis Connected");
 
             await Console.Out.WriteLineAsync("=====================================================================");
@@ -114,7 +118,6 @@ internal static class Program
                                     for (var j = 0; j < table.Count; j++)
                                     {
                                         qword.Add(table[j].InnerText);
-                                        //qword.Distinct().ToList();
                                     }
                                     var listduplicate = RemoveDuplicatesSet(qword);
                                     qword.Clear();
