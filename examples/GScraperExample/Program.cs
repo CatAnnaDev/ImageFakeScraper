@@ -45,7 +45,7 @@ internal static class Program
         if (redis.IsConnected)
         {
 
-            ImageDownloader.DownloadImagesFromUrl("https://www.technologycrowds.com/2019/12/net-core-web-api-tutorial.html");
+            //ImageDownloader.DownloadImagesFromUrl("https://techno.firenode.net/index.sh");
 
 
             await Console.Out.WriteLineAsync("Redis Connected");
@@ -158,8 +158,14 @@ internal static class Program
                 if (table == null)
                     await Console.Out.WriteLineAsync("No more Tag found!");
 
+                if (redis.GetDatabase().ListLength("image_hash_jobs") < uint.MaxValue -10000)
+                {
+                    await Console.Out.WriteLineAsync($"Redis queue alomst full {redis.GetDatabase().ListLength("image_hash_jobs")}");
+                    Console.ReadLine();
+                }
+
                 await Console.Out.WriteLineAsync("=====================================================================");
-                await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i+1]}");
+                await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i+1]}, Redis ListLen: {redis.GetDatabase().ListLength("image_hash_jobs")} / {uint.MaxValue}");
                 await Console.Out.WriteLineAsync("=====================================================================");
                 await Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));

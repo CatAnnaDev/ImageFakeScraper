@@ -2,7 +2,7 @@
   "profiles": {
     "GScraperExample": {
       "commandName": "Project",
-      "commandLineArgs": "\"background\" 0"
+      "commandLineArgs": "\"arbre\" 0"
     }
   }
 }

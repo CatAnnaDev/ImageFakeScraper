@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 
 namespace GScraperExample
@@ -13,18 +14,17 @@ namespace GScraperExample
         {
             var uri = new Uri(url);
             var pages = new List<HtmlNode> { LoadHtmlDocument(uri) };
-            for (int i = 0; i < pages.Count; i++)
-            {
-                pages.AddRange(LoadOtherPages(pages[i], url));
+            pages.AddRange(LoadOtherPages(pages[0], url));
+            //Console.WriteLine(pages[i].);
+            //pages.SelectMany(p => p.Descendants("img")).Select(node => node.Attributes["src"]).AsParallel().ForAll(t => DownloadImage(t));
 
-                pages.SelectMany(p => p.Descendants("img"))
-                    .Select(node => Tuple.Create(new UriBuilder(uri.Scheme, uri.Host, uri.Port, node.Attributes["src"].Value).Uri, new WebClient()))
-                    .AsParallel()
-                    .ForAll(t => DownloadImage(folderImagesPath, t.Item1, t.Item2));
+            foreach (var link in pages.SelectMany(p => p.Descendants("img").Select(i => i.Attributes["src"])).AsParallel())
+            {
+                Console.WriteLine(link.Value.ToString());
             }
         }
 
-        private static void DownloadImage(string folderImagesPath, Uri url, WebClient webClient)
+        private static void DownloadImage(Uri url)
         {
             Console.WriteLine(url);
         }
