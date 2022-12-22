@@ -28,18 +28,10 @@ public class GoogleScraper : IDisposable
 
     public static string completUrl = DefaultApiEndpoint;
 
-    static WebProxy proxy = new WebProxy("127.0.0.1:8118");
-
-
-    static HttpClientHandler httpClientHandler = new HttpClientHandler
-    {
-        Proxy = proxy,
-    };
-
     /// <summary>
     /// Initializes a new instance of the <see cref="GoogleScraper"/> class.
     /// </summary>
-    public GoogleScraper() : this(new HttpClient(handler: httpClientHandler, disposeHandler: true))
+    public GoogleScraper() : this(new HttpClient())
     {
     }
 
@@ -102,7 +94,7 @@ public class GoogleScraper : IDisposable
         completUrl += uri;
 
         HttpResponseMessage resp = await _httpClient.GetAsync(uri);
-        if(resp.Headers.Contains("X-Rate-Limit"))
+        if (resp.Headers.Contains("X-Rate-Limit"))
             Console.WriteLine(resp.Headers.GetValues("X-Rate-Limit").FirstOrDefault());
         
         byte[] bytes = await resp.Content.ReadAsByteArrayAsync().ConfigureAwait(false);

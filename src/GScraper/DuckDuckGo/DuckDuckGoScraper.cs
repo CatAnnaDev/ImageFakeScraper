@@ -33,18 +33,10 @@ public class DuckDuckGoScraper : IDisposable
     private readonly HttpClient _httpClient;
     private bool _disposed;
 
-    static WebProxy proxy = new WebProxy("127.0.0.1:8118");
-
-
-    static HttpClientHandler httpClientHandler = new HttpClientHandler
-    {
-        Proxy = proxy,
-    };
-
     /// <summary>
     /// Initializes a new instance of the <see cref="DuckDuckGoScraper"/> class.
     /// </summary>
-    public DuckDuckGoScraper() : this(new HttpClient(handler: httpClientHandler, disposeHandler: true))
+    public DuckDuckGoScraper() : this(new HttpClient())
     {
     }
 

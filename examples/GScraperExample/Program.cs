@@ -51,17 +51,17 @@ internal static class Program
                 await Console.Out.WriteLineAsync(qword[i]);
                 await Console.Out.WriteLineAsync("=====================================================================");
 
-                IEnumerable<IImageResult> google;
-                try
-                {
-                    google = await scraper.GetImagesAsync(text);
-                }
-                catch (Exception e) when (e is HttpRequestException or GScraperException)
-                {
-                    Console.WriteLine(e);
-                    
-                    continue;
-                }
+               IEnumerable<IImageResult> google;
+               try
+               {
+                   google = await scraper.GetImagesAsync(text);
+               }
+               catch (Exception e) when (e is HttpRequestException or GScraperException)
+               {
+                   Console.WriteLine(e);
+                   
+                   continue;
+               }
 
                IEnumerable<IImageResult> duckduck;
                try
