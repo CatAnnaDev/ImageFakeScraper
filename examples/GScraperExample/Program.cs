@@ -150,7 +150,7 @@ internal static class Program
                     {
                         Console.WriteLine();
                         Console.WriteLine(JsonSerializer.Serialize(daata, daata.GetType(), new JsonSerializerOptions { WriteIndented = true })); ;
-                        await redis.GetDatabase().SetAddAsync("image_hash_jobs", daata.Url);
+                        await redis.GetDatabase().SetAddAsync("image_jobs", daata.Url);
                         Console.WriteLine();
 
                     }
