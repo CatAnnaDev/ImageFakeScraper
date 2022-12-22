@@ -114,11 +114,7 @@ internal static class Program
                                 {
                                     foreach (var data in table)
                                     {
-                                        foreach(var truc in qword)
-                                        {
-                                            if(data.InnerText != truc)
-                                                qword.Add(data.InnerText);
-                                        }
+                                        qword.Add(data.InnerText);
                                     }
                                 }
                             }
@@ -157,7 +153,7 @@ internal static class Program
                     await Console.Out.WriteLineAsync("No more Tag found!");
 
                 await Console.Out.WriteLineAsync("=====================================================================");
-                await Console.Out.WriteLineAsync($"Previous done: {qword[i]}, Next: {qword[i+1]}");
+                await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i+1]}");
                 await Console.Out.WriteLineAsync("=====================================================================");
                 await Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
