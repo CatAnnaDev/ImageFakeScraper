@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
@@ -24,6 +25,8 @@ internal static class Program
         HtmlNodeCollection table;
         string actual;
 
+        //google_twunter_lol.txt
+
         List<string> qword = new();
 
         string? text = args[0];
@@ -34,6 +37,12 @@ internal static class Program
             waittime = int.Parse(args[1]);
         else
             waittime = 5;
+
+        string[] readText = File.ReadAllLines("google_twunter_lol.txt");
+        foreach (string s in readText)
+        {
+            qword.Add(s);
+        }
 
         var options = ConfigurationOptions.Parse("imagefake.net:6379");
         options.Password = "yoloimage";
@@ -80,20 +89,20 @@ internal static class Program
                     continue;
                 }
 
-                IEnumerable<IImageResult> bravelist;
-                try
-                {
-                    bravelist = await brave.GetImagesAsync(text);
-                }
-                catch (Exception e) when (e is HttpRequestException or GScraperException)
-                {
-                    Console.WriteLine(e);
-                    continue;
-                }
+               // IEnumerable<IImageResult> bravelist;
+               // try
+               // {
+               //     bravelist = await brave.GetImagesAsync(text);
+               // }
+               // catch (Exception e) when (e is HttpRequestException or GScraperException)
+               // {
+               //     Console.WriteLine(e);
+               //     continue;
+               // }
 
                 var images = new List<IEnumerable<IImageResult>>
                {
-                  bravelist,
+                  //bravelist,
                   duckduck,
                   google
                };
