@@ -28,6 +28,8 @@ public class GoogleScraper : IDisposable
 
     public static string completUrl = DefaultApiEndpoint;
 
+    private GoogleImageResultModel[] images;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="GoogleScraper"/> class.
     /// </summary>
@@ -99,8 +101,11 @@ public class GoogleScraper : IDisposable
         
         byte[] bytes = await resp.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
 
-
-        var images = JsonSerializer.Deserialize(bytes.AsSpan(5, bytes.Length - 5), GoogleImageSearchResponseContext.Default.GoogleImageSearchResponse)!.Ischj.Metadata;
+        try
+        {
+            images = JsonSerializer.Deserialize(bytes.AsSpan(5, bytes.Length - 5), GoogleImageSearchResponseContext.Default.GoogleImageSearchResponse)!.Ischj.Metadata;
+        }
+        catch { return null; }
 
         return Array.AsReadOnly(images ?? Array.Empty<GoogleImageResultModel>());
     }

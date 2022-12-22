@@ -44,6 +44,8 @@ internal static class Program
             qword.Add(s);
         }
 
+        qword.Reverse();
+
         var options = ConfigurationOptions.Parse("imagefake.net:6379");
         options.Password = "yoloimage";
         options.CommandMap = CommandMap.Create(new HashSet<string> { "SUBSCRIBE" }, false);

@@ -33,6 +33,8 @@ public class DuckDuckGoScraper : IDisposable
     private readonly HttpClient _httpClient;
     private bool _disposed;
 
+    private DuckDuckGoImageSearchResponse response;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DuckDuckGoScraper"/> class.
     /// </summary>
@@ -104,9 +106,11 @@ public class DuckDuckGoScraper : IDisposable
         var uri = new Uri(BuildImageQuery(token, query, safeSearch, time, size, color, type, layout, license, region), UriKind.Relative);
 
         var stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
-
-        var response = (await JsonSerializer.DeserializeAsync(stream, DuckDuckGoImageSearchResponseContext.Default.DuckDuckGoImageSearchResponse).ConfigureAwait(false))!;
-
+        try
+        {
+            response = (await JsonSerializer.DeserializeAsync(stream, DuckDuckGoImageSearchResponseContext.Default.DuckDuckGoImageSearchResponse).ConfigureAwait(false))!;
+        }
+        catch { return null; }
         return Array.AsReadOnly(response.Results);
     }
 

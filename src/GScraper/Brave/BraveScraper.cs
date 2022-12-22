@@ -25,6 +25,8 @@ public class BraveScraper : IDisposable
     private readonly HttpClient _httpClient;
     private bool _disposed;
 
+    private BraveImageSearchResponse response;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="BraveScraper"/> class.
     /// </summary>
@@ -88,8 +90,11 @@ public class BraveScraper : IDisposable
         var uri = new Uri(BuildImageQuery(query, safeSearch, country, size, type, layout, color, license), UriKind.Relative);
 
         var stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
-
-        var response = (await JsonSerializer.DeserializeAsync(stream, BraveImageSearchResponseContext.Default.BraveImageSearchResponse).ConfigureAwait(false))!;
+        try
+        {
+            response = (await JsonSerializer.DeserializeAsync(stream, BraveImageSearchResponseContext.Default.BraveImageSearchResponse).ConfigureAwait(false))!;
+        }
+        catch { return null; }
 
         return Array.AsReadOnly(response.Results);
     }
