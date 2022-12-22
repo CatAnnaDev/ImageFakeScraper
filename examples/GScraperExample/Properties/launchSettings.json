@@ -2,7 +2,7 @@
   "profiles": {
     "GScraperExample": {
       "commandName": "Project",
-      "commandLineArgs": "\"wallpaper\" 0"
+      "commandLineArgs": "\"hyper car\" 0"
     }
   }
 }

@@ -21,6 +21,8 @@ internal static class Program
         using var scraper = new GoogleScraper();
         using var duck = new DuckDuckGoScraper();
         using var brave = new BraveScraper();
+        HtmlNodeCollection table;
+        string actual;
 
         List<string> qword = new();
 
@@ -51,49 +53,45 @@ internal static class Program
                 await Console.Out.WriteLineAsync(qword[i]);
                 await Console.Out.WriteLineAsync("=====================================================================");
 
-               IEnumerable<IImageResult> google;
-               try
-               {
-                   google = await scraper.GetImagesAsync(text);
-               }
-               catch (Exception e) when (e is HttpRequestException or GScraperException)
-               {
-                   Console.WriteLine(e);
-                   
-                   continue;
-               }
+                IEnumerable<IImageResult> google;
+                try
+                {
+                    google = await scraper.GetImagesAsync(text);
+                }
+                catch (Exception e) when (e is HttpRequestException or GScraperException)
+                {
+                    Console.WriteLine(e);
+                    continue;
+                }
 
-               IEnumerable<IImageResult> duckduck;
-               try
-               {
-                   duckduck = await duck.GetImagesAsync(text);
-               }
-               catch (Exception e) when (e is HttpRequestException or GScraperException)
-               {
-                   Console.WriteLine(e);
-                   continue;
-               }
-               
-               IEnumerable<IImageResult> bravelist;
-               try
-               {
-                   bravelist = await brave.GetImagesAsync(text);
-               }
-               catch (Exception e) when (e is HttpRequestException or GScraperException)
-               {
-                   Console.WriteLine(e);
-                   continue;
-               }
+                IEnumerable<IImageResult> duckduck;
+                try
+                {
+                    duckduck = await duck.GetImagesAsync(text);
+                }
+                catch (Exception e) when (e is HttpRequestException or GScraperException)
+                {
+                    Console.WriteLine(e);
+                    continue;
+                }
 
-               var images = new List<IEnumerable<IImageResult>>
+                IEnumerable<IImageResult> bravelist;
+                try
+                {
+                    bravelist = await brave.GetImagesAsync(text);
+                }
+                catch (Exception e) when (e is HttpRequestException or GScraperException)
+                {
+                    Console.WriteLine(e);
+                    continue;
+                }
+
+                var images = new List<IEnumerable<IImageResult>>
                {
                   bravelist,
                   duckduck,
                   google
                };
-
-                bool enumerateAll = true;
-                bool stop = false;
 
                 var url = $"https://www.google.com/search?q={text}&tbm=isch&hl=en";
                 using (HttpClient client = new HttpClient())
@@ -106,11 +104,26 @@ internal static class Program
                             HtmlDocument document = new();
                             document.LoadHtml(result);
 
-                            var table = document.DocumentNode.SelectNodes("//a[@class='TwVfHd']");
+                            table = document.DocumentNode.SelectNodes("//a[@class='TwVfHd']");
 
-                            foreach (var data in table)
+                            try
                             {
-                                qword.Add(data.InnerText);
+                                if (table != null)
+                                {
+                                    foreach (var data in table)
+                                    {
+                                        foreach(var truc in qword)
+                                        {
+                                            if(data.InnerText != truc)
+                                                qword.Add(data.InnerText);
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                await Console.Out.WriteLineAsync("No Tag!");
+                                await Console.Out.WriteLineAsync(e.Message);
                             }
                         }
                     }
@@ -127,38 +140,20 @@ internal static class Program
                         redis.GetDatabase().ListRightPush("image_hash_jobs", daata.Url);
                         Console.WriteLine();
 
-                        if (!enumerateAll)
-                        {
-                            Console.Write("Press 'n' to send the next image, 'a' to enumerate all images and 's' to stop: ");
-                            var key = Console.ReadKey().Key;
-                            Console.WriteLine();
-
-                            switch (key)
-                            {
-                                case ConsoleKey.A:
-                                    enumerateAll = true;
-                                    break;
-
-                                case ConsoleKey.S:
-                                    stop = true;
-                                    break;
-
-                                default:
-                                    break;
-                            }
-                        }
-
-                        if (stop)
-                        {
-                            break;
-                        }
                     }
                 }
                 images.Clear();
                 text = qword[i];
 
                 if (!redis.IsConnected)
+                {
+                    await Console.Out.WriteLineAsync("redis disconnected, press enter to stop");
+                    Console.ReadLine();
                     break;
+                }
+                if (table == null)
+                    await Console.Out.WriteLineAsync("No more Tag found!");
+
                 await Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
             }
