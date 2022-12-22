@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GScraperExample": {
+      "commandName": "Project",
+      "commandLineArgs": "cat"
+    }
+  }
+}
