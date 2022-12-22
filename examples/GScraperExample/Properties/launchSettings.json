@@ -2,7 +2,7 @@
   "profiles": {
     "GScraperExample": {
       "commandName": "Project",
-      "commandLineArgs": "cat"
+      "commandLineArgs": "cat 50"
     }
   }
 }

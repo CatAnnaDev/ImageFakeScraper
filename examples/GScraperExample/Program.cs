@@ -23,9 +23,15 @@ internal static class Program
         using var brave = new BraveScraper();
 
         List<string> qword = new();
-        int waittime = int.Parse(args[1]) == null ? 5 : int.Parse(args[1]);
+
         string? text = args[0];
         qword.Add(text);
+
+        int waittime;
+        if (args.Length > 1)
+            waittime = int.Parse(args[1]);
+        else
+            waittime = 5;
 
         var options = ConfigurationOptions.Parse("imagefake.net:6379");
         options.Password = "yoloimage";
@@ -153,8 +159,8 @@ internal static class Program
 
                 if (!redis.IsConnected)
                     break;
-                await Console.Out.WriteLineAsync("Sleep 5sec;");
-                Thread.Sleep(TimeSpan.FromSeconds(5));
+                await Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
+                Thread.Sleep(TimeSpan.FromSeconds(waittime));
             }
         }
     }
