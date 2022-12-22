@@ -158,7 +158,7 @@ internal static class Program
                 if (table == null)
                     await Console.Out.WriteLineAsync("No more Tag found!");
 
-                if (redis.GetDatabase().ListLength("image_hash_jobs") < uint.MaxValue -10000)
+                if (redis.GetDatabase().ListLength("image_hash_jobs") == uint.MaxValue -10000)
                 {
                     await Console.Out.WriteLineAsync($"Redis queue alomst full {redis.GetDatabase().ListLength("image_hash_jobs")}");
                     Console.ReadLine();
