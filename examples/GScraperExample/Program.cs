@@ -46,12 +46,14 @@ internal static class Program
         {
             await Console.Out.WriteLineAsync("Redis Connected");
 
+            await Console.Out.WriteLineAsync("=====================================================================");
+            await Console.Out.WriteLineAsync(qword[0]);
+            await Console.Out.WriteLineAsync("=====================================================================");
+
             for (int i = 0; i < qword.Count; i++)
             {
                 qword.Distinct().ToList();
-                await Console.Out.WriteLineAsync("=====================================================================");
-                await Console.Out.WriteLineAsync(qword[i]);
-                await Console.Out.WriteLineAsync("=====================================================================");
+
 
                 IEnumerable<IImageResult> google;
                 try
@@ -154,6 +156,9 @@ internal static class Program
                 if (table == null)
                     await Console.Out.WriteLineAsync("No more Tag found!");
 
+                await Console.Out.WriteLineAsync("=====================================================================");
+                await Console.Out.WriteLineAsync($"Previous done: {qword[i]}, Next: {qword[i+1]}");
+                await Console.Out.WriteLineAsync("=====================================================================");
                 await Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
             }
