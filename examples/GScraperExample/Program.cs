@@ -54,7 +54,6 @@ internal static class Program
             {
                 qword.Distinct().ToList();
 
-
                 IEnumerable<IImageResult> google;
                 try
                 {
@@ -112,10 +111,14 @@ internal static class Program
                             {
                                 if (table != null)
                                 {
-                                    foreach (var data in table)
+                                    for (var j = 0; j < table.Count; j++)
                                     {
-                                        qword.Add(data.InnerText);
+                                        qword.Add(table[j].InnerText);
+                                        //qword.Distinct().ToList();
                                     }
+                                    var listduplicate = RemoveDuplicatesSet(qword);
+                                    qword.Clear();
+                                    qword.AddRange(listduplicate);
                                 }
                             }
                             catch (Exception e)
@@ -159,5 +162,23 @@ internal static class Program
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
             }
         }
+    }
+
+    public static List<string> RemoveDuplicatesSet(List<string> items)
+    {
+        if (items.Count == 1)
+            return items;
+
+        var result = new List<string>();
+        var set = new HashSet<string>();
+        for (int i = 0; i < items.Count; i++)
+        {
+            if (!set.Contains(items[i]))
+            {
+                result.Add(items[i]);
+                set.Add(items[i]);
+            }
+        }
+        return result;
     }
 }
