@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -32,11 +33,18 @@ public class DuckDuckGoScraper : IDisposable
     private readonly HttpClient _httpClient;
     private bool _disposed;
 
+    static WebProxy proxy = new WebProxy("127.0.0.1:8118");
+
+
+    static HttpClientHandler httpClientHandler = new HttpClientHandler
+    {
+        Proxy = proxy,
+    };
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DuckDuckGoScraper"/> class.
     /// </summary>
-    public DuckDuckGoScraper()
-        : this(new HttpClient())
+    public DuckDuckGoScraper() : this(new HttpClient(handler: httpClientHandler, disposeHandler: true))
     {
     }
 
@@ -103,7 +111,7 @@ public class DuckDuckGoScraper : IDisposable
         string token = await GetTokenAsync(query).ConfigureAwait(false);
         var uri = new Uri(BuildImageQuery(token, query, safeSearch, time, size, color, type, layout, license, region), UriKind.Relative);
 
-        using var stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
+        var stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
 
         var response = (await JsonSerializer.DeserializeAsync(stream, DuckDuckGoImageSearchResponseContext.Default.DuckDuckGoImageSearchResponse).ConfigureAwait(false))!;
 

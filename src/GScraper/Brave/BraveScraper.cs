@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -24,11 +25,18 @@ public class BraveScraper : IDisposable
     private readonly HttpClient _httpClient;
     private bool _disposed;
 
+    static WebProxy proxy = new WebProxy("127.0.0.1:8118");
+
+
+    static HttpClientHandler httpClientHandler = new HttpClientHandler
+    {
+        Proxy = proxy,
+    };
+
     /// <summary>
     /// Initializes a new instance of the <see cref="BraveScraper"/> class.
     /// </summary>
-    public BraveScraper()
-        : this(new HttpClient())
+    public BraveScraper() : this(new HttpClient(handler: httpClientHandler, disposeHandler: true))
     {
     }
 

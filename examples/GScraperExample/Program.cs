@@ -85,12 +85,12 @@ internal static class Program
                    continue;
                }
 
-                var images = new List<IEnumerable<IImageResult>>
-            {
-                bravelist,
-                duckduck,
-                google
-            };
+               var images = new List<IEnumerable<IImageResult>>
+               {
+                  bravelist,
+                  duckduck,
+                  google
+               };
 
                 bool enumerateAll = true;
                 bool stop = false;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -27,10 +28,18 @@ public class GoogleScraper : IDisposable
 
     public static string completUrl = DefaultApiEndpoint;
 
+    static WebProxy proxy = new WebProxy("127.0.0.1:8118");
+
+
+    static HttpClientHandler httpClientHandler = new HttpClientHandler
+    {
+        Proxy = proxy,
+    };
+
     /// <summary>
     /// Initializes a new instance of the <see cref="GoogleScraper"/> class.
     /// </summary>
-    public GoogleScraper() : this(new HttpClient())
+    public GoogleScraper() : this(new HttpClient(handler: httpClientHandler, disposeHandler: true))
     {
     }
 
@@ -39,6 +48,7 @@ public class GoogleScraper : IDisposable
     /// </summary>
     public GoogleScraper(HttpClient client)
     {
+
         _httpClient = client;
         Init(_httpClient, _defaultBaseAddress);
     }
