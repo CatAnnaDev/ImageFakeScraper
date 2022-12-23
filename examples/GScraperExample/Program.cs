@@ -152,6 +152,10 @@ internal static class Program
                                         {
                                             qword.Add(table[j].InnerText);
                                         }
+                                        else
+                                        {
+                                            await Console.Out.WriteLineAsync($"Tag already exist {table[j].InnerText}");
+                                        }
                                     }
                                     var listduplicate = RemoveDuplicatesSet(qword);
                                     qword.Clear();
@@ -199,14 +203,11 @@ internal static class Program
 
                 write(text, redis);
 
-
-                await Console.Out.WriteLineAsync("=====================================================================");
-                    await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")} / {uint.MaxValue}, already done word: {await redis.GetDatabase().SortedSetLengthAsync(key)}");
-                await Console.Out.WriteLineAsync("=====================================================================");
+                await Console.Out.WriteLineAsync("================================================================================================================================");
+                await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Tag in queue: {qword.Count}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")} / {uint.MaxValue}, already done word: {await redis.GetDatabase().SortedSetLengthAsync(key)}");
+                await Console.Out.WriteLineAsync("================================================================================================================================");
                 await Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
-
-
             }
         }
     }
