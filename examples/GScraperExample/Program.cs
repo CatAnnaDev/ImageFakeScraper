@@ -201,11 +201,7 @@ internal static class Program
 
 
                 await Console.Out.WriteLineAsync("=====================================================================");
-                try
-                {
-                    await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")} / {uint.MaxValue}, already done word: {redis.GetDatabase().SetMembers(key).Length}");
-                }
-                catch { }
+                    await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")} / {uint.MaxValue}, already done word: {await redis.GetDatabase().SortedSetLengthAsync(key)}");
                 await Console.Out.WriteLineAsync("=====================================================================");
                 await Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
