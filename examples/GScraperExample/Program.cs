@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
@@ -13,15 +11,11 @@ using GScraper.DuckDuckGo;
 using GScraper.Google;
 using HtmlAgilityPack;
 using StackExchange.Redis;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GScraperExample;
 
 internal static class Program
 {
-    static string path = @"done.txt";
-    static string alreadydone = "";
-
     private static async Task Main(string[] args)
     {
 
@@ -33,8 +27,8 @@ internal static class Program
         List<IEnumerable<IImageResult>> images = new();
 
         bool gg = true;
-        bool ddc = true;
-        bool brv = true;
+        bool ddc = false;
+        bool brv = false;
 
         //IDatabase conn = redis.GetDatabase();
 
@@ -76,8 +70,9 @@ internal static class Program
             Thread thread = new Thread(() => Reddit.RedditCrawler(redis));
             //thread.Start();
 
-
+            Console.ForegroundColor = ConsoleColor.Green;
             await Console.Out.WriteLineAsync("Redis Connected");
+            Console.ResetColor();
 
             await Console.Out.WriteLineAsync("=====================================================================");
             await Console.Out.WriteLineAsync(qword[0]);
@@ -96,7 +91,9 @@ internal static class Program
                     }
                     catch (Exception e) when (e is HttpRequestException or GScraperException)
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"Google: {e.Message}");
+                        Console.ResetColor();
                         if (e.Message.Contains("429"))
                             gg = false;
                             continue;
@@ -114,8 +111,10 @@ internal static class Program
                     }
                     catch (Exception e) when (e is HttpRequestException or GScraperException)
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"Duckduckgo: {e.Message}");
-                        if (e.Message.Contains("429"))
+                        Console.ResetColor();
+                        if (e.Message.Contains("token"))
                             ddc = false;
                             continue;
                     }
@@ -131,7 +130,9 @@ internal static class Program
                     }
                     catch (Exception e) when (e is HttpRequestException or GScraperException)
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"Brave: {e.Message}");
+                        Console.ResetColor();
                         if (e.Message.Contains("429"))
                             brv = false;
                             continue;
@@ -140,22 +141,32 @@ internal static class Program
 
 
                 if (gg && ddc && brv)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
                     await Console.Out.WriteLineAsync("All search engine up");
+                    Console.ResetColor();
+                }
                 else
                 {
                     if (!gg)
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Google stopped");
+                        Console.ResetColor();
                         gg = true;
                     }
                     if (!ddc)
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Duckduckgo stopper");
+                        Console.ResetColor();
                         ddc = true;
                     }
                     if (!brv)
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Brave stopped");
+                        Console.ResetColor();
                         brv = true;
                     }
                 }
@@ -185,7 +196,9 @@ internal static class Program
                                         }
                                         else
                                         {
+                                            Console.ForegroundColor = ConsoleColor.Red;
                                             await Console.Out.WriteLineAsync($"Tag already exist {table[j].InnerText}");
+                                            Console.ResetColor();
                                         }
                                     }
                                     var listduplicate = RemoveDuplicatesSet(qword);
@@ -195,15 +208,21 @@ internal static class Program
                             }
                             catch (Exception e)
                             {
+                                Console.ForegroundColor = ConsoleColor.Red;
                                 await Console.Out.WriteLineAsync("No Tag!");
                                 await Console.Out.WriteLineAsync(e.Message);
+                                Console.ResetColor();
                             }
                         }
                     }
                 }
-                
+
                 if (table == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
                     await Console.Out.WriteLineAsync("No more Tag found!");
+                    Console.ResetColor();
+                }
 
                 foreach (var image in images)
                 {
@@ -221,14 +240,18 @@ internal static class Program
 
                 if (!redis.IsConnected)
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     await Console.Out.WriteLineAsync("redis disconnected, press enter to stop");
+                    Console.ResetColor();
                     Console.ReadLine();
                     break;
                 }
 
                 if (redis.GetDatabase().SetLength("image_jobs") == uint.MaxValue - 10000)
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     await Console.Out.WriteLineAsync($"Redis queue alomst full {redis.GetDatabase().ListLength("image_jobs")}");
+                    Console.ResetColor();
                     Console.ReadLine();
                 }
 
@@ -243,7 +266,6 @@ internal static class Program
         }
     }
 
-   
     private static async void write(string text, ConnectionMultiplexer redis)
     {
         var value = new RedisValue(text);
