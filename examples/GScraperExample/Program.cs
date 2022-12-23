@@ -30,6 +30,12 @@ internal static class Program
         options.CommandMap = CommandMap.Create(new HashSet<string> { "SUBSCRIBE" }, false);
         ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(options);
 
+        List<IEnumerable<IImageResult>> images = new();
+
+        bool gg = true;
+        bool ddc = true;
+        bool brv = true;
+
         //IDatabase conn = redis.GetDatabase();
 
         using var scraper = new GoogleScraper();
@@ -41,18 +47,10 @@ internal static class Program
         bool stopBrave = false;
 
         List<string> qword = new();
-        if (!File.Exists(path))
-        {
-            using (StreamWriter sw = File.CreateText(path))
-            {
-                sw.Write("Meow");
-            }
-        }
 
         var key = new RedisKey("already_done_ZADD");
         var meow = await redis.GetDatabase().SortedSetRangeByRankAsync(key, stop:1, order: Order.Descending);
         string text = meow.FirstOrDefault();
-
         qword.Add(text);
 
         int waittime;
@@ -88,46 +86,79 @@ internal static class Program
             for (int i = 0; i < qword.Count; i++)
             {
 
-                IEnumerable<IImageResult> google;
-                try
+                if (gg)
                 {
-                    google = await scraper.GetImagesAsync(text);
+                    IEnumerable<IImageResult> google;
+                    try
+                    {
+                        google = await scraper.GetImagesAsync(text);
+                        images.Add(google);
+                    }
+                    catch (Exception e) when (e is HttpRequestException or GScraperException)
+                    {
+                        Console.WriteLine($"Google: {e.Message}");
+                        if (e.Message.Contains("429"))
+                            gg = false;
+                            continue;
+                    }
                 }
-                catch (Exception e) when (e is HttpRequestException or GScraperException)
+
+                if (ddc)
                 {
-                    Console.WriteLine(e.Message);
-                    continue;
+                    IEnumerable<IImageResult> duckduck;
+                    try
+                    {
+                        duckduck = await duck.GetImagesAsync(text);
+                        images.Add(duckduck);
+
+                    }
+                    catch (Exception e) when (e is HttpRequestException or GScraperException)
+                    {
+                        Console.WriteLine($"Duckduckgo: {e.Message}");
+                        if (e.Message.Contains("429"))
+                            ddc = false;
+                            continue;
+                    }
                 }
 
-               // IEnumerable<IImageResult> duckduck;
-               // try
-               // {
-               //     duckduck = await duck.GetImagesAsync(text);
-               //
-               // }
-               // catch (Exception e) when (e is HttpRequestException or GScraperException)
-               // {
-               //     Console.WriteLine(e.Message);
-               //     continue;
-               // }
+                if (brv)
+                {
+                    IEnumerable<IImageResult> bravelist;
+                    try
+                    {
+                        bravelist = await brave.GetImagesAsync(text);
+                        images.Add(bravelist);
+                    }
+                    catch (Exception e) when (e is HttpRequestException or GScraperException)
+                    {
+                        Console.WriteLine($"Brave: {e.Message}");
+                        if (e.Message.Contains("429"))
+                            brv = false;
+                            continue;
+                    }
+                }
 
-                //IEnumerable<IImageResult> bravelist;
-                //try
-                //{
-                //    bravelist = await brave.GetImagesAsync(text);
-                //}
-                //catch (Exception e) when (e is HttpRequestException or GScraperException)
-                //{
-                //    Console.WriteLine(e.Message);
-                //    continue;
-                //}
 
-                var images = new List<IEnumerable<IImageResult>>
-               {
-                 // bravelist,
-                 // duckduck,
-                  google
-               };
+                if (gg && ddc && brv)
+                    await Console.Out.WriteLineAsync("All search engine up");
+                else
+                {
+                    if (!gg)
+                    {
+                        Console.WriteLine("Google stopped");
+                        gg = true;
+                    }
+                    if (!ddc)
+                    {
+                        Console.WriteLine("Duckduckgo stopper");
+                        ddc = true;
+                    }
+                    if (!brv)
+                    {
+                        Console.WriteLine("Brave stopped");
+                        brv = true;
+                    }
+                }
 
                 var url = $"https://www.google.com/search?q={text}&tbm=isch&hl=en";
                 using (HttpClient client = new HttpClient())
@@ -139,9 +170,9 @@ internal static class Program
                             string result = content.ReadAsStringAsync().Result;
                             HtmlDocument document = new();
                             document.LoadHtml(result);
-
+                
                             table = document.DocumentNode.SelectNodes("//a[@class='TwVfHd']");
-
+                
                             try
                             {
                                 if (table != null)
@@ -170,6 +201,9 @@ internal static class Program
                         }
                     }
                 }
+                
+                if (table == null)
+                    await Console.Out.WriteLineAsync("No more Tag found!");
 
                 foreach (var image in images)
                 {
@@ -192,9 +226,6 @@ internal static class Program
                     break;
                 }
 
-                if (table == null)
-                    await Console.Out.WriteLineAsync("No more Tag found!");
-
                 if (redis.GetDatabase().SetLength("image_jobs") == uint.MaxValue - 10000)
                 {
                     await Console.Out.WriteLineAsync($"Redis queue alomst full {redis.GetDatabase().ListLength("image_jobs")}");
@@ -204,7 +235,7 @@ internal static class Program
                 write(text, redis);
 
                 await Console.Out.WriteLineAsync("================================================================================================================================");
-                await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Tag in queue: {qword.Count}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")} / {uint.MaxValue}, already done word: {await redis.GetDatabase().SortedSetLengthAsync(key)}");
+                await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Tag in queue: {qword.Count}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")}({(100 * redis.GetDatabase().SetLength("image_jobs") / uint.MaxValue)}%) / {uint.MaxValue}, already done word: {await redis.GetDatabase().SortedSetLengthAsync(key)}");
                 await Console.Out.WriteLineAsync("================================================================================================================================");
                 await Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
