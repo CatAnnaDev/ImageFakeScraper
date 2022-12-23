@@ -33,9 +33,15 @@ internal static class Program
         bool stopBrave = false;
 
         List<string> qword = new();
-        
+        if (!File.Exists(path))
+        {
+            using (StreamWriter sw = File.CreateText(path))
+            {
+                sw.WriteLine("Meow");
+            }
+        }
 
-        string? text = args[0];
+        string? text = read().Split("\r\n").Last();
         qword.Add(text);
 
         int waittime;
@@ -51,15 +57,6 @@ internal static class Program
         //}
         //
         //qword.Reverse();
-
-        if (!File.Exists(path))
-        {
-            // Create a file to write to.
-            using (StreamWriter sw = File.CreateText(path))
-            {
-                sw.WriteLine("Meow");
-            }
-        }
 
         var options = ConfigurationOptions.Parse("imagefake.net:6379");
         options.Password = "yoloimage";
@@ -149,7 +146,6 @@ internal static class Program
                                         if (!read().Contains(table[j].InnerText))
                                         {
                                             qword.Add(table[j].InnerText);
-                                            //write(table[j].InnerText);
                                         }
                                     }
                                     var listduplicate = RemoveDuplicatesSet(qword);
@@ -205,7 +201,7 @@ internal static class Program
         }
     }
 
-    private static void write(string text) => File.AppendAllText(path, text + Environment.NewLine);
+    private static void write(string text) => File.AppendAllText(path, Environment.NewLine + text);
 
 
     private static string read()
