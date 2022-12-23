@@ -13,6 +13,7 @@ using GScraper.DuckDuckGo;
 using GScraper.Google;
 using HtmlAgilityPack;
 using StackExchange.Redis;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GScraperExample;
 
@@ -23,7 +24,14 @@ internal static class Program
 
     private static async Task Main(string[] args)
     {
-        
+
+        var options = ConfigurationOptions.Parse("imagefake.net:6379");
+        options.Password = "yoloimage";
+        options.CommandMap = CommandMap.Create(new HashSet<string> { "SUBSCRIBE" }, false);
+        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(options);
+
+        //IDatabase conn = redis.GetDatabase();
+
         using var scraper = new GoogleScraper();
         using var duck = new DuckDuckGoScraper();
         using var brave = new BraveScraper();
@@ -37,11 +45,14 @@ internal static class Program
         {
             using (StreamWriter sw = File.CreateText(path))
             {
-                sw.WriteLine("Meow");
+                sw.Write("Meow");
             }
         }
 
-        string? text = read().Split("\r\n").Last();
+        var key = new RedisKey("already_done_ZADD");
+        var meow = await redis.GetDatabase().SortedSetRangeByRankAsync(key, stop:1, order: Order.Descending);
+        string text = meow.FirstOrDefault();
+
         qword.Add(text);
 
         int waittime;
@@ -58,12 +69,6 @@ internal static class Program
         //
         //qword.Reverse();
 
-        var options = ConfigurationOptions.Parse("imagefake.net:6379");
-        options.Password = "yoloimage";
-        options.CommandMap = CommandMap.Create(new HashSet<string> { "SUBSCRIBE" }, false);
-        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(options);
-
-        IDatabase conn = redis.GetDatabase();
 
         if (redis.IsConnected)
         {
@@ -94,17 +99,17 @@ internal static class Program
                     continue;
                 }
 
-                IEnumerable<IImageResult> duckduck;
-                try
-                {
-                    duckduck = await duck.GetImagesAsync(text);
-
-                }
-                catch (Exception e) when (e is HttpRequestException or GScraperException)
-                {
-                    Console.WriteLine(e.Message);
-                    continue;
-                }
+               // IEnumerable<IImageResult> duckduck;
+               // try
+               // {
+               //     duckduck = await duck.GetImagesAsync(text);
+               //
+               // }
+               // catch (Exception e) when (e is HttpRequestException or GScraperException)
+               // {
+               //     Console.WriteLine(e.Message);
+               //     continue;
+               // }
 
                 //IEnumerable<IImageResult> bravelist;
                 //try
@@ -120,7 +125,7 @@ internal static class Program
                 var images = new List<IEnumerable<IImageResult>>
                {
                  // bravelist,
-                  duckduck,
+                 // duckduck,
                   google
                };
 
@@ -143,7 +148,7 @@ internal static class Program
                                 {
                                     for (var j = 0; j < table.Count; j++)
                                     {
-                                        if (!read().Contains(table[j].InnerText))
+                                        if (!await Read(redis, table[j].InnerText))
                                         {
                                             qword.Add(table[j].InnerText);
                                         }
@@ -191,23 +196,34 @@ internal static class Program
                     await Console.Out.WriteLineAsync($"Redis queue alomst full {redis.GetDatabase().ListLength("image_jobs")}");
                     Console.ReadLine();
                 }
-                write(text);
+
+                write(text, redis);
+
+
                 await Console.Out.WriteLineAsync("=====================================================================");
-                await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")} / {uint.MaxValue}");
+                try
+                {
+                    await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")} / {uint.MaxValue}, already done word: {redis.GetDatabase().SetMembers(key).Length}");
+                }
+                catch { }
                 await Console.Out.WriteLineAsync("=====================================================================");
                 await Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
+
+
             }
         }
     }
 
-    private static void write(string text) => File.AppendAllText(path, Environment.NewLine + text);
-
-
-    private static string read()
+   
+    private static async void write(string text, ConnectionMultiplexer redis)
     {
-        return File.ReadAllText(path);
+        var value = new RedisValue(text);
+        var key = new RedisKey("already_done_ZADD");
+        await redis.GetDatabase().SortedSetAddAsync(key, value, await redis.GetDatabase().SortedSetLengthAsync(key) + 1);
     }
+
+    private static async Task<bool> Read(ConnectionMultiplexer redis, string text) => await redis.GetDatabase().SetContainsAsync("already_done_list", text);
 
     public static List<string> RemoveDuplicatesSet(List<string> items)
     {
