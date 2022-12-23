@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -17,15 +18,22 @@ namespace GScraperExample;
 
 internal static class Program
 {
+    static string path = @"done.txt";
+    static string alreadydone = "";
+
     private static async Task Main(string[] args)
     {
+        
         using var scraper = new GoogleScraper();
         using var duck = new DuckDuckGoScraper();
         using var brave = new BraveScraper();
         HtmlNodeCollection table;
         string actual;
 
+        bool stopBrave = false;
+
         List<string> qword = new();
+        
 
         string? text = args[0];
         qword.Add(text);
@@ -36,13 +44,22 @@ internal static class Program
         else
             waittime = 5;
 
-        string[] readText = File.ReadAllLines("google_twunter_lol.txt");
-        foreach (string s in readText)
-        {
-            qword.Add(s);
-        }
+        //string[] readText = File.ReadAllLines("google_twunter_lol.txt");
+        //foreach (string s in readText)
+        //{
+        //    qword.Add(s);
+        //}
+        //
+        //qword.Reverse();
 
-        qword.Reverse();
+        if (!File.Exists(path))
+        {
+            // Create a file to write to.
+            using (StreamWriter sw = File.CreateText(path))
+            {
+                sw.WriteLine("Meow");
+            }
+        }
 
         var options = ConfigurationOptions.Parse("imagefake.net:6379");
         options.Password = "yoloimage";
@@ -57,7 +74,7 @@ internal static class Program
             // ImageDownloader.DownloadImagesFromUrl("https://techno.firenode.net/index.sh");
 
             Thread thread = new Thread(() => Reddit.RedditCrawler(redis));
-            thread.Start();
+            //thread.Start();
 
 
             await Console.Out.WriteLineAsync("Redis Connected");
@@ -68,7 +85,6 @@ internal static class Program
 
             for (int i = 0; i < qword.Count; i++)
             {
-                qword.Distinct().ToList();
 
                 IEnumerable<IImageResult> google;
                 try
@@ -77,7 +93,7 @@ internal static class Program
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
                 {
-                    Console.WriteLine(e);
+                    Console.WriteLine(e.Message);
                     continue;
                 }
 
@@ -85,27 +101,28 @@ internal static class Program
                 try
                 {
                     duckduck = await duck.GetImagesAsync(text);
+
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
                 {
-                    Console.WriteLine(e);
+                    Console.WriteLine(e.Message);
                     continue;
                 }
 
-                IEnumerable<IImageResult> bravelist;
-                try
-                {
-                    bravelist = await brave.GetImagesAsync(text);
-                }
-                catch (Exception e) when (e is HttpRequestException or GScraperException)
-                {
-                    Console.WriteLine(e);
-                    continue;
-                }
+                //IEnumerable<IImageResult> bravelist;
+                //try
+                //{
+                //    bravelist = await brave.GetImagesAsync(text);
+                //}
+                //catch (Exception e) when (e is HttpRequestException or GScraperException)
+                //{
+                //    Console.WriteLine(e.Message);
+                //    continue;
+                //}
 
                 var images = new List<IEnumerable<IImageResult>>
                {
-                  bravelist,
+                 // bravelist,
                   duckduck,
                   google
                };
@@ -129,7 +146,11 @@ internal static class Program
                                 {
                                     for (var j = 0; j < table.Count; j++)
                                     {
-                                        qword.Add(table[j].InnerText);
+                                        if (!read().Contains(table[j].InnerText))
+                                        {
+                                            qword.Add(table[j].InnerText);
+                                            //write(table[j].InnerText);
+                                        }
                                     }
                                     var listduplicate = RemoveDuplicatesSet(qword);
                                     qword.Clear();
@@ -147,13 +168,11 @@ internal static class Program
 
                 foreach (var image in images)
                 {
-                    image.Distinct().ToList();
-
                     foreach (var daata in image)
                     {
                         Console.WriteLine();
                         Console.WriteLine(JsonSerializer.Serialize(daata, daata.GetType(), new JsonSerializerOptions { WriteIndented = true })); ;
-                        redis.GetDatabase().SetAdd("image_jobs", daata.Url);
+                        await redis.GetDatabase().SetAddAsync("image_jobs", daata.Url);
                         Console.WriteLine();
 
                     }
@@ -167,22 +186,31 @@ internal static class Program
                     Console.ReadLine();
                     break;
                 }
+
                 if (table == null)
                     await Console.Out.WriteLineAsync("No more Tag found!");
 
-                if (redis.GetDatabase().SetLength("image_jobs") == uint.MaxValue -10000)
+                if (redis.GetDatabase().SetLength("image_jobs") == uint.MaxValue - 10000)
                 {
                     await Console.Out.WriteLineAsync($"Redis queue alomst full {redis.GetDatabase().ListLength("image_jobs")}");
                     Console.ReadLine();
                 }
-
+                write(text);
                 await Console.Out.WriteLineAsync("=====================================================================");
-                await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i+1]}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")} / {uint.MaxValue}");
+                await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")} / {uint.MaxValue}");
                 await Console.Out.WriteLineAsync("=====================================================================");
                 await Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
             }
         }
+    }
+
+    private static void write(string text) => File.AppendAllText(path, text + Environment.NewLine);
+
+
+    private static string read()
+    {
+        return File.ReadAllText(path);
     }
 
     public static List<string> RemoveDuplicatesSet(List<string> items)
