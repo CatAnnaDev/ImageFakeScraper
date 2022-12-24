@@ -178,7 +178,7 @@ internal static class Program
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Brave stopped");
                         Console.ResetColor();
-                        brv = true;
+                        //brv = true;
                     }
                 }
 
@@ -206,6 +206,9 @@ internal static class Program
                                             if (await Read(redis, table[j].InnerText) == -1)
                                             {
                                                 qword.Add(table[j].InnerText);
+                                                Console.ForegroundColor = ConsoleColor.Green;
+                                                Console.Out.WriteLineAsync($"Tag Added {table[j].InnerText}");
+                                                Console.ResetColor();
                                             }
                                             else
                                             {
@@ -265,7 +268,10 @@ internal static class Program
                         try
                         {
                             await conn.SetAddAsync("image_jobs", push);
+
+                            Console.ForegroundColor = ConsoleColor.Green;
                             Console.WriteLine($"{image.Key} Images found: {list.Count}");
+                            Console.ResetColor();
                         }
                         catch { Console.ForegroundColor = ConsoleColor.Red; Console.Out.WriteLineAsync("Fail upload redis !"); Console.ResetColor(); }
                     }
