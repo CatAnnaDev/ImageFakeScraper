@@ -196,16 +196,20 @@ internal static class Program
                                 {
                                     for (var j = 0; j < table.Count; j++)
                                     {
-                                        if (!await Read(redis, table[j].InnerText))
+                                        try
                                         {
-                                            qword.Add(table[j].InnerText);
+                                            if (!await Read(redis, table[j].InnerText))
+                                            {
+                                                qword.Add(table[j].InnerText);
+                                            }
+                                            else
+                                            {
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                await Console.Out.WriteLineAsync($"Tag already exist {table[j].InnerText}");
+                                                Console.ResetColor();
+                                            }
                                         }
-                                        else
-                                        {
-                                            Console.ForegroundColor = ConsoleColor.Red;
-                                            await Console.Out.WriteLineAsync($"Tag already exist {table[j].InnerText}");
-                                            Console.ResetColor();
-                                        }
+                                        catch { }
                                     }
                                     var listduplicate = RemoveDuplicatesSet(qword);
                                     qword.Clear();
@@ -266,13 +270,20 @@ internal static class Program
 
                 if (conn.SetLength("image_jobs") == uint.MaxValue - 10000)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    await Console.Out.WriteLineAsync($"Redis queue alomst full {conn.ListLength("image_jobs")}");
-                    Console.ResetColor();
-                    Console.ReadLine();
+                    try
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        await Console.Out.WriteLineAsync($"Redis queue alomst full {conn.ListLength("image_jobs")}");
+                        Console.ResetColor();
+                        Console.ReadLine();
+                    }
+                    catch { }
                 }
 
-                write(text, redis);
+                try
+                {
+                    write(text, redis);
+                }catch { }
 
                 await Console.Out.WriteLineAsync("================================================================================================================================");
                 try
