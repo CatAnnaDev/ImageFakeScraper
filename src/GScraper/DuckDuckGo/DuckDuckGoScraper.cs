@@ -70,6 +70,7 @@ public class DuckDuckGoScraper : IDisposable
         GScraperGuards.NotNull(apiEndpoint, nameof(apiEndpoint));
         
         _httpClient.BaseAddress = apiEndpoint;
+        _httpClient.Timeout = TimeSpan.FromSeconds(5);
 
         try
         {
