@@ -20,6 +20,13 @@ internal static class Program
 {
     private static async Task Main(string[] args)
     {
+        Queue<string> word = new();
+        string[] readText = File.ReadAllText("words.txt").Split("\n");
+       
+        foreach (string s in readText)
+        {
+            word.Enqueue(s);
+        }
 
         var options = ConfigurationOptions.Parse("imagefake.net:6379");
         options.Password = "yoloimage";
@@ -31,7 +38,7 @@ internal static class Program
 
         Dictionary<string, IEnumerable<IImageResult>> images = new();
 
-        bool ddc = false;
+        bool ddc = true;
         bool brv = true;
 
         bool printLog = false;
@@ -53,11 +60,11 @@ internal static class Program
         string text = meow.ToString();
         qword.Enqueue(text);
 
-        for(int i = 0; i < 10; i++)
-        {
-            var newword = getNewtag();
-            qword.Enqueue(newword);
-        }
+        
+       // for (int i = 0; i < 10; i++)
+       // {
+       //     qword.Enqueue(getNewtag(word));
+       // }
 
         int waittime;
         if (args.Length > 1)
@@ -288,7 +295,7 @@ internal static class Program
 
                 if (qword.Count <= 2)
                 {
-                    var newword = getNewtag();
+                    var newword = getNewtag(word);
                     qword.Enqueue(newword);
                     text = qword.Dequeue();
                     Console.ForegroundColor = ConsoleColor.Magenta;
@@ -342,16 +349,8 @@ internal static class Program
         }
     }
 
-    private static string getNewtag()
-    {
-        Queue<string> word = new();
-        string[] readText = File.ReadAllLines("words.txt");
-        foreach (string s in readText)
-        {
-            word.Enqueue(s);
-        }
-        return word.Dequeue();
-    }
+
+    private static string getNewtag(Queue<string> word) => word.Dequeue();
 
     private static async void write(string text, ConnectionMultiplexer redis)
     {
