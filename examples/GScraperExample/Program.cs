@@ -348,7 +348,7 @@ internal static class Program
     }
 
 
-    private static async Task<RedisValue> getNewtag(ConnectionMultiplexer redis) => await redis.GetDatabase().ListLeftPopAsync("word_list");
+    private static async Task<RedisValue> getNewtag(ConnectionMultiplexer redis) => await redis.GetDatabase().ListLeftPopAsync("words_list");
 
     private static async void write(string text, ConnectionMultiplexer redis)
     {
