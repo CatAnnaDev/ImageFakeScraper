@@ -237,8 +237,12 @@ internal static class Program
                         foreach (var daata in image)
                         {
                             Console.WriteLine();
-                            Console.WriteLine(JsonSerializer.Serialize(daata, daata.GetType(), new JsonSerializerOptions { WriteIndented = true })); ;
-                            await conn.SetAddAsync("image_jobs", daata.Url);
+                            Console.WriteLine(JsonSerializer.Serialize(daata, daata.GetType(), new JsonSerializerOptions { WriteIndented = true }));
+                            try
+                            {
+                                await conn.SetAddAsync("image_jobs", daata.Url);
+                            }
+                            catch { Console.ForegroundColor = ConsoleColor.Red; await Console.Out.WriteLineAsync("Fail upload redis !"); Console.ResetColor(); }
                             Console.WriteLine();
 
                         }

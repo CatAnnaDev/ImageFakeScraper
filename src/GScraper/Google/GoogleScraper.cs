@@ -105,8 +105,10 @@ public class GoogleScraper : IDisposable
         HttpResponseMessage resp = await _httpClient.GetAsync(uri);
         if(resp.StatusCode == HttpStatusCode.TooManyRequests)
         {
+            Console.ForegroundColor = ConsoleColor.Red;
             await Console.Out.WriteLineAsync("Google stopped: TooManyRequests (429)");
             gg = false;
+            Console.ResetColor();
         }
 
         byte[] bytes = await resp.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
