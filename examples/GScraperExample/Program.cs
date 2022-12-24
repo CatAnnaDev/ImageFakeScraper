@@ -11,6 +11,7 @@ using GScraper.DuckDuckGo;
 using GScraper.Google;
 using HtmlAgilityPack;
 using StackExchange.Redis;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GScraperExample;
 
@@ -29,6 +30,8 @@ internal static class Program
 
         bool ddc = true;
         bool brv = true;
+
+        bool printLog = true;
 
         IDatabase conn = redis.GetDatabase();
 
@@ -238,18 +241,32 @@ internal static class Program
                 {
                     if (image != null)
                     {
+
+                        var list = new List<string>();
+
                         foreach (var daata in image)
                         {
-                            Console.WriteLine();
-                            Console.WriteLine(JsonSerializer.Serialize(daata, daata.GetType(), new JsonSerializerOptions { WriteIndented = true }));
-                            try
+                            if (printLog)
                             {
-                                await conn.SetAddAsync("image_jobs", daata.Url);
+                                Console.WriteLine();
+                                Console.WriteLine(JsonSerializer.Serialize(daata, daata.GetType(), new JsonSerializerOptions { WriteIndented = true }));
+                                Console.WriteLine(daata.ToString());
                             }
-                            catch { Console.ForegroundColor = ConsoleColor.Red; Console.Out.WriteLineAsync("Fail upload redis !"); Console.ResetColor(); }
-                            Console.WriteLine();
+                            list.Add(daata.Url);
 
+                            if (printLog)
+                                Console.WriteLine();
                         }
+
+                        var parse = list.ToArray();
+                        var push = Array.ConvertAll(parse, item => (RedisValue)item);
+                        try
+                        {
+                            await conn.SetAddAsync("image_jobs", push);
+                        }
+                        catch { Console.ForegroundColor = ConsoleColor.Red; Console.Out.WriteLineAsync("Fail upload redis !"); Console.ResetColor(); }
+
+                        list.Clear();
                     }
                     else
                     {
