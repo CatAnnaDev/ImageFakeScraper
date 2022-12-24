@@ -51,7 +51,7 @@ internal static class Program
         if (args.Length > 1)
             waittime = int.Parse(args[1]);
         else
-            waittime = 5;
+            waittime = 0;
 
         //string[] readText = File.ReadAllLines("google_twunter_lol.txt");
         //foreach (string s in readText)
@@ -114,7 +114,7 @@ internal static class Program
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"Duckduckgo: {e.Message}");
                         Console.ResetColor();
-                        if (e.Message.Contains("token"))
+                        if (e.Message.Contains("token") || e.Message.Contains("403"))
                             ddc = false;
                             continue;
                     }
@@ -258,7 +258,11 @@ internal static class Program
                 write(text, redis);
 
                 await Console.Out.WriteLineAsync("================================================================================================================================");
-                await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Tag in queue: {qword.Count}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")}({(100 * redis.GetDatabase().SetLength("image_jobs") / uint.MaxValue)}%) / {uint.MaxValue}, already done word: {await redis.GetDatabase().SortedSetLengthAsync(key)}");
+                try
+                {
+                    await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Tag in queue: {qword.Count}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")}({(100 * redis.GetDatabase().SetLength("image_jobs") / uint.MaxValue)}%) / {uint.MaxValue}, already done word: {await redis.GetDatabase().SortedSetLengthAsync(key)}");
+                }
+                catch { }
                 await Console.Out.WriteLineAsync("================================================================================================================================");
                 await Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
