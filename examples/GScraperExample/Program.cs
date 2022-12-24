@@ -226,13 +226,20 @@ internal static class Program
 
                 foreach (var image in images)
                 {
-                    foreach (var daata in image)
+                    if (image != null)
                     {
-                        Console.WriteLine();
-                        Console.WriteLine(JsonSerializer.Serialize(daata, daata.GetType(), new JsonSerializerOptions { WriteIndented = true })); ;
-                        await redis.GetDatabase().SetAddAsync("image_jobs", daata.Url);
-                        Console.WriteLine();
+                        foreach (var daata in image)
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine(JsonSerializer.Serialize(daata, daata.GetType(), new JsonSerializerOptions { WriteIndented = true })); ;
+                            await redis.GetDatabase().SetAddAsync("image_jobs", daata.Url);
+                            Console.WriteLine();
 
+                        }
+                    }
+                    else
+                    {
+                        await Console.Out.WriteLineAsync("Image is null fix it yourself !");
                     }
                 }
                 images.Clear();
