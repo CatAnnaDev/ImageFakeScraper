@@ -293,7 +293,7 @@ internal static class Program
 
                 if (qword.Count <= 2)
                 {
-                    var newword = getNewtag(redis);
+                    var newword = await getNewtag(redis);
                     qword.Enqueue(newword.ToString());
                     text = qword.Dequeue();
                     Console.ForegroundColor = ConsoleColor.Magenta;
