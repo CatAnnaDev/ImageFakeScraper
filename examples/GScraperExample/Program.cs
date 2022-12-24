@@ -263,6 +263,7 @@ internal static class Program
                         try
                         {
                             await conn.SetAddAsync("image_jobs", push);
+                            Console.WriteLine($"Images found: {list.Count}");
                         }
                         catch { Console.ForegroundColor = ConsoleColor.Red; Console.Out.WriteLineAsync("Fail upload redis !"); Console.ResetColor(); }
 
