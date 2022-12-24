@@ -126,6 +126,8 @@ public class BraveScraper : IDisposable
         if (license != BraveImageLicense.All)
             url += $"&license={license}";
 
+        url += "&source=web";
+
         return url;
     }
 
