@@ -306,7 +306,7 @@ internal static class Program
                 Console.Out.WriteLineAsync("================================================================================================================================");
                 try
                 {
-                    Console.Out.WriteLineAsync($"Previous:\t{text},\nNext:\t\t{qword[i + 1]},\nTags:\t\t{qword.Count},\nRedis Length:\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%),\nWords Length:\t{await redis.GetDatabase().SortedSetLengthAsync(key)}");
+                    Console.Out.WriteLineAsync($"Previous\t{text}\nNext\t\t{qword[i + 1]}\nTags\t\t{qword.Count}\nRedis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\nWords Length\t{await redis.GetDatabase().SortedSetLengthAsync(key)}");
                 }
                 catch { }
                 Console.Out.WriteLineAsync("================================================================================================================================");
