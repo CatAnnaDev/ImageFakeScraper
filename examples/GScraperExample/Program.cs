@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
@@ -9,6 +10,7 @@ using GScraper.Brave;
 using GScraper.DuckDuckGo;
 using GScraper.Google;
 using HtmlAgilityPack;
+using Reddit.Things;
 using StackExchange.Redis;
 
 namespace GScraperExample;
@@ -28,7 +30,7 @@ internal static class Program
 
         Dictionary<string, IEnumerable<IImageResult>> images = new();
 
-        bool ddc = true;
+        bool ddc = false;
         bool brv = true;
 
         bool printLog = false;
@@ -169,7 +171,7 @@ internal static class Program
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Duckduckgo stopped");
                         Console.ResetColor();
-                        ddc = true;
+                        //ddc = true;
                     }
                     if (!brv)
                     {
@@ -273,7 +275,12 @@ internal static class Program
                     }
                 }
                 images.Clear();
-                text = qword[i];
+
+                try
+                {
+                    text = qword[i];
+                }
+                catch { Console.WriteLine("Missing tag pick a new random"); text = getNewtag(); }
 
                 if (!redis.IsConnected)
                 {
@@ -312,6 +319,22 @@ internal static class Program
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
             }
         }
+    }
+
+    private static string getNewtag()
+    {
+        List<string> word = new();
+        string[] readText = File.ReadAllLines("words.txt");
+        foreach (string s in readText)
+        {
+            word.Add(s);
+        }
+
+        Random truc = new Random();
+
+
+        return word[truc.Next(0, word.Count)];
+
     }
 
     private static async void write(string text, ConnectionMultiplexer redis)
