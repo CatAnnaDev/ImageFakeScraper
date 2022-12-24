@@ -26,7 +26,7 @@ internal static class Program
 
         List<IEnumerable<IImageResult>> images = new();
 
-        bool gg = true;
+        bool gg = GoogleScraper.gg;
         bool ddc = false;
         bool brv = false;
         bool yd = false;
@@ -82,7 +82,7 @@ internal static class Program
             for (int i = 0; i < qword.Count; i++)
             {
 
-                if (gg)
+                if (GoogleScraper.gg)
                 {
                     IEnumerable<IImageResult> google;
                     try
@@ -96,27 +96,8 @@ internal static class Program
                         Console.WriteLine($"Google: {e.Message}");
                         Console.ResetColor();
                         if (e.Message.Contains("429"))
-                            gg = false;
+                            GoogleScraper.gg = false;
                             continue;
-                    }
-                }
-
-                if (yd)
-                {
-                    IEnumerable<IImageResult> yandex;
-                    try
-                    {
-                        yandex = await scraper.GetImagesAsync(text);
-                        images.Add(yandex);
-                    }
-                    catch (Exception e) when (e is HttpRequestException or GScraperException)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"yandex: {e.Message}");
-                        Console.ResetColor();
-                        if (e.Message.Contains("429"))
-                            gg = false;
-                        continue;
                     }
                 }
 
@@ -159,8 +140,14 @@ internal static class Program
                     }
                 }
 
-
-                if (gg && ddc && brv)
+                if (!GoogleScraper.gg && !ddc && !brv)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    await Console.Out.WriteLineAsync("All search engine down for now");
+                    Console.ResetColor();
+                    break;
+                }
+                else if (GoogleScraper.gg && ddc && brv)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     await Console.Out.WriteLineAsync("All search engine up");
@@ -173,12 +160,12 @@ internal static class Program
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Google stopped");
                         Console.ResetColor();
-                        gg = true;
+                        GoogleScraper.gg = true;
                     }
                     if (!ddc)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Duckduckgo stopper");
+                        Console.WriteLine("Duckduckgo stopped");
                         Console.ResetColor();
                         ddc = true;
                     }
@@ -190,6 +177,9 @@ internal static class Program
                         brv = true;
                     }
                 }
+
+
+
 
                 var url = $"https://www.google.com/search?q={text}&tbm=isch&hl=en";
                 using (HttpClient client = new HttpClient())

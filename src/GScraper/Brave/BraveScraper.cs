@@ -60,10 +60,11 @@ public class BraveScraper : IDisposable
 
         _httpClient.BaseAddress = apiEndpoint;
 
-        if (_httpClient.DefaultRequestHeaders.UserAgent.Count == 0)
+        try
         {
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_defaultUserAgent);
         }
+        catch { _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_defaultUserAgent); }
     }
 
     /// <summary>
