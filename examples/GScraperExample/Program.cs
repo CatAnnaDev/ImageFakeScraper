@@ -26,7 +26,7 @@ internal static class Program
         options.CommandMap = CommandMap.Create(new HashSet<string> { "SUBSCRIBE" }, false);
         ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(options);
 
-        write("mot random en cas de besoin", redis);
+        //write("mot random en cas de besoin", redis);
 
         Dictionary<string, IEnumerable<IImageResult>> images = new();
 
