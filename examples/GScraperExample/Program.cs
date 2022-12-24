@@ -276,11 +276,13 @@ internal static class Program
                 }
                 images.Clear();
 
-                try
+                if (qword.Count == 0)
                 {
-                    text = qword[i];
+                    text = getNewtag();
+                    Console.WriteLine("Missing tag pick a new random");
                 }
-                catch { Console.WriteLine("Missing tag pick a new random"); text = getNewtag(); }
+                else
+                    text = qword[i];
 
                 if (!redis.IsConnected)
                 {
