@@ -19,10 +19,7 @@ public class BraveScraper : IDisposable
     /// </summary>
     public const string DefaultApiEndpoint = "https://search.brave.com/api/";
 
-    static Random r = new Random();
-    static int rInt = r.Next(0, 14);
-
-    private string _defaultUserAgent = ChooseUserAgent(rInt);
+    private string _defaultUserAgent = GScraperRandomUa.RandomUserAgent;
     private static readonly Uri _defaultBaseAddress = new(DefaultApiEndpoint);
 
     private readonly HttpClient _httpClient;

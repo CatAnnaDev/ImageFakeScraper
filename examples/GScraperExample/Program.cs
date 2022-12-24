@@ -29,6 +29,7 @@ internal static class Program
         bool gg = true;
         bool ddc = false;
         bool brv = false;
+        bool yd = false;
 
         //IDatabase conn = redis.GetDatabase();
 
@@ -97,6 +98,25 @@ internal static class Program
                         if (e.Message.Contains("429"))
                             gg = false;
                             continue;
+                    }
+                }
+
+                if (yd)
+                {
+                    IEnumerable<IImageResult> yandex;
+                    try
+                    {
+                        yandex = await scraper.GetImagesAsync(text);
+                        images.Add(yandex);
+                    }
+                    catch (Exception e) when (e is HttpRequestException or GScraperException)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"yandex: {e.Message}");
+                        Console.ResetColor();
+                        if (e.Message.Contains("429"))
+                            gg = false;
+                        continue;
                     }
                 }
 

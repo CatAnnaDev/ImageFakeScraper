@@ -27,10 +27,7 @@ public class DuckDuckGoScraper : IDisposable
 
     private static ReadOnlySpan<byte> TokenStart => new[] { (byte)'v', (byte)'q', (byte)'d', (byte)'=', (byte)'\'' };
 
-    static Random r = new Random();
-    static int rInt = r.Next(0, 14);
-
-    private string _defaultUserAgent = ChooseUserAgent(rInt);
+    private string _defaultUserAgent = GScraperRandomUa.RandomUserAgent;
 
     private static  readonly Uri _defaultBaseAddress = new(DefaultApiEndpoint);
 
