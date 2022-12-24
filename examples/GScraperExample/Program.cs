@@ -21,17 +21,16 @@ internal static class Program
 
         var options = ConfigurationOptions.Parse("imagefake.net:6379");
         options.Password = "yoloimage";
+        options.ReconnectRetryPolicy = new ExponentialRetry(10);
         options.CommandMap = CommandMap.Create(new HashSet<string> { "SUBSCRIBE" }, false);
         ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(options);
 
         List<IEnumerable<IImageResult>> images = new();
 
-        bool gg = GoogleScraper.gg;
         bool ddc = false;
         bool brv = false;
-        bool yd = false;
 
-        //IDatabase conn = redis.GetDatabase();
+        IDatabase conn = redis.GetDatabase();
 
         using var scraper = new GoogleScraper();
         using var duck = new DuckDuckGoScraper();
@@ -44,7 +43,7 @@ internal static class Program
         List<string> qword = new();
 
         var key = new RedisKey("already_done_ZADD");
-        var meow = await redis.GetDatabase().SortedSetRangeByRankAsync(key, stop:1, order: Order.Descending);
+        var meow = await conn.SortedSetRangeByRankAsync(key, stop:1, order: Order.Descending);
         string text = meow.FirstOrDefault();
         qword.Add(text);
 
@@ -68,7 +67,7 @@ internal static class Program
 
             // ImageDownloader.DownloadImagesFromUrl("https://techno.firenode.net/index.sh");
 
-            Thread thread = new Thread(() => Reddit.RedditCrawler(redis));
+            //Thread thread = new Thread(() => Reddit.RedditCrawler(redis));
             //thread.Start();
 
             Console.ForegroundColor = ConsoleColor.Green;
@@ -155,7 +154,7 @@ internal static class Program
                 }
                 else
                 {
-                    if (!gg)
+                    if (!GoogleScraper.gg)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Google stopped");
@@ -177,9 +176,6 @@ internal static class Program
                         brv = true;
                     }
                 }
-
-
-
 
                 var url = $"https://www.google.com/search?q={text}&tbm=isch&hl=en";
                 using (HttpClient client = new HttpClient())
@@ -242,7 +238,7 @@ internal static class Program
                         {
                             Console.WriteLine();
                             Console.WriteLine(JsonSerializer.Serialize(daata, daata.GetType(), new JsonSerializerOptions { WriteIndented = true })); ;
-                            await redis.GetDatabase().SetAddAsync("image_jobs", daata.Url);
+                            await conn.SetAddAsync("image_jobs", daata.Url);
                             Console.WriteLine();
 
                         }
@@ -264,10 +260,10 @@ internal static class Program
                     break;
                 }
 
-                if (redis.GetDatabase().SetLength("image_jobs") == uint.MaxValue - 10000)
+                if (conn.SetLength("image_jobs") == uint.MaxValue - 10000)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    await Console.Out.WriteLineAsync($"Redis queue alomst full {redis.GetDatabase().ListLength("image_jobs")}");
+                    await Console.Out.WriteLineAsync($"Redis queue alomst full {conn.ListLength("image_jobs")}");
                     Console.ResetColor();
                     Console.ReadLine();
                 }
@@ -277,7 +273,7 @@ internal static class Program
                 await Console.Out.WriteLineAsync("================================================================================================================================");
                 try
                 {
-                    await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Tag in queue: {qword.Count}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")}({(100.0 * (float)redis.GetDatabase().SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%) / {uint.MaxValue}, already done word: {await redis.GetDatabase().SortedSetLengthAsync(key)}");
+                    await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Tag in queue: {qword.Count}, Redis ListLen: {conn.SetLength("image_jobs")}({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%) / {uint.MaxValue}, already done word: {await redis.GetDatabase().SortedSetLengthAsync(key)}");
                 }
                 catch { }
                 await Console.Out.WriteLineAsync("================================================================================================================================");
