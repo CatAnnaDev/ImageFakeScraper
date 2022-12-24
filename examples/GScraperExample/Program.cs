@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
@@ -45,12 +46,18 @@ internal static class Program
 
         bool stopBrave = false;
 
-        List<string> qword = new();
+        Queue<string> qword = new();
 
         var key = new RedisKey("already_done_list");
         var meow = await conn.ListGetByIndexAsync(key, 0);
         string text = meow.ToString();
-        qword.Add(text);
+        qword.Enqueue(text);
+
+        for(int i = 0; i < 10; i++)
+        {
+            var newword = getNewtag();
+            qword.Enqueue(newword);
+        }
 
         int waittime;
         if (args.Length > 1)
@@ -80,10 +87,10 @@ internal static class Program
             Console.ResetColor();
 
             Console.Out.WriteLineAsync("=====================================================================");
-            Console.Out.WriteLineAsync(qword[0]);
+            Console.Out.WriteLineAsync(qword.First());
             Console.Out.WriteLineAsync("=====================================================================");
 
-            for (int i = 0; i < qword.Count; i++)
+            while(qword.Count != 0)
             {
 
                 if (GoogleScraper.gg)
@@ -205,7 +212,7 @@ internal static class Program
                                         {
                                             if (await Read(redis, table[j].InnerText) == -1)
                                             {
-                                                qword.Add(table[j].InnerText);
+                                                qword.Enqueue(table[j].InnerText);
                                                 Console.ForegroundColor = ConsoleColor.Green;
                                                 Console.Out.WriteLineAsync($"Tag Added {table[j].InnerText}");
                                                 Console.ResetColor();
@@ -219,9 +226,6 @@ internal static class Program
                                         }
                                         catch { }
                                     }
-                                    var listduplicate = RemoveDuplicatesSet(qword);
-                                    qword.Clear();
-                                    qword.AddRange(listduplicate);
                                 }
                             }
                             catch (Exception e)
@@ -282,14 +286,20 @@ internal static class Program
                 }
                 images.Clear();
 
-                if (qword.Count == 0)
+                if (qword.Count <= 2)
                 {
-                    text = getNewtag();
-                    Console.WriteLine("Missing tag pick a new random");
+                    var newword = getNewtag();
+                    qword.Enqueue(newword);
+                    text = qword.Dequeue();
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine($"Missing tag pick a new random: {newword}");
+                    Console.ResetColor();
                 }
                 else
-                    text = qword[i];
-
+                {
+                    text = qword.Dequeue();
+                }
+                
                 if (!redis.IsConnected)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -319,9 +329,12 @@ internal static class Program
                 Console.Out.WriteLineAsync("================================================================================================================================");
                 try
                 {
-                    Console.Out.WriteLineAsync($"Previous\t{text}\nNext\t\t{qword[i + 1]}\nTags\t\t{qword.Count}\nRedis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\nWords Length\t{await redis.GetDatabase().ListLengthAsync(key)}");
+                    Console.Out.WriteLineAsync($"Previous\t{text}\nNext\t\t{qword.ToArray()[qword.Count]}\nTags\t\t{qword.Count}\nRedis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\nWords Length\t{await redis.GetDatabase().ListLengthAsync(key)}");
                 }
-                catch { }
+                catch
+                {
+                    Console.Out.WriteLineAsync($"Previous\t{text}\nTags\t\t{qword.Count}\nRedis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\nWords Length\t{await redis.GetDatabase().ListLengthAsync(key)}");
+                }
                 Console.Out.WriteLineAsync("================================================================================================================================");
                 Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
@@ -331,18 +344,13 @@ internal static class Program
 
     private static string getNewtag()
     {
-        List<string> word = new();
+        Queue<string> word = new();
         string[] readText = File.ReadAllLines("words.txt");
         foreach (string s in readText)
         {
-            word.Add(s);
+            word.Enqueue(s);
         }
-
-        Random truc = new Random();
-
-
-        return word[truc.Next(0, word.Count)];
-
+        return word.Dequeue();
     }
 
     private static async void write(string text, ConnectionMultiplexer redis)
@@ -353,22 +361,4 @@ internal static class Program
     }
 
     private static async Task<long> Read(ConnectionMultiplexer redis, string text) => await redis.GetDatabase().ListPositionAsync("already_done_list", text);
-
-    public static List<string> RemoveDuplicatesSet(List<string> items)
-    {
-        if (items.Count == 1)
-            return items;
-
-        var result = new List<string>();
-        var set = new HashSet<string>();
-        for (int i = 0; i < items.Count; i++)
-        {
-            if (!set.Contains(items[i]))
-            {
-                result.Add(items[i]);
-                set.Add(items[i]);
-            }
-        }
-        return result;
-    }
 }
