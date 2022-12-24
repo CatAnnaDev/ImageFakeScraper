@@ -11,7 +11,6 @@ using GScraper.Brave;
 using GScraper.DuckDuckGo;
 using GScraper.Google;
 using HtmlAgilityPack;
-using Reddit.Things;
 using StackExchange.Redis;
 
 namespace GScraperExample;
@@ -294,8 +293,8 @@ internal static class Program
 
                 if (qword.Count <= 2)
                 {
-                    var newword = getNewtag(word);
-                    qword.Enqueue(newword);
+                    var newword = getNewtag(redis);
+                    qword.Enqueue(newword.ToString());
                     text = qword.Dequeue();
                     Console.ForegroundColor = ConsoleColor.Magenta;
                     Console.WriteLine($"Missing tag pick a new random: {newword}");
@@ -349,7 +348,7 @@ internal static class Program
     }
 
 
-    private static string getNewtag(Queue<string> word) => word.Dequeue();
+    private static async Task<RedisValue> getNewtag(ConnectionMultiplexer redis) => await redis.GetDatabase().ListLeftPopAsync("word_list");
 
     private static async void write(string text, ConnectionMultiplexer redis)
     {
