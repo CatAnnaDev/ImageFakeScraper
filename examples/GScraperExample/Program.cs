@@ -11,7 +11,6 @@ using GScraper.DuckDuckGo;
 using GScraper.Google;
 using HtmlAgilityPack;
 using StackExchange.Redis;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GScraperExample;
 
@@ -25,8 +24,6 @@ internal static class Program
         options.ReconnectRetryPolicy = new ExponentialRetry(10);
         options.CommandMap = CommandMap.Create(new HashSet<string> { "SUBSCRIBE" }, false);
         ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(options);
-
-       // List<KeyValuePair<string, IEnumerable<IImageResult>>> images = new();
 
         Dictionary<string, IEnumerable<IImageResult>> images = new();
 
@@ -47,9 +44,9 @@ internal static class Program
 
         List<string> qword = new();
 
-        var key = new RedisKey("already_done_ZADD");
-        var meow = await conn.SortedSetRangeByRankAsync(key, stop:1, order: Order.Descending);
-        string text = meow.FirstOrDefault();
+        var key = new RedisKey("already_done_list");
+        var meow = await conn.ListGetByIndexAsync(key, 0);
+        string text = meow.ToString();
         qword.Add(text);
 
         int waittime;
@@ -203,7 +200,7 @@ internal static class Program
                                     {
                                         try
                                         {
-                                            if (!await Read(redis, table[j].InnerText))
+                                            if (await Read(redis, table[j].InnerText) == -1)
                                             {
                                                 qword.Add(table[j].InnerText);
                                             }
@@ -319,11 +316,11 @@ internal static class Program
     private static async void write(string text, ConnectionMultiplexer redis)
     {
         var value = new RedisValue(text);
-        var key = new RedisKey("already_done_ZADD");
-        await redis.GetDatabase().SortedSetAddAsync(key, value, await redis.GetDatabase().SortedSetLengthAsync(key) + 1);
+        var key = new RedisKey("already_done_list");
+        await redis.GetDatabase().ListLeftPushAsync(key, value);
     }
 
-    private static async Task<bool> Read(ConnectionMultiplexer redis, string text) => await redis.GetDatabase().SetContainsAsync("already_done_list", text);
+    private static async Task<long> Read(ConnectionMultiplexer redis, string text) => await redis.GetDatabase().ListPositionAsync("already_done_list", text);
 
     public static List<string> RemoveDuplicatesSet(List<string> items)
     {
