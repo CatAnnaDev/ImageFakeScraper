@@ -287,7 +287,7 @@ internal static class Program
                 await Console.Out.WriteLineAsync("================================================================================================================================");
                 try
                 {
-                    await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Tag in queue: {qword.Count}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")}({(100 * redis.GetDatabase().SetLength("image_jobs") / uint.MaxValue)}%) / {uint.MaxValue}, already done word: {await redis.GetDatabase().SortedSetLengthAsync(key)}");
+                    await Console.Out.WriteLineAsync($"Previous done: {text}, Next: {qword[i + 1]}, Tag in queue: {qword.Count}, Redis ListLen: {redis.GetDatabase().SetLength("image_jobs")}({(100.0 * (float)redis.GetDatabase().SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%) / {uint.MaxValue}, already done word: {await redis.GetDatabase().SortedSetLengthAsync(key)}");
                 }
                 catch { }
                 await Console.Out.WriteLineAsync("================================================================================================================================");
