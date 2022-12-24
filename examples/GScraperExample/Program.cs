@@ -26,7 +26,9 @@ internal static class Program
         options.CommandMap = CommandMap.Create(new HashSet<string> { "SUBSCRIBE" }, false);
         ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(options);
 
-        List<IEnumerable<IImageResult>> images = new();
+       // List<KeyValuePair<string, IEnumerable<IImageResult>>> images = new();
+
+        Dictionary<string, IEnumerable<IImageResult>> images = new();
 
         bool ddc = true;
         bool brv = true;
@@ -90,7 +92,7 @@ internal static class Program
                     try
                     {
                         google = await scraper.GetImagesAsync(text);
-                        images.Add(google);
+                        images.Add("Google", google);
                     }
                     catch (Exception e) when (e is HttpRequestException or GScraperException)
                     {
@@ -109,7 +111,7 @@ internal static class Program
                     try
                     {
                         duckduck = await duck.GetImagesAsync(text);
-                        images.Add(duckduck);
+                        images.Add("DuckDuckGo", duckduck);
 
                     }
                     catch (Exception e) when (e is HttpRequestException or GScraperException)
@@ -129,7 +131,7 @@ internal static class Program
                     try
                     {
                         bravelist = await brave.GetImagesAsync(text);
-                        images.Add(bravelist);
+                        images.Add("Brave", bravelist);
                     }
                     catch (Exception e) when (e is HttpRequestException or GScraperException)
                     {
@@ -239,12 +241,12 @@ internal static class Program
 
                 foreach (var image in images)
                 {
-                    if (image != null)
+                    if (image.Value != null)
                     {
 
                         var list = new List<string>();
 
-                        foreach (var daata in image)
+                        foreach (var daata in image.Value)
                         {
                             if (printLog)
                             {
@@ -263,11 +265,9 @@ internal static class Program
                         try
                         {
                             await conn.SetAddAsync("image_jobs", push);
-                            Console.WriteLine($"Images found: {list.Count}");
+                            Console.WriteLine($"{image.Key} Images found: {list.Count}");
                         }
                         catch { Console.ForegroundColor = ConsoleColor.Red; Console.Out.WriteLineAsync("Fail upload redis !"); Console.ResetColor(); }
-
-                        list.Clear();
                     }
                     else
                     {
