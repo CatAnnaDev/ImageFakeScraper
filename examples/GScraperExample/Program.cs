@@ -23,6 +23,8 @@ internal static class Program
         Queue<string> word = new();
         string[] readText = File.ReadAllText("words.txt").Split("\n");
 
+        DateTime uptime = DateTime.Now;
+
         foreach (string s in readText)
         {
             word.Enqueue(s);
@@ -334,11 +336,12 @@ internal static class Program
                 catch { }
 
                 timer.Stop();
-
+                var uptime2 = (uptime - DateTime.Now).ToString("dd / HH:mm:ss");
                 await Console.Out.WriteLineAsync("================================================================================================================================");
                 try
                 {
                     await Console.Out.WriteLineAsync(
+                         $"Uptime\t\t {uptime2}" +
                          $"Done in\t\t{timer.ElapsedMilliseconds} ms\n" +
                          $"Previous\t{text}\nNext\t\t{qword.ToArray()[qword.Count - 1]}\nT" +
                          $"ags\t\t{qword.Count}\n" +
@@ -349,6 +352,7 @@ internal static class Program
                 catch
                 {
                     await Console.Out.WriteLineAsync(
+                        $"Uptime\t\t {uptime2}" +
                         $"Done in\t\t{timer.ElapsedMilliseconds} ms\n" +
                         $"Previous\t{text}\n" +
                         $"Tags\t\t{qword.Count}\n" +
