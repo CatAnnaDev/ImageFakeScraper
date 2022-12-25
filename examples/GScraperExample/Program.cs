@@ -23,7 +23,7 @@ internal static class Program
         Queue<string> word = new();
         string[] readText = File.ReadAllText("words.txt").Split("\n");
 
-        DateTime uptime = DateTime.Now;
+        //DateTime uptime = DateTime.Now;
 
         foreach (string s in readText)
         {
@@ -98,6 +98,7 @@ internal static class Program
             await Console.Out.WriteLineAsync(qword.First());
             await Console.Out.WriteLineAsync("=====================================================================");
             Stopwatch timer = new();
+            Stopwatch uptime = new();
             while (qword.Count != 0)
             {
                 timer.Start();
@@ -336,7 +337,7 @@ internal static class Program
                 catch { }
 
                 timer.Stop();
-                var uptime2 = (uptime - DateTime.Now).ToString("dd / HH:mm:ss");
+                var uptime2 = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours.ToString("00")}:{uptime.Elapsed.Minutes.ToString("00")}:{uptime.Elapsed.Seconds.ToString("00")}";
                 await Console.Out.WriteLineAsync("================================================================================================================================");
                 try
                 {
