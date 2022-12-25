@@ -194,16 +194,10 @@ internal static class Program
                     }
                 }
 
-                var url = $"https://www.google.com/search?q={text}&tbm=isch&iflsig=AJiK0e8AAAAAY6gsYrSXerB7Osm0ErMWBvg3Tj3TzP7X&sclient=img";
+                var url = $"https://www.google.com/search?q=%7Btext%7D&tbm=isch&hl=en";
                 using (HttpClient client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
-                    client.DefaultRequestHeaders.Add("sec-ch-ua-platform", "Windows");
-                    client.DefaultRequestHeaders.Add("sec-ch-ua-full-version", "08.0.5359.125");
-                    client.DefaultRequestHeaders.Add("sec-ch-ua-bitness", "64");
-                    client.DefaultRequestHeaders.Add("sec-ch-ua-arch", "x86");
-                    client.DefaultRequestHeaders.Add("Referer", "ttps://images.google.com/");
-                    client.DefaultRequestHeaders.Add("sec-ch-ua", "Not?A_Brand\";v=\"8\", \"Chromium\";v=\"108\", \"Google Chrome\";v=\"108");
+                    client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
 
                     using (HttpResponseMessage response = client.GetAsync(url).Result)
                     {
