@@ -194,11 +194,9 @@ internal static class Program
                     }
                 }
 
-                var url = $"https://www.google.com/search?q=%7Btext%7D&tbm=isch&hl=en";
+                var url = $"https://www.google.com/search?q={text}&tbm=isch&hl=en";
                 using (HttpClient client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
-
                     using (HttpResponseMessage response = client.GetAsync(url).Result)
                     {
                         using (HttpContent content = response.Content)
