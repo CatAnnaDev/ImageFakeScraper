@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -31,7 +28,7 @@ public class DuckDuckGoScraper : IDisposable
 
     private string _defaultUserAgent = GScraperRandomUa.RandomUserAgent;
 
-    private static  readonly Uri _defaultBaseAddress = new(DefaultApiEndpoint);
+    private static readonly Uri _defaultBaseAddress = new(DefaultApiEndpoint);
 
     private readonly HttpClient _httpClient;
     private bool _disposed;
@@ -68,7 +65,7 @@ public class DuckDuckGoScraper : IDisposable
     {
         GScraperGuards.NotNull(client, nameof(client));
         GScraperGuards.NotNull(apiEndpoint, nameof(apiEndpoint));
-        
+
         _httpClient.BaseAddress = apiEndpoint;
         //_httpClient.Timeout = TimeSpan.FromSeconds(5);
 
@@ -138,16 +135,17 @@ public class DuckDuckGoScraper : IDisposable
 
         return url;
     }
-    
+
     private async Task<string> GetTokenAsync(string query)
     {
         try
         {
             byte[] bytes = await _httpClient.GetByteArrayAsync(new Uri($"?q={Uri.EscapeDataString(query)}", UriKind.Relative)).ConfigureAwait(false);
             return GetToken(bytes);
-        }catch { return null; }
+        }
+        catch { return null; }
     }
-    
+
     private static string GetToken(ReadOnlySpan<byte> rawHtml)
     {
         int startIndex = rawHtml.IndexOf(TokenStart);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -102,9 +101,9 @@ public class GoogleScraper : IDisposable
 
         var uri = new Uri(BuildImageQuery(query, safeSearch, size, color, type, time, license, language), UriKind.Relative);
         completUrl += uri;
-        
+
         HttpResponseMessage resp = await _httpClient.GetAsync(uri);
-        if(resp.StatusCode == HttpStatusCode.TooManyRequests)
+        if (resp.StatusCode == HttpStatusCode.TooManyRequests)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             await Console.Out.WriteLineAsync("Google stopped: TooManyRequests (429)");

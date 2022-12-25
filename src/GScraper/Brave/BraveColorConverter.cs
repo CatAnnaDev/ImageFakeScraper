@@ -16,7 +16,7 @@ internal class BraveColorConverter : JsonConverter<Color>
         {
             throw new FormatException("Unable to parse hex value.");
         }
-        
+
         return Color.FromArgb(rgb);
     }
 

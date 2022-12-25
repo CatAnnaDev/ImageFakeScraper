@@ -1,18 +1,18 @@
-﻿using System;
+﻿using Reddit;
+using Reddit.Controllers;
+using StackExchange.Redis;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Reddit;
-using Reddit.Controllers;
-using System.Linq;
-using StackExchange.Redis;
 
 namespace GScraperExample
 {
     static class Reddit
     {
-        
+
         public static void RedditCrawler(ConnectionMultiplexer connection)
         {
             string redditfile = "subredditlist.txt";
@@ -35,35 +35,36 @@ namespace GScraperExample
                 connection.GetDatabase().SetAdd("image_jobs", url.url);
             });
 
-            
+
         }
 
         private static List<(string url, string subreddit)> GrabPosts(RedditClient r, List<string> subreddits)
         {
-            
-                Regex rx = new Regex(@".*\.(jpg|png|gif)?$");
-                List<(string, string)> Url = new List<(string, string)> { };
-                Parallel.ForEach(subreddits, (subreddit) =>
+
+            Regex rx = new Regex(@".*\.(jpg|png|gif)?$");
+            List<(string, string)> Url = new List<(string, string)> { };
+            Parallel.ForEach(subreddits, (subreddit) =>
+            {
+                try
                 {
-                    try
+                    Console.WriteLine(subreddit);
+                    SubredditPosts subs = r.Subreddit(subreddit).Posts;
+
+                    List<Post> Posts = subs.Top;
+
+                    foreach (Post post in Posts)
                     {
-                        Console.WriteLine(subreddit);
-                        SubredditPosts subs = r.Subreddit(subreddit).Posts;
-
-                        List<Post> Posts = subs.Top;
-
-                        foreach (Post post in Posts)
+                        string url = post.Listing.URL;
+                        if (rx.IsMatch(url))
                         {
-                            string url = post.Listing.URL;
-                            if (rx.IsMatch(url))
-                            {
-                                Url.Add((url, subreddit));
-                            }
-                        }    
-                        
-                    }catch(Exception e) { Console.WriteLine(e.Message); }
-                });
-                return Url;
+                            Url.Add((url, subreddit));
+                        }
+                    }
+
+                }
+                catch (Exception e) { Console.WriteLine(e.Message); }
+            });
+            return Url;
 
         }
     }

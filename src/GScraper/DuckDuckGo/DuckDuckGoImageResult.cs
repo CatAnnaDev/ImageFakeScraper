@@ -10,7 +10,7 @@ namespace GScraper.DuckDuckGo;
 public class DuckDuckGoImageResult : IImageResult
 {
     internal DuckDuckGoImageResult(string url, string title, int width,
-        int height,string sourceUrl, string thumbnailUrl, string source)
+        int height, string sourceUrl, string thumbnailUrl, string source)
     {
         Url = url;
         Title = title;
