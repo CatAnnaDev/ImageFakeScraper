@@ -61,6 +61,7 @@ internal static class Program
         string text = meow.ToString();
         qword.Enqueue(text);
 
+        long totalimageupload = 0;
 
         // for (int i = 0; i < 10; i++)
         // {
@@ -281,10 +282,10 @@ internal static class Program
                         var push = Array.ConvertAll(parse, item => (RedisValue)item);
                         try
                         {
-                            await conn.SetAddAsync("image_jobs", push);
-
+                            var truc = await conn.SetAddAsync("image_jobs", push);
+                            totalimageupload += truc;
                             Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine($"{image.Key} Images found: {list.Count}");
+                            Console.WriteLine($"{image.Key} Images found: {truc}");
                             Console.ResetColor();
                         }
                         catch { Console.ForegroundColor = ConsoleColor.Red; await Console.Out.WriteLineAsync("Fail upload redis !"); Console.ResetColor(); }
@@ -350,6 +351,7 @@ internal static class Program
                          $"ags\t\t{qword.Count}\n" +
                          $"Redis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\n" +
                          $"Words Length\t{await redis.GetDatabase().ListLengthAsync(key)}\n" +
+                         $"Total upload\t\t{totalimageupload}\n" +
                          $"Sleep\t\t{waittime} sec");
                 }
                 catch
@@ -361,6 +363,7 @@ internal static class Program
                         $"Tags\t\t{qword.Count}\n" +
                         $"Redis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\n" +
                         $"Words Length\t{await redis.GetDatabase().ListLengthAsync(key)}\n" +
+                        $"Total upload\t\t{totalimageupload}\n" +
                         $"Sleep\t\t{waittime} sec");
                 }
                 await Console.Out.WriteLineAsync("================================================================================================================================");
