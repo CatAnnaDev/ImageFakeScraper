@@ -99,6 +99,7 @@ internal static class Program
             await Console.Out.WriteLineAsync("=====================================================================");
             Stopwatch timer = new();
             Stopwatch uptime = new();
+            uptime.Start();
             while (qword.Count != 0)
             {
                 timer.Start();
