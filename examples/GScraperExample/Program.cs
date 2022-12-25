@@ -22,7 +22,7 @@ internal static class Program
     {
         Queue<string> word = new();
         string[] readText = File.ReadAllText("words.txt").Split("\n");
-       
+
         foreach (string s in readText)
         {
             word.Enqueue(s);
@@ -58,11 +58,11 @@ internal static class Program
         string text = meow.ToString();
         qword.Enqueue(text);
 
-        
-       // for (int i = 0; i < 10; i++)
-       // {
-       //     qword.Enqueue(getNewtag(word));
-       // }
+
+        // for (int i = 0; i < 10; i++)
+        // {
+        //     qword.Enqueue(getNewtag(word));
+        // }
 
         int waittime;
         if (args.Length > 1)
@@ -88,14 +88,14 @@ internal static class Program
             //thread.Start();
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Out.WriteLineAsync("Redis Connected");
+            await Console.Out.WriteLineAsync("Redis Connected");
             Console.ResetColor();
 
-            Console.Out.WriteLineAsync("=====================================================================");
-            Console.Out.WriteLineAsync(qword.First());
-            Console.Out.WriteLineAsync("=====================================================================");
+            await Console.Out.WriteLineAsync("=====================================================================");
+            await Console.Out.WriteLineAsync(qword.First());
+            await Console.Out.WriteLineAsync("=====================================================================");
 
-            while(qword.Count != 0)
+            while (qword.Count != 0)
             {
                 Stopwatch timer = new();
                 timer.Start();
@@ -115,7 +115,7 @@ internal static class Program
                         Console.ResetColor();
                         if (e.Message.Contains("429"))
                             GoogleScraper.gg = false;
-                            
+
                     }
                 }
 
@@ -153,21 +153,21 @@ internal static class Program
                         Console.ResetColor();
                         if (e.Message.Contains("429"))
                             brv = false;
-                            
+
                     }
                 }
 
                 if (!GoogleScraper.gg && !ddc && !brv)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Out.WriteLineAsync("All search engine down for now");
+                    await Console.Out.WriteLineAsync("All search engine down for now");
                     Console.ResetColor();
                     break;
                 }
                 else if (GoogleScraper.gg && ddc && brv)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Out.WriteLineAsync("All search engine up");
+                    await Console.Out.WriteLineAsync("All search engine up");
                     Console.ResetColor();
                 }
                 else
@@ -205,9 +205,9 @@ internal static class Program
                             string result = content.ReadAsStringAsync().Result;
                             HtmlDocument document = new();
                             document.LoadHtml(result);
-                
+
                             table = document.DocumentNode.SelectNodes("//a[@class='TwVfHd']");
-                
+
                             try
                             {
                                 if (table != null)
@@ -220,13 +220,13 @@ internal static class Program
                                             {
                                                 qword.Enqueue(table[j].InnerText);
                                                 Console.ForegroundColor = ConsoleColor.Green;
-                                                Console.Out.WriteLineAsync($"Tag Added {table[j].InnerText}");
+                                                await Console.Out.WriteLineAsync($"Tag Added {table[j].InnerText}");
                                                 Console.ResetColor();
                                             }
                                             else
                                             {
                                                 Console.ForegroundColor = ConsoleColor.Red;
-                                                Console.Out.WriteLineAsync($"Tag already exist {table[j].InnerText}");
+                                                await Console.Out.WriteLineAsync($"Tag already exist {table[j].InnerText}");
                                                 Console.ResetColor();
                                             }
                                         }
@@ -237,8 +237,8 @@ internal static class Program
                             catch (Exception e)
                             {
                                 Console.ForegroundColor = ConsoleColor.Red;
-                                Console.Out.WriteLineAsync("No Tag!");
-                                Console.Out.WriteLineAsync(e.Message);
+                                await Console.Out.WriteLineAsync("No Tag!");
+                                await Console.Out.WriteLineAsync(e.Message);
                                 Console.ResetColor();
                             }
                         }
@@ -248,7 +248,7 @@ internal static class Program
                 if (table == null)
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Out.WriteLineAsync("No more Tag found!");
+                    await Console.Out.WriteLineAsync("No more Tag found!");
                     Console.ResetColor();
                 }
 
@@ -283,11 +283,11 @@ internal static class Program
                             Console.WriteLine($"{image.Key} Images found: {list.Count}");
                             Console.ResetColor();
                         }
-                        catch { Console.ForegroundColor = ConsoleColor.Red; Console.Out.WriteLineAsync("Fail upload redis !"); Console.ResetColor(); }
+                        catch { Console.ForegroundColor = ConsoleColor.Red; await Console.Out.WriteLineAsync("Fail upload redis !"); Console.ResetColor(); }
                     }
                     else
                     {
-                        Console.Out.WriteLineAsync("Image is null fix it yourself !");
+                        await Console.Out.WriteLineAsync("Image is null fix it yourself !");
                     }
                 }
                 images.Clear();
@@ -305,11 +305,11 @@ internal static class Program
                 {
                     text = qword.Dequeue();
                 }
-                
+
                 if (!redis.IsConnected)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Out.WriteLineAsync("redis disconnected, press enter to stop");
+                    await Console.Out.WriteLineAsync("redis disconnected, press enter to stop");
                     Console.ResetColor();
                     Console.ReadLine();
                     break;
@@ -320,7 +320,7 @@ internal static class Program
                     try
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Out.WriteLineAsync($"Redis queue alomst full {conn.ListLength("image_jobs")}");
+                        await Console.Out.WriteLineAsync($"Redis queue alomst full {conn.ListLength("image_jobs")}");
                         Console.ResetColor();
                         Console.ReadLine();
                     }
@@ -330,21 +330,32 @@ internal static class Program
                 try
                 {
                     write(text, redis);
-                }catch { }
+                }
+                catch { }
 
                 timer.Stop();
 
-                Console.Out.WriteLineAsync("================================================================================================================================");
+                await Console.Out.WriteLineAsync("================================================================================================================================");
                 try
                 {
-                    Console.Out.WriteLineAsync($"Done in\t\t{timer.ElapsedMilliseconds} ms\nPrevious\t{text}\nNext\t\t{qword.ToArray()[qword.Count-1]}\nTags\t\t{qword.Count}\nRedis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\nWords Length\t{await redis.GetDatabase().ListLengthAsync(key)}");
+                    await Console.Out.WriteLineAsync(
+                         $"Done in\t\t{timer.ElapsedMilliseconds} ms\n" +
+                         $"Previous\t{text}\nNext\t\t{qword.ToArray()[qword.Count - 1]}\nT" +
+                         $"ags\t\t{qword.Count}\n" +
+                         $"Redis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\n" +
+                         $"Words Length\t{await redis.GetDatabase().ListLengthAsync(key)}");
                 }
                 catch
                 {
-                    Console.Out.WriteLineAsync($"Done in\t\t{timer.ElapsedMilliseconds} ms\nPrevious\t{text}\nTags\t\t{qword.Count}\nRedis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\nWords Length\t{await redis.GetDatabase().ListLengthAsync(key)}");
+                    await Console.Out.WriteLineAsync(
+                        $"Done in\t\t{timer.ElapsedMilliseconds} ms\n" +
+                        $"Previous\t{text}\n" +
+                        $"Tags\t\t{qword.Count}\n" +
+                        $"Redis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\n" +
+                        $"Words Length\t{await redis.GetDatabase().ListLengthAsync(key)}");
                 }
-                Console.Out.WriteLineAsync("================================================================================================================================");
-                Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
+                await Console.Out.WriteLineAsync("================================================================================================================================");
+                await Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
                 timer.Reset();
             }
