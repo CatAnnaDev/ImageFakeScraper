@@ -28,8 +28,9 @@ internal static class Program
             word.Enqueue(s);
         }
 
-        var options = ConfigurationOptions.Parse(args[0]);
-        options.Password = "yoloimage";
+        var opts = new Uri(args[0]);
+        var credentials = opts.UserInfo.Split(':');
+        var options = ConfigurationOptions.Parse($"{opts.Host}:{opts.Port},password={credentials[1]},user={credentials[0]}");
         options.ReconnectRetryPolicy = new ExponentialRetry(10);
         options.CommandMap = CommandMap.Create(new HashSet<string> { "SUBSCRIBE" }, false);
         ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(options);
