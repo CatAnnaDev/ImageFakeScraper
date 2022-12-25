@@ -183,21 +183,24 @@ internal static class Program
                     if (!GoogleScraper.gg)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Google stopped");
+                        if (printLog)
+                            Console.WriteLine("Google stopped");
                         Console.ResetColor();
                         GoogleScraper.gg = true;
                     }
                     if (!ddc)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Duckduckgo stopped");
+                        if (printLog)
+                            Console.WriteLine("Duckduckgo stopped");
                         Console.ResetColor();
                         //ddc = true;
                     }
                     if (!brv)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Brave stopped");
+                        if (printLog)
+                            Console.WriteLine("Brave stopped");
                         Console.ResetColor();
                         //brv = true;
                     }
