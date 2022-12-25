@@ -351,7 +351,7 @@ internal static class Program
                          $"ags\t\t{qword.Count}\n" +
                          $"Redis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\n" +
                          $"Words Length\t{await redis.GetDatabase().ListLengthAsync(key)}\n" +
-                         $"Total upload\t\t{totalimageupload}\n" +
+                         $"Total upload\t{totalimageupload}\n" +
                          $"Sleep\t\t{waittime} sec");
                 }
                 catch
@@ -363,7 +363,7 @@ internal static class Program
                         $"Tags\t\t{qword.Count}\n" +
                         $"Redis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\n" +
                         $"Words Length\t{await redis.GetDatabase().ListLengthAsync(key)}\n" +
-                        $"Total upload\t\t{totalimageupload}\n" +
+                        $"Total upload\t{totalimageupload}\n" +
                         $"Sleep\t\t{waittime} sec");
                 }
                 await Console.Out.WriteLineAsync("================================================================================================================================");
