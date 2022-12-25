@@ -194,7 +194,7 @@ internal static class Program
                     }
                 }
 
-                var url = $"https://www.google.com/search?q={text}&tbm=isch&hl=en";
+                var url = $"https://www.google.com/search?q={text}&tbm=isch&iflsig=AJiK0e8AAAAAY6gsYrSXerB7Osm0ErMWBvg3Tj3TzP7X&sclient=img";
                 using (HttpClient client = new HttpClient())
                 {
                     client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
