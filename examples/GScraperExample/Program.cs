@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -48,9 +49,7 @@ internal static class Program
         using var duck = new DuckDuckGoScraper();
         using var brave = new BraveScraper();
         HtmlNodeCollection table;
-        string actual;
 
-        bool stopBrave = false;
 
         Queue<string> qword = new();
 
@@ -98,6 +97,8 @@ internal static class Program
 
             while(qword.Count != 0)
             {
+                Stopwatch timer = new();
+                timer.Start();
 
                 if (GoogleScraper.gg)
                 {
@@ -331,18 +332,21 @@ internal static class Program
                     write(text, redis);
                 }catch { }
 
+                timer.Stop();
+
                 Console.Out.WriteLineAsync("================================================================================================================================");
                 try
                 {
-                    Console.Out.WriteLineAsync($"Previous\t{text}\nNext\t\t{qword.ToArray()[qword.Count-1]}\nTags\t\t{qword.Count}\nRedis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\nWords Length\t{await redis.GetDatabase().ListLengthAsync(key)}");
+                    Console.Out.WriteLineAsync($"Done in\t\t{timer.ElapsedMilliseconds} ms\nPrevious\t{text}\nNext\t\t{qword.ToArray()[qword.Count-1]}\nTags\t\t{qword.Count}\nRedis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\nWords Length\t{await redis.GetDatabase().ListLengthAsync(key)}");
                 }
                 catch
                 {
-                    Console.Out.WriteLineAsync($"Previous\t{text}\nTags\t\t{qword.Count}\nRedis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\nWords Length\t{await redis.GetDatabase().ListLengthAsync(key)}");
+                    Console.Out.WriteLineAsync($"Done in\t\t{timer.ElapsedMilliseconds} ms\nPrevious\t{text}\nTags\t\t{qword.Count}\nRedis Length\t{conn.SetLength("image_jobs")} / {uint.MaxValue} ({(100.0 * (float)conn.SetLength("image_jobs") / (float)uint.MaxValue).ToString("0.000")}%)\nWords Length\t{await redis.GetDatabase().ListLengthAsync(key)}");
                 }
                 Console.Out.WriteLineAsync("================================================================================================================================");
                 Console.Out.WriteLineAsync($"Sleep {waittime}sec;");
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
+                timer.Reset();
             }
         }
     }
