@@ -116,7 +116,8 @@ internal static class Program
                     catch (Exception e) when (e is HttpRequestException or GScraperException)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Google: {e.Message}");
+                        if (printLog)
+                            Console.WriteLine($"Google: {e.Message}");
                         Console.ResetColor();
                         if (e.Message.Contains("429"))
                             GoogleScraper.gg = false;
@@ -136,7 +137,8 @@ internal static class Program
                     catch (Exception e) when (e is HttpRequestException or GScraperException)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Duckduckgo: {e.Message}");
+                        if (printLog)
+                            Console.WriteLine($"Duckduckgo: {e.Message}");
                         Console.ResetColor();
                         if (e.Message.Contains("token") || e.Message.Contains("403"))
                             ddc = false;
@@ -154,7 +156,8 @@ internal static class Program
                     catch (Exception e) when (e is HttpRequestException or GScraperException)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Brave: {e.Message}");
+                        if(printLog)
+                            Console.WriteLine($"Brave: {e.Message}");
                         Console.ResetColor();
                         if (e.Message.Contains("429"))
                             brv = false;
