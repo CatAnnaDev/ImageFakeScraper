@@ -197,6 +197,8 @@ internal static class Program
                 var url = $"https://www.google.com/search?q={text}&tbm=isch&hl=en";
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("User-Agent", GScraperRandomUa.RandomUserAgent);
+
                     using (HttpResponseMessage response = client.GetAsync(url).Result)
                     {
                         using (HttpContent content = response.Content)
