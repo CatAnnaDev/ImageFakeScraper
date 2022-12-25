@@ -340,6 +340,7 @@ internal static class Program
                 timer.Stop();
                 var uptime2 = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours.ToString("00")}:{uptime.Elapsed.Minutes.ToString("00")}:{uptime.Elapsed.Seconds.ToString("00")}";
                 await Console.Out.WriteLineAsync("================================================================================================================================");
+
                 try
                 {
                     await Console.Out.WriteLineAsync(
