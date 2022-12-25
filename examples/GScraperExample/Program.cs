@@ -28,7 +28,7 @@ internal static class Program
             word.Enqueue(s);
         }
 
-        var options = ConfigurationOptions.Parse("imagefake.net:6379");
+        var options = ConfigurationOptions.Parse(args[0]);
         options.Password = "yoloimage";
         options.ReconnectRetryPolicy = new ExponentialRetry(10);
         options.CommandMap = CommandMap.Create(new HashSet<string> { "SUBSCRIBE" }, false);
