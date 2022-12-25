@@ -344,7 +344,7 @@ internal static class Program
                 try
                 {
                     await Console.Out.WriteLineAsync(
-                         $"Uptime\t\t {uptime2}" +
+                         $"Uptime\t\t {uptime2}\n" +
                          $"Done in\t\t{timer.ElapsedMilliseconds} ms\n" +
                          $"Previous\t{text}\nNext\t\t{qword.ToArray()[qword.Count - 1]}\nT" +
                          $"ags\t\t{qword.Count}\n" +
@@ -355,7 +355,7 @@ internal static class Program
                 catch
                 {
                     await Console.Out.WriteLineAsync(
-                        $"Uptime\t\t {uptime2}" +
+                        $"Uptime\t\t {uptime2}\n" +
                         $"Done in\t\t{timer.ElapsedMilliseconds} ms\n" +
                         $"Previous\t{text}\n" +
                         $"Tags\t\t{qword.Count}\n" +
