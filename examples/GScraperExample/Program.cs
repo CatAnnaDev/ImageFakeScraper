@@ -2,17 +2,13 @@
 using GScraper.DuckDuckGo;
 using GScraper.Google;
 using GScraperExample.function;
-using GScraperExample.uselessCode;
 using HtmlAgilityPack;
-using Microsoft.VisualBasic;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -87,7 +83,7 @@ internal static class Program
         using var brave = new BraveScraper();
         HtmlNodeCollection table;
 
-        
+
 
         var key = new RedisKey("already_done_list");
         var meow = await conn.ListGetByIndexAsync(key, 0);
