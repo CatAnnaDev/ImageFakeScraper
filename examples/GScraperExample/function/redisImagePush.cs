@@ -38,45 +38,16 @@ namespace GScraperExample.function
                         }
                     }
 
-                    string[] parse = list.ToArray();
-                    RedisValue[] push = Array.ConvertAll(parse, item => (RedisValue)item);
+                    //string[] parse = list.ToArray();
+                    RedisValue[] push = Array.ConvertAll(list.ToArray(), item => (RedisValue)item);
                     try
                     {
-                        var batch_size = 20;
-                        List<string> batch = new();
-                        long size = 0;
-                        if (parse.Length > 20)
-                        {
-                            for(int i =0; i< push.Length; i++)
-                            {
-                                if(batch.Count >= batch_size)
-                                {
-                                    RedisValue[] pussh = Array.ConvertAll(batch.ToArray(), item => (RedisValue)item);
-                                    if(pussh.Length != 0)
-                                        size += await conn.SetAddAsync("image_jobs", pussh);
-                                    batch.Clear();
-                                }
-                                else
-                                {
-                                    batch.Add(push.ToString());
-                                }
-
-                            }
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine($"{image.Key} Images found: {size}");
-                            Console.ResetColor();
-                            Program.totalimageupload += size;
-                            size = 0;
-                        }
-                        else
-                        {
-                            data = await conn.SetAddAsync("image_jobs", push);
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine($"{image.Key} Images found: {data}");
-                            Console.ResetColor();
-                            Program.totalimageupload += data;
-                            data = 0;
-                        }
+                        data = await conn.SetAddAsync("image_jobs", push);
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"{image.Key} Images found: {data}");
+                        Console.ResetColor();
+                        Program.totalimageupload += data;
+                        data = 0;
 
                     }
                     catch { Console.ForegroundColor = ConsoleColor.Red; await Console.Out.WriteLineAsync("Fail upload redis !"); Console.ResetColor(); }

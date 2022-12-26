@@ -103,26 +103,33 @@ namespace GScraperExample.function
             {
                 try
                 {
-                    var y = 1;
+                    int y = 1;
                     List<Oinrgeno> blap = new();
-                    Oinrgeno blap2 = new();
                     HttpClient http = new();
                     http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
                     var data = await http.GetStringAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={y}&mature=true");
                     Root jsonparse = JsonConvert.DeserializeObject<Root>(data);
 
-                    for (y = 0; y < jsonparse.page_count; y++) {
+                    for (y = 2; y < jsonparse.page_count; y++) {
+
+                        data = await http.GetStringAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={y}&mature=true");
+                        jsonparse = JsonConvert.DeserializeObject<Root>(data);
 
                         for (int i = 0; i < jsonparse.results.Count; i++)
                         {
                             if (rx.IsMatch(jsonparse.results[i].url))
                             {
 
-                                blap2.Url = jsonparse.results[i].url;
-                                blap2.Title = jsonparse.results[i].title;
-                                blap2.Height = 0;
-                                blap2.Width = 0;
+                                Oinrgeno blap2 = new()
+                                {
+                                    Url = jsonparse.results[i].url,
+                                    Title = jsonparse.results[i].title,
+                                    Height = 0,
+                                    Width = 0
+                                };
+
                                 blap.Add(blap2);
+                        
                             }  
                             
                            // for(int k =0; k< jsonparse.results[i].tags.Count; k++)
