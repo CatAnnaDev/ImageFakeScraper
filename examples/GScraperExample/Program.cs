@@ -68,9 +68,9 @@ internal static class Program
         //     qword.Enqueue(getNewtag(word));
         // }
 
-        int waittime;
-        if (args.Length > 1)
-            waittime = int.Parse(args[1]);
+        double waittime;
+        if (args.Length > 0.1)
+            waittime = double.Parse(args[1]);
         else
             waittime = 0;
 
@@ -116,8 +116,7 @@ internal static class Program
                     catch (Exception e) when (e is HttpRequestException or GScraperException)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        if (printLog)
-                            Console.WriteLine($"Google: {e.Message}");
+                        Console.WriteLine($"Google: {e.Message}");
                         Console.ResetColor();
                         if (e.Message.Contains("429"))
                             GoogleScraper.gg = false;
@@ -137,8 +136,7 @@ internal static class Program
                     catch (Exception e) when (e is HttpRequestException or GScraperException)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        if (printLog)
-                            Console.WriteLine($"Duckduckgo: {e.Message}");
+                        Console.WriteLine($"Duckduckgo: {e.Message}");
                         Console.ResetColor();
                         if (e.Message.Contains("token") || e.Message.Contains("403"))
                             ddc = false;
@@ -156,8 +154,7 @@ internal static class Program
                     catch (Exception e) when (e is HttpRequestException or GScraperException)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        if(printLog)
-                            Console.WriteLine($"Brave: {e.Message}");
+                        Console.WriteLine($"Brave: {e.Message}");
                         Console.ResetColor();
                         if (e.Message.Contains("429"))
                             brv = false;
@@ -205,8 +202,10 @@ internal static class Program
                         //brv = true;
                     }
                 }
-
-                var url = $"https://www.google.com/search?q={text}&tbm=isch&hl=en";
+                var region = new[] { "en", "fr"};
+                Random rng = new();
+                var choice = rng.Next(0, region.Length);
+                var url = $"https://www.google.com/search?q={text}&tbm=isch&hl={region[choice]}";
                 using (HttpClient client = new HttpClient())
                 {
                     using (HttpResponseMessage response = client.GetAsync(url).Result)
