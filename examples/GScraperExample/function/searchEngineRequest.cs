@@ -7,13 +7,10 @@ using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Net.Http;
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GScraperExample.function
 {
@@ -53,6 +50,7 @@ namespace GScraperExample.function
                     Console.ResetColor();
                     if (e.Message.Contains("429"))
                     {
+                        //await Task.Delay(TimeSpan.FromSeconds(1));
                         GoogleScraper.gg = false;
                     }
                 }
@@ -74,6 +72,7 @@ namespace GScraperExample.function
                     Console.ResetColor();
                     if (e.Message.Contains("token") || e.Message.Contains("403"))
                     {
+                        //await Task.Delay(TimeSpan.FromSeconds(1));
                         ddc = false;
                     }
                 }
@@ -94,6 +93,7 @@ namespace GScraperExample.function
                     Console.ResetColor();
                     if (e.Message.Contains("429"))
                     {
+                        //await Task.Delay(TimeSpan.FromSeconds(1));
                         brv = false;
                     }
                 }
@@ -106,14 +106,14 @@ namespace GScraperExample.function
                     int y = 1;
                     List<Oinrgeno> blap = new();
                     HttpClient http = new();
-                    http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
+                    //http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
                     var data = await http.GetStringAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={y}&mature=true");
                     Root jsonparse = JsonConvert.DeserializeObject<Root>(data);
 
-                    for (y = 2; y < jsonparse.page_count; y++) {
-
-                        data = await http.GetStringAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={y}&mature=true");
-                        jsonparse = JsonConvert.DeserializeObject<Root>(data);
+                   // for (y = 2; y < jsonparse.page_count; y++) {
+                   //     Console.WriteLine(jsonparse.page_count + " " +jsonparse.result_count);
+                   //     data = await http.GetStringAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={y}&mature=true");
+                   //     jsonparse = JsonConvert.DeserializeObject<Root>(data);
 
                         for (int i = 0; i < jsonparse.results.Count; i++)
                         {
@@ -135,7 +135,7 @@ namespace GScraperExample.function
                            // for(int k =0; k< jsonparse.results[i].tags.Count; k++)
                            //     Program.qword.Enqueue(jsonparse.results[i].tags[k].name);
                         }
-                    }
+                   // }
                     tmp.Add($"Openverse", blap.AsEnumerable());
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
@@ -145,6 +145,7 @@ namespace GScraperExample.function
                     Console.ResetColor();
                     if (e.Message.Contains("429"))
                     {
+                        // await Task.Delay(TimeSpan.FromSeconds(1));
                         ov = false;
                     }
                 }
@@ -195,7 +196,7 @@ namespace GScraperExample.function
                     }
 
                     Console.ResetColor();
-                    //brv = true;
+                    brv = true;
                 }
                 if (!ov)
                 {
