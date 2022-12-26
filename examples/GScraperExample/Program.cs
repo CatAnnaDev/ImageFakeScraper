@@ -24,6 +24,7 @@ internal static class Program
     private delegate bool EventHandler(CtrlType sig);
 
     private static EventHandler? _handler;
+    public static long totalimageupload = 0;
 
     private enum CtrlType
     {
@@ -89,7 +90,7 @@ internal static class Program
         string text = meow.ToString();
         qword.Enqueue(text);
 
-        long totalimageupload = 0;
+        
 
         double waittime = args.Length > 0.1 ? double.Parse(args[1]) : 0;
         if (redis.IsConnected)
@@ -122,7 +123,7 @@ internal static class Program
                 }
 
                 long tr = await redisImagePush.GetAllImageAndPush(conn, site);
-                totalimageupload += tr;
+                //totalimageupload += tr;
 
                 site.Clear();
 

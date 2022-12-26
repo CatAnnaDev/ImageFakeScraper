@@ -11,10 +11,10 @@ namespace GScraperExample.function
     internal class redisImagePush
     {
         private static readonly bool printLog = false;
-        private static long data = 0;
-
+        
         public static async Task<long> GetAllImageAndPush(IDatabase conn, Dictionary<string, IEnumerable<IImageResult>> site)
         {
+            long data = 0;
             foreach (KeyValuePair<string, IEnumerable<IImageResult>> image in site)
             {
                 if (image.Value != null)
@@ -45,6 +45,7 @@ namespace GScraperExample.function
                         var batch_size = 20;
                         List<string> batch = new();
                         string[] batchPush = batch.ToArray();
+                        long size = 0;
                         if (parse.Length > 20)
                         {
                             for(int i =0; i< push.Length; i++)
@@ -52,7 +53,8 @@ namespace GScraperExample.function
                                 if(batch.Count >= batch_size)
                                 {
                                     RedisValue[] pussh = Array.ConvertAll(batchPush, item => (RedisValue)item);
-                                    data = await conn.SetAddAsync("image_jobs", pussh);
+                                    if(pussh.Length != 0)
+                                        size += await conn.SetAddAsync("image_jobs", pussh);
                                     batch.Clear();
                                     batchPush = batch.ToArray();
                                 }
@@ -63,8 +65,10 @@ namespace GScraperExample.function
 
                             }
                             Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine($"{image.Key} Images found: {push.Length}");
+                            Console.WriteLine($"{image.Key} Images found: {size}");
                             Console.ResetColor();
+                            Program.totalimageupload += size;
+                            size = 0;
                         }
                         else
                         {
@@ -72,6 +76,8 @@ namespace GScraperExample.function
                             Console.ForegroundColor = ConsoleColor.Green;
                             Console.WriteLine($"{image.Key} Images found: {data}");
                             Console.ResetColor();
+                            Program.totalimageupload += data;
+                            data = 0;
                         }
 
                     }
@@ -82,7 +88,6 @@ namespace GScraperExample.function
                     await Console.Out.WriteLineAsync("Image is null fix it yourself !");
                 }
             }
-
             return data;
         }
     }
