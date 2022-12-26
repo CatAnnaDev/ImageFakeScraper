@@ -16,7 +16,7 @@ namespace GScraperExample;
 internal static class Program
 {
     private static ConnectionMultiplexer? redis;
-    private static Queue<string>? qword;
+    public static Queue<string>? qword;
 
     [DllImport("Kernel32")]
     private static extern bool SetConsoleCtrlHandler(EventHandler handler, bool add);

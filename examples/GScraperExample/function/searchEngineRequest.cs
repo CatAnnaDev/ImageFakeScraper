@@ -25,7 +25,7 @@ namespace GScraperExample.function
         private static readonly BraveScraper brave = new();
         private static bool ddc = false;
         private static bool brv = false;
-        private static bool ov = false;
+        private static bool ov = true;
         private static readonly bool printLog = false;
         private static readonly Dictionary<string, IEnumerable<IImageResult>> tmp = new();
         private static readonly Queue<string> qword = new();
@@ -106,10 +106,9 @@ namespace GScraperExample.function
                     var y = 1;
                     List<Oinrgeno> blap = new();
                     Oinrgeno blap2 = new();
-                    IEnumerable<IImageResult> openverse;
                     HttpClient http = new();
                     http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
-                    var data = await http.GetStringAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={y}");
+                    var data = await http.GetStringAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={y}&mature=true");
                     Root jsonparse = JsonConvert.DeserializeObject<Root>(data);
 
                     for (y = 0; y < jsonparse.page_count; y++) {
@@ -118,9 +117,16 @@ namespace GScraperExample.function
                         {
                             if (rx.IsMatch(jsonparse.results[i].url))
                             {
+
                                 blap2.Url = jsonparse.results[i].url;
+                                blap2.Title = jsonparse.results[i].title;
+                                blap2.Height = 0;
+                                blap2.Width = 0;
                                 blap.Add(blap2);
-                            }   
+                            }  
+                            
+                           // for(int k =0; k< jsonparse.results[i].tags.Count; k++)
+                           //     Program.qword.Enqueue(jsonparse.results[i].tags[k].name);
                         }
                     }
                     tmp.Add($"Openverse", blap.AsEnumerable());
@@ -311,17 +317,5 @@ namespace GScraperExample.function
     {
         public string name { get; set; }
         public double? accuracy { get; set; }
-    }
-
-    internal class OpenverseOriginalImage
-    {
-        [JsonPropertyName("height")]
-        public int Height { get; set; }
-
-        [JsonPropertyName("url")]
-        public string Url { get; set; } = null!;
-
-        [JsonPropertyName("width")]
-        public int Width { get; set; }
     }
 }

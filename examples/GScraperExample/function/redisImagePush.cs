@@ -2,6 +2,7 @@
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -41,17 +42,44 @@ namespace GScraperExample.function
                     RedisValue[] push = Array.ConvertAll(parse, item => (RedisValue)item);
                     try
                     {
-                        data = await conn.SetAddAsync("image_jobs", push);
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"{image.Key} Images found: {data}");
-                        Console.ResetColor();
+                        var batch_size = 20;
+                        List<string> batch = new();
+                        string[] batchPush = batch.ToArray();
+                        if (parse.Length > 20)
+                        {
+                            for(int i =0; i< push.Length; i++)
+                            {
+                                if(batch.Count >= batch_size)
+                                {
+                                    RedisValue[] pussh = Array.ConvertAll(batchPush, item => (RedisValue)item);
+                                    data = await conn.SetAddAsync("image_jobs", pussh);
+                                    batch.Clear();
+                                    batchPush = batch.ToArray();
+                                }
+                                else
+                                {
+                                    batch.Add(push.ToString());
+                                }
+
+                            }
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine($"{image.Key} Images found: {push.Length}");
+                            Console.ResetColor();
+                        }
+                        else
+                        {
+                            data = await conn.SetAddAsync("image_jobs", push);
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine($"{image.Key} Images found: {data}");
+                            Console.ResetColor();
+                        }
 
                     }
                     catch { Console.ForegroundColor = ConsoleColor.Red; await Console.Out.WriteLineAsync("Fail upload redis !"); Console.ResetColor(); }
                 }
                 else
                 {
-                   await Console.Out.WriteLineAsync("Image is null fix it yourself !");
+                    await Console.Out.WriteLineAsync("Image is null fix it yourself !");
                 }
             }
 
