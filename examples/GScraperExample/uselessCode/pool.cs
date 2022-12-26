@@ -16,11 +16,14 @@ namespace GScraperExample.uselessCode
             }
         }
 
-        static Queue myQ = new Queue();
+        private static readonly Queue myQ = new();
         public static Queue mySyncdQ = Queue.Synchronized(myQ);
-        static List<Task> tasks = new List<Task>();
+        private static readonly List<Task> tasks = new();
 
-        public static void addtrucenQueue(string value) => mySyncdQ.Enqueue(value);
+        public static void addtrucenQueue(string value)
+        {
+            mySyncdQ.Enqueue(value);
+        }
 
         public static void worker()
         {
@@ -37,11 +40,11 @@ namespace GScraperExample.uselessCode
             }));
         }
 
-        private static object lockObj = new object();
+        private static readonly object lockObj = new();
 
         private static void ShowThreadInformation(string taskName)
         {
-            string msg = null;
+            string? msg = null;
             Thread thread = Thread.CurrentThread;
             lock (lockObj)
             {

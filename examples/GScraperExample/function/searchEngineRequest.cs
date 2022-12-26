@@ -13,17 +13,15 @@ namespace GScraperExample.function
 {
     internal class searchEngineRequest
     {
-        static GoogleScraper scraper = new GoogleScraper();
-        static DuckDuckGoScraper duck = new DuckDuckGoScraper();
-        static BraveScraper brave = new BraveScraper();
-
-        static bool ddc = false;
-        static bool brv = false;
-        static bool printLog = false;
-        static Dictionary<string, IEnumerable<IImageResult>> tmp = new();
-
-        static Queue<string> qword = new();
-        static HtmlNodeCollection table;
+        private static readonly GoogleScraper scraper = new();
+        private static readonly DuckDuckGoScraper duck = new();
+        private static readonly BraveScraper brave = new();
+        private static bool ddc = false;
+        private static bool brv = false;
+        private static readonly bool printLog = false;
+        private static readonly Dictionary<string, IEnumerable<IImageResult>> tmp = new();
+        private static readonly Queue<string> qword = new();
+        private static HtmlNodeCollection? table;
 
         public static async Task<Dictionary<string, IEnumerable<IImageResult>>> getAllDataFromsearchEngineAsync(string text)
         {
@@ -43,8 +41,9 @@ namespace GScraperExample.function
                     Console.WriteLine($"Google: {e.Message}");
                     Console.ResetColor();
                     if (e.Message.Contains("429"))
+                    {
                         GoogleScraper.gg = false;
-
+                    }
                 }
             }
 
@@ -63,7 +62,9 @@ namespace GScraperExample.function
                     Console.WriteLine($"Duckduckgo: {e.Message}");
                     Console.ResetColor();
                     if (e.Message.Contains("token") || e.Message.Contains("403"))
+                    {
                         ddc = false;
+                    }
                 }
             }
 
@@ -81,8 +82,9 @@ namespace GScraperExample.function
                     Console.WriteLine($"Brave: {e.Message}");
                     Console.ResetColor();
                     if (e.Message.Contains("429"))
+                    {
                         brv = false;
-
+                    }
                 }
             }
 
@@ -104,7 +106,10 @@ namespace GScraperExample.function
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     if (printLog)
+                    {
                         Console.WriteLine("Google stopped");
+                    }
+
                     Console.ResetColor();
                     GoogleScraper.gg = true;
                 }
@@ -112,7 +117,10 @@ namespace GScraperExample.function
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     if (printLog)
+                    {
                         Console.WriteLine("Duckduckgo stopped");
+                    }
+
                     Console.ResetColor();
                     //ddc = true;
                 }
@@ -120,7 +128,10 @@ namespace GScraperExample.function
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     if (printLog)
+                    {
                         Console.WriteLine("Brave stopped");
+                    }
+
                     Console.ResetColor();
                     //brv = true;
                 }
@@ -131,63 +142,61 @@ namespace GScraperExample.function
 
         public static async Task<Queue<string>> getAllNextTag(string text, ConnectionMultiplexer redis)
         {
-            var region = new[] { "en", "fr" };
+            string[] region = new[] { "en", "fr" };
             Random rng = new();
-            var choice = rng.Next(0, region.Length);
-            var url = $"https://www.google.com/search?q={text}&tbm=isch&hl={region[choice]}";
-            using (HttpClient client = new HttpClient())
+            int choice = rng.Next(0, region.Length);
+            string url = $"https://www.google.com/search?q={text}&tbm=isch&hl={region[choice]}";
+            using (HttpClient client = new())
             {
-                using (HttpResponseMessage response = client.GetAsync(url).Result)
+                using HttpResponseMessage response = client.GetAsync(url).Result;
+                using HttpContent content = response.Content;
+                string result = content.ReadAsStringAsync().Result;
+                HtmlDocument document = new();
+                document.LoadHtml(result);
+
+                table = document.DocumentNode.SelectNodes("//a[@class='TwVfHd']");
+
+                try
                 {
-                    using (HttpContent content = response.Content)
+                    if (table != null)
                     {
-                        string result = content.ReadAsStringAsync().Result;
-                        HtmlDocument document = new();
-                        document.LoadHtml(result);
-
-                        table = document.DocumentNode.SelectNodes("//a[@class='TwVfHd']");
-
-                        try
+                        for (int j = 0; j < table.Count; j++)
                         {
-                            if (table != null)
+                            try
                             {
-                                for (var j = 0; j < table.Count; j++)
+                                if (await Read(redis, table[j].InnerText) == -1)
                                 {
-                                    try
-                                    {
-                                        if (await Read(redis, table[j].InnerText) == -1)
-                                        {
-                                            qword.Enqueue(table[j].InnerText);
-                                            Console.ForegroundColor = ConsoleColor.Green;
-                                            await Console.Out.WriteLineAsync($"Tag Added {table[j].InnerText}");
-                                            Console.ResetColor();
-                                        }
-                                        else
-                                        {
-                                            Console.ForegroundColor = ConsoleColor.Red;
-                                            await Console.Out.WriteLineAsync($"Tag already exist {table[j].InnerText}");
-                                            Console.ResetColor();
-                                        }
-                                    }
-                                    catch { }
+                                    qword.Enqueue(table[j].InnerText);
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    await Console.Out.WriteLineAsync($"Tag Added {table[j].InnerText}");
+                                    Console.ResetColor();
+                                }
+                                else
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    await Console.Out.WriteLineAsync($"Tag already exist {table[j].InnerText}");
+                                    Console.ResetColor();
                                 }
                             }
-                        }
-                        catch (Exception e)
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            await Console.Out.WriteLineAsync("No Tag!");
-                            await Console.Out.WriteLineAsync(e.Message);
-                            Console.ResetColor();
+                            catch { }
                         }
                     }
+                }
+                catch (Exception e)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    await Console.Out.WriteLineAsync("No Tag!");
+                    await Console.Out.WriteLineAsync(e.Message);
+                    Console.ResetColor();
                 }
             }
 
             return qword;
         }
 
-        private static async Task<long> Read(ConnectionMultiplexer redis, string text) => await redis.GetDatabase().ListPositionAsync("already_done_list", text);
-
+        private static async Task<long> Read(ConnectionMultiplexer redis, string text)
+        {
+            return await redis.GetDatabase().ListPositionAsync("already_done_list", text);
+        }
     }
 }

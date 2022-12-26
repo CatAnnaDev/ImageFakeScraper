@@ -10,18 +10,21 @@ using System.Threading.Tasks;
 
 namespace GScraperExample.uselessCode
 {
-    static class Reddit
+    internal static class Reddit
     {
 
         public static void RedditCrawler(ConnectionMultiplexer connection)
         {
             string redditfile = "subredditlist.txt";
-            List<string> subreddits = new List<string> { };
+            List<string> subreddits = new() { };
             string[] file = File.ReadAllLines(redditfile);
-            file.Reverse();
-            foreach (string sr in file) subreddits.Add(sr.Replace("/r/", "").Trim());
+            _ = file.Reverse();
+            foreach (string sr in file)
+            {
+                subreddits.Add(sr.Replace("/r/", "").Trim());
+            }
 
-            RedditClient r = new RedditClient(appId: "egFSCSCdn8l1Zq1KUNJ7Vw", appSecret: "hSYyoV3IXKfvhSoPhxXRH8I3VgnrEg", refreshToken: "301142678066-jiF1H0nXuY3-SkOWRCtI3zaTyXcIqg");
+            RedditClient r = new(appId: "egFSCSCdn8l1Zq1KUNJ7Vw", appSecret: "hSYyoV3IXKfvhSoPhxXRH8I3VgnrEg", refreshToken: "301142678066-jiF1H0nXuY3-SkOWRCtI3zaTyXcIqg");
 
             List<(string url, string subreddit)> Urls = GrabPosts(r, subreddits);
             Download(Urls, connection);
@@ -29,10 +32,10 @@ namespace GScraperExample.uselessCode
 
         private static void Download(List<(string url, string subreddit)> urls, ConnectionMultiplexer connection)
         {
-            Parallel.ForEach(urls, (url) =>
+            _ = Parallel.ForEach(urls, (url) =>
             {
                 Console.WriteLine($" Done Downloading: {url.url}");
-                connection.GetDatabase().SetAdd("image_jobs", url.url);
+                _ = connection.GetDatabase().SetAdd("image_jobs", url.url);
             });
 
 
@@ -41,9 +44,9 @@ namespace GScraperExample.uselessCode
         private static List<(string url, string subreddit)> GrabPosts(RedditClient r, List<string> subreddits)
         {
 
-            Regex rx = new Regex(@".*\.(jpg|png|gif)?$");
-            List<(string, string)> Url = new List<(string, string)> { };
-            Parallel.ForEach(subreddits, (subreddit) =>
+            Regex rx = new(@".*\.(jpg|png|gif)?$");
+            List<(string, string)> Url = new() { };
+            _ = Parallel.ForEach(subreddits, (subreddit) =>
             {
                 try
                 {
