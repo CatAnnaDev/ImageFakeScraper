@@ -1,15 +1,13 @@
-﻿using GScraper;
-using GScraper.Brave;
+﻿using GScraper.Brave;
 using GScraper.DuckDuckGo;
 using GScraper.Google;
+using GScraperExample.function;
 using HtmlAgilityPack;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,14 +19,13 @@ internal static class Program
     private static async Task Main(string[] args)
     {
         Queue<string> word = new();
-        string[] readText = File.ReadAllText("words.txt").Split("\n");
 
-        //DateTime uptime = DateTime.Now;
+        //string[] readText = File.ReadAllText("words.txt").Split("\n");
 
-        foreach (string s in readText)
-        {
-            word.Enqueue(s);
-        }
+        //foreach (string s in readText)
+        //{
+        //    word.Enqueue(s);
+        //}
 
         var opts = new Uri(args[0]);
         var credentials = opts.UserInfo.Split(':');
@@ -39,10 +36,6 @@ internal static class Program
 
         //write("mot random en cas de besoin", redis);
 
-        Dictionary<string, IEnumerable<IImageResult>> images = new();
-
-        bool ddc = false;
-        bool brv = false;
 
         bool printLog = false;
 
@@ -53,7 +46,6 @@ internal static class Program
         using var brave = new BraveScraper();
         HtmlNodeCollection table;
 
-
         Queue<string> qword = new();
 
         var key = new RedisKey("already_done_list");
@@ -62,11 +54,6 @@ internal static class Program
         qword.Enqueue(text);
 
         long totalimageupload = 0;
-
-        // for (int i = 0; i < 10; i++)
-        // {
-        //     qword.Enqueue(getNewtag(word));
-        // }
 
         double waittime;
         if (args.Length > 0.1)
@@ -86,11 +73,6 @@ internal static class Program
         if (redis.IsConnected)
         {
 
-            // ImageDownloader.DownloadImagesFromUrl("https://techno.firenode.net/index.sh");
-
-            //Thread thread = new Thread(() => Reddit.RedditCrawler(redis));
-            //thread.Start();
-
             Console.ForegroundColor = ConsoleColor.Green;
             await Console.Out.WriteLineAsync("Redis Connected");
             Console.ResetColor();
@@ -98,171 +80,25 @@ internal static class Program
             await Console.Out.WriteLineAsync("=====================================================================");
             await Console.Out.WriteLineAsync(qword.First());
             await Console.Out.WriteLineAsync("=====================================================================");
+
             Stopwatch timer = new();
+
             Stopwatch uptime = new();
             uptime.Start();
+
             while (qword.Count != 0)
             {
                 timer.Start();
 
-                if (GoogleScraper.gg)
-                {
-                    IEnumerable<IImageResult> google;
-                    try
-                    {
-                        google = await scraper.GetImagesAsync(text);
-                        images.Add("Google", google);
-                    }
-                    catch (Exception e) when (e is HttpRequestException or GScraperException)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Google: {e.Message}");
-                        Console.ResetColor();
-                        if (e.Message.Contains("429"))
-                            GoogleScraper.gg = false;
+                var site = await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
 
-                    }
-                }
+                var callQword = await searchEngineRequest.getAllNextTag(text, redis);
 
-                if (ddc)
-                {
-                    IEnumerable<IImageResult> duckduck;
-                    try
-                    {
-                        duckduck = await duck.GetImagesAsync(text);
-                        images.Add("DuckDuckGo", duckduck);
+                while (callQword.Count != 0)
+                    qword.Enqueue(callQword.Dequeue()); // euh
 
-                    }
-                    catch (Exception e) when (e is HttpRequestException or GScraperException)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Duckduckgo: {e.Message}");
-                        Console.ResetColor();
-                        if (e.Message.Contains("token") || e.Message.Contains("403"))
-                            ddc = false;
-                    }
-                }
 
-                if (brv)
-                {
-                    IEnumerable<IImageResult> bravelist;
-                    try
-                    {
-                        bravelist = await brave.GetImagesAsync(text);
-                        images.Add("Brave", bravelist);
-                    }
-                    catch (Exception e) when (e is HttpRequestException or GScraperException)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Brave: {e.Message}");
-                        Console.ResetColor();
-                        if (e.Message.Contains("429"))
-                            brv = false;
-
-                    }
-                }
-
-                if (!GoogleScraper.gg && !ddc && !brv)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    await Console.Out.WriteLineAsync("All search engine down for now");
-                    Console.ResetColor();
-                    break;
-                }
-                else if (GoogleScraper.gg && ddc && brv)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    await Console.Out.WriteLineAsync("All search engine up");
-                    Console.ResetColor();
-                }
-                else
-                {
-                    if (!GoogleScraper.gg)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        if (printLog)
-                            Console.WriteLine("Google stopped");
-                        Console.ResetColor();
-                        GoogleScraper.gg = true;
-                    }
-                    if (!ddc)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        if (printLog)
-                            Console.WriteLine("Duckduckgo stopped");
-                        Console.ResetColor();
-                        //ddc = true;
-                    }
-                    if (!brv)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        if (printLog)
-                            Console.WriteLine("Brave stopped");
-                        Console.ResetColor();
-                        //brv = true;
-                    }
-                }
-                var region = new[] { "en", "fr"};
-                Random rng = new();
-                var choice = rng.Next(0, region.Length);
-                var url = $"https://www.google.com/search?q={text}&tbm=isch&hl={region[choice]}";
-                using (HttpClient client = new HttpClient())
-                {
-                    using (HttpResponseMessage response = client.GetAsync(url).Result)
-                    {
-                        using (HttpContent content = response.Content)
-                        {
-                            string result = content.ReadAsStringAsync().Result;
-                            HtmlDocument document = new();
-                            document.LoadHtml(result);
-
-                            table = document.DocumentNode.SelectNodes("//a[@class='TwVfHd']");
-
-                            try
-                            {
-                                if (table != null)
-                                {
-                                    for (var j = 0; j < table.Count; j++)
-                                    {
-                                        try
-                                        {
-                                            if (await Read(redis, table[j].InnerText) == -1)
-                                            {
-                                                qword.Enqueue(table[j].InnerText);
-                                                Console.ForegroundColor = ConsoleColor.Green;
-                                                await Console.Out.WriteLineAsync($"Tag Added {table[j].InnerText}");
-                                                Console.ResetColor();
-                                            }
-                                            else
-                                            {
-                                                Console.ForegroundColor = ConsoleColor.Red;
-                                                await Console.Out.WriteLineAsync($"Tag already exist {table[j].InnerText}");
-                                                Console.ResetColor();
-                                            }
-                                        }
-                                        catch { }
-                                    }
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                await Console.Out.WriteLineAsync("No Tag!");
-                                await Console.Out.WriteLineAsync(e.Message);
-                                Console.ResetColor();
-                            }
-                        }
-                    }
-                }
-
-                if (table == null)
-                {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    await Console.Out.WriteLineAsync("No more Tag found!");
-                    Console.ResetColor();
-                }
-
-                foreach (var image in images)
+                foreach (var image in site)
                 {
                     if (image.Value != null)
                     {
@@ -300,7 +136,7 @@ internal static class Program
                         await Console.Out.WriteLineAsync("Image is null fix it yourself !");
                     }
                 }
-                images.Clear();
+                site.Clear();
 
                 if (qword.Count <= 2)
                 {
@@ -387,6 +223,4 @@ internal static class Program
         var key = new RedisKey("already_done_list");
         await redis.GetDatabase().ListLeftPushAsync(key, value);
     }
-
-    private static async Task<long> Read(ConnectionMultiplexer redis, string text) => await redis.GetDatabase().ListPositionAsync("already_done_list", text);
 }
