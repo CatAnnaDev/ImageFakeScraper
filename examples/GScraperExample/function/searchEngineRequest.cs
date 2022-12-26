@@ -3,25 +3,36 @@ using GScraper.Brave;
 using GScraper.DuckDuckGo;
 using GScraper.Google;
 using HtmlAgilityPack;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Net.Http;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GScraperExample.function
 {
     internal class searchEngineRequest
     {
+
         private static readonly GoogleScraper scraper = new();
         private static readonly DuckDuckGoScraper duck = new();
         private static readonly BraveScraper brave = new();
         private static bool ddc = false;
         private static bool brv = false;
+        private static bool ov = false;
         private static readonly bool printLog = false;
         private static readonly Dictionary<string, IEnumerable<IImageResult>> tmp = new();
         private static readonly Queue<string> qword = new();
         private static HtmlNodeCollection? table;
+
+        static Regex rx = new(@".*\.(jpg|png|gif)?$");
+
 
         public static async Task<Dictionary<string, IEnumerable<IImageResult>>> getAllDataFromsearchEngineAsync(string text)
         {
@@ -88,13 +99,51 @@ namespace GScraperExample.function
                 }
             }
 
-            if (!GoogleScraper.gg && !ddc && !brv)
+            if (ov)
+            {
+                try
+                {
+                    var y = 1;
+                    List<Oinrgeno> blap = new();
+                    Oinrgeno blap2 = new();
+                    IEnumerable<IImageResult> openverse;
+                    HttpClient http = new();
+                    http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
+                    var data = await http.GetStringAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={y}");
+                    Root jsonparse = JsonConvert.DeserializeObject<Root>(data);
+
+                    for (y = 0; y < jsonparse.page_count; y++) {
+
+                        for (int i = 0; i < jsonparse.results.Count; i++)
+                        {
+                            if (rx.IsMatch(jsonparse.results[i].url))
+                            {
+                                blap2.Url = jsonparse.results[i].url;
+                                blap.Add(blap2);
+                            }   
+                        }
+                    }
+                    tmp.Add($"Openverse", blap.AsEnumerable());
+                }
+                catch (Exception e) when (e is HttpRequestException or GScraperException)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Openverse: {e.Message}");
+                    Console.ResetColor();
+                    if (e.Message.Contains("429"))
+                    {
+                        ov = false;
+                    }
+                }
+            }
+
+            if (!GoogleScraper.gg && !ddc && !brv && !ov)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 await Console.Out.WriteLineAsync("All search engine down for now");
                 Console.ResetColor();
             }
-            else if (GoogleScraper.gg && ddc && brv)
+            else if (GoogleScraper.gg && ddc && brv && ov)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 await Console.Out.WriteLineAsync("All search engine up");
@@ -133,7 +182,18 @@ namespace GScraperExample.function
                     }
 
                     Console.ResetColor();
-                    brv = true;
+                    //brv = true;
+                }
+                if (!ov)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    if (printLog)
+                    {
+                        Console.WriteLine("Openverse stopped");
+                    }
+
+                    Console.ResetColor();
+                    ov = true;
                 }
             }
 
@@ -198,5 +258,70 @@ namespace GScraperExample.function
         {
             return await redis.GetDatabase().ListPositionAsync("already_done_list", text);
         }
+    }
+
+    public class Oinrgeno : IImageResult
+    {
+        public string Url { get; set; }
+
+        public string Title { get; set; }
+
+        public int Width { get; set; }
+
+        public int Height { get; set; }
+    }
+
+    public class Result
+    {
+        public string id { get; set; }
+        public string title { get; set; }
+        public string foreign_landing_url { get; set; }
+        public string url { get; set; }
+        public string creator { get; set; }
+        public string creator_url { get; set; }
+        public string license { get; set; }
+        public string license_version { get; set; }
+        public string license_url { get; set; }
+        public string provider { get; set; }
+        public string source { get; set; }
+        public object category { get; set; }
+        public object filesize { get; set; }
+        public object filetype { get; set; }
+        public List<Tag> tags { get; set; }
+        public object attribution { get; set; }
+        public List<string> fields_matched { get; set; }
+        public bool mature { get; set; }
+        public object height { get; set; }
+        public object width { get; set; }
+        public string thumbnail { get; set; }
+        public string detail_url { get; set; }
+        public string related_url { get; set; }
+    }
+
+    public class Root
+    {
+        public int result_count { get; set; }
+        public int page_count { get; set; }
+        public int page_size { get; set; }
+        public int page { get; set; }
+        public List<Result> results { get; set; }
+    }
+
+    public class Tag
+    {
+        public string name { get; set; }
+        public double? accuracy { get; set; }
+    }
+
+    internal class OpenverseOriginalImage
+    {
+        [JsonPropertyName("height")]
+        public int Height { get; set; }
+
+        [JsonPropertyName("url")]
+        public string Url { get; set; } = null!;
+
+        [JsonPropertyName("width")]
+        public int Width { get; set; }
     }
 }
