@@ -27,6 +27,8 @@ namespace GScraperExample.function
         private static readonly Dictionary<string, IEnumerable<IImageResult>> tmp = new();
         private static readonly Queue<string> qword = new();
         private static HtmlNodeCollection? table;
+        private static List<Oinrgeno> blap = new();
+        private static HttpClient http = new();
 
         static Regex rx = new(@".*\.(jpg|png|gif)?$");
 
@@ -104,8 +106,6 @@ namespace GScraperExample.function
                 try
                 {
                     int y = 1;
-                    List<Oinrgeno> blap = new();
-                    HttpClient http = new();
                     //http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
                     var data = await http.GetStringAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={y}&mature=true");
                     Root jsonparse = JsonConvert.DeserializeObject<Root>(data);
