@@ -26,7 +26,7 @@ public class DuckDuckGoScraper : IDisposable
 
     private static ReadOnlySpan<byte> TokenStart => new[] { (byte)'v', (byte)'q', (byte)'d', (byte)'=', (byte)'\'' };
 
-    private string _defaultUserAgent = GScraperRandomUa.RandomUserAgent;
+    private readonly string _defaultUserAgent = GScraperRandomUa.RandomUserAgent;
 
     private static readonly Uri _defaultBaseAddress = new(DefaultApiEndpoint);
 
@@ -95,7 +95,7 @@ public class DuckDuckGoScraper : IDisposable
     /// <exception cref="ArgumentNullException"><paramref name="query"/> is null or empty.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="query"/> is larger than <see cref="MaxQueryLength"/>.</exception>
     /// <exception cref="GScraperException">An error occurred during the scraping process.</exception>
-    public async Task<IEnumerable<DuckDuckGoImageResult>> GetImagesAsync(string query, SafeSearchLevel safeSearch = SafeSearchLevel.Off,
+    public async Task<IEnumerable<DuckDuckGoImageResult>?> GetImagesAsync(string query, SafeSearchLevel safeSearch = SafeSearchLevel.Off,
         DuckDuckGoImageTime time = DuckDuckGoImageTime.Any, DuckDuckGoImageSize size = DuckDuckGoImageSize.All, DuckDuckGoImageColor color = DuckDuckGoImageColor.All,
         DuckDuckGoImageType type = DuckDuckGoImageType.All, DuckDuckGoImageLayout layout = DuckDuckGoImageLayout.All, DuckDuckGoImageLicense license = DuckDuckGoImageLicense.All,
         string region = DuckDuckGoRegions.UsEnglish)
@@ -105,9 +105,9 @@ public class DuckDuckGoScraper : IDisposable
         GScraperGuards.ArgumentInRange(query.Length, MaxQueryLength, nameof(query), $"The query cannot be larger than {MaxQueryLength}.");
 
         string token = await GetTokenAsync(query).ConfigureAwait(false);
-        var uri = new Uri(BuildImageQuery(token, query, safeSearch, time, size, color, type, layout, license, region), UriKind.Relative);
+        Uri uri = new(BuildImageQuery(token, query, safeSearch, time, size, color, type, layout, license, region), UriKind.Relative);
 
-        var stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
+        System.IO.Stream stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
         try
         {
             response = (await JsonSerializer.DeserializeAsync(stream, DuckDuckGoImageSearchResponseContext.Default.DuckDuckGoImageSearchResponse).ConfigureAwait(false))!;
@@ -136,7 +136,7 @@ public class DuckDuckGoScraper : IDisposable
         return url;
     }
 
-    private async Task<string> GetTokenAsync(string query)
+    private async Task<string?> GetTokenAsync(string query)
     {
         try
         {
@@ -155,19 +155,12 @@ public class DuckDuckGoScraper : IDisposable
             throw new GScraperException("Failed to get the DuckDuckGo token.", "DuckDuckGo");
         }
 
-        var sliced = rawHtml.Slice(startIndex + TokenStart.Length);
+        ReadOnlySpan<byte> sliced = rawHtml[(startIndex + TokenStart.Length)..];
         int endIndex = sliced.IndexOf((byte)'\'');
 
-        if (endIndex == -1)
-        {
-            throw new GScraperException("Failed to get the DuckDuckGo token.", "DuckDuckGo");
-        }
-
-#if NETSTANDARD2_1_OR_GREATER
-        return Encoding.UTF8.GetString(sliced.Slice(0, endIndex));
-#else
-        return Encoding.UTF8.GetString(sliced.Slice(0, endIndex).ToArray());
-#endif
+        return endIndex == -1
+            ? throw new GScraperException("Failed to get the DuckDuckGo token.", "DuckDuckGo")
+            : Encoding.UTF8.GetString(sliced[..endIndex].ToArray());
     }
 
     /// <inheritdoc />
@@ -180,9 +173,15 @@ public class DuckDuckGoScraper : IDisposable
     /// <inheritdoc cref="Dispose()"/>
     protected virtual void Dispose(bool disposing)
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         if (disposing)
+        {
             _httpClient.Dispose();
+        }
 
         _disposed = true;
     }

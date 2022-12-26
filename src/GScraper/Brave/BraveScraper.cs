@@ -18,7 +18,7 @@ public class BraveScraper : IDisposable
     /// </summary>
     public const string DefaultApiEndpoint = "https://search.brave.com/api/";
 
-    private string _defaultUserAgent = GScraperRandomUa.RandomUserAgent;
+    private readonly string _defaultUserAgent = GScraperRandomUa.RandomUserAgent;
     private static readonly Uri _defaultBaseAddress = new(DefaultApiEndpoint);
 
     private readonly HttpClient _httpClient;
@@ -82,15 +82,15 @@ public class BraveScraper : IDisposable
     /// <returns>A task representing the asynchronous operation. The result contains an <see cref="IEnumerable{T}"/> of <see cref="BraveImageResult"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="query"/> is null or empty.</exception>
     /// <exception cref="GScraperException">An error occurred during the scraping process.</exception>
-    public async Task<IEnumerable<BraveImageResult>> GetImagesAsync(string query, SafeSearchLevel safeSearch = SafeSearchLevel.Off,
+    public async Task<IEnumerable<BraveImageResult>?> GetImagesAsync(string query, SafeSearchLevel safeSearch = SafeSearchLevel.Off,
         string? country = null, BraveImageSize size = BraveImageSize.All, BraveImageType type = BraveImageType.All,
         BraveImageLayout layout = BraveImageLayout.All, BraveImageColor color = BraveImageColor.All, BraveImageLicense license = BraveImageLicense.All)
     {
         GScraperGuards.NotNull(query, nameof(query));
 
-        var uri = new Uri(BuildImageQuery(query, safeSearch, country, size, type, layout, color, license), UriKind.Relative);
+        Uri uri = new(BuildImageQuery(query, safeSearch, country, size, type, layout, color, license), UriKind.Relative);
 
-        var stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
+        System.IO.Stream stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
         try
         {
             response = (await JsonSerializer.DeserializeAsync(stream, BraveImageSearchResponseContext.Default.BraveImageSearchResponse).ConfigureAwait(false))!;
@@ -106,25 +106,39 @@ public class BraveScraper : IDisposable
         string url = $"images?q={Uri.EscapeDataString(query)}";
 
         if (safeSearch != SafeSearchLevel.Moderate)
+        {
             url += $"&safesearch={safeSearch.ToString().ToLowerInvariant()}";
+        }
 
         if (!string.IsNullOrEmpty(country))
+        {
             url += $"&country={country}";
+        }
 
         if (size != BraveImageSize.All)
+        {
             url += $"&size={size}";
+        }
 
         if (type != BraveImageType.All)
+        {
             url += $"&_type={type}";
+        }
 
         if (layout != BraveImageLayout.All)
+        {
             url += $"&layout={layout}";
+        }
 
         if (color != BraveImageColor.All)
+        {
             url += $"&color={color}";
+        }
 
         if (license != BraveImageLicense.All)
+        {
             url += $"&license={license}";
+        }
 
         url += "&source=web";
 
@@ -141,9 +155,15 @@ public class BraveScraper : IDisposable
     /// <inheritdoc cref="Dispose()"/>
     protected virtual void Dispose(bool disposing)
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         if (disposing)
+        {
             _httpClient.Dispose();
+        }
 
         _disposed = true;
     }

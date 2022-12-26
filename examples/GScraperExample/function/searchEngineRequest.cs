@@ -133,7 +133,7 @@ namespace GScraperExample.function
                     }
 
                     Console.ResetColor();
-                    //brv = true;
+                    brv = true;
                 }
             }
 
