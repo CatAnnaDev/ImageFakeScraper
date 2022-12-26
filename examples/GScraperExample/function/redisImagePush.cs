@@ -46,7 +46,7 @@ namespace GScraperExample.function
                         {
                             var pattern = new RedisValue("DB0");
                             var redisList = conn.GetServer("imagefake.net:6379").Keys(0, "*image_jobs*").ToArray();
-                            if(conn.GetDatabase().SetLength(redisList.Last()) >= 1_000_000)
+                            if(conn.GetDatabase().SetLength(redisList.First()) >= 1_000_000)
                             {
                                 var lastList = redisList.First().ToString().Split("_");
                                 var parse = int.Parse(lastList.Last());
@@ -63,7 +63,7 @@ namespace GScraperExample.function
                             Console.ForegroundColor = ConsoleColor.Green;
                             Console.WriteLine($"{image.Key} Images found: {data}");
                             Console.ResetColor();
-                        GScraperExample.Program.totalimageupload += data;
+                            Program.totalimageupload += data;
                             data = 0;
 
                     }
