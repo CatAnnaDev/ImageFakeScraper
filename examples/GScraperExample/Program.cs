@@ -2,12 +2,16 @@
 using GScraper.DuckDuckGo;
 using GScraper.Google;
 using GScraperExample.function;
+using GScraperExample.uselessCode;
 using HtmlAgilityPack;
+using Microsoft.VisualBasic;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,8 +20,48 @@ namespace GScraperExample;
 
 internal static class Program
 {
+    static ConnectionMultiplexer redis;
+    static Queue<string> qword;
+
+    [DllImport("Kernel32")]
+    private static extern bool SetConsoleCtrlHandler(EventHandler handler, bool add);
+
+    private delegate bool EventHandler(CtrlType sig);
+    static EventHandler _handler;
+
+    enum CtrlType
+    {
+        CTRL_C_EVENT = 0,
+        CTRL_BREAK_EVENT = 1,
+        CTRL_CLOSE_EVENT = 2,
+        CTRL_LOGOFF_EVENT = 5,
+        CTRL_SHUTDOWN_EVENT = 6
+    }
+
+    private static bool HandlerAsync(CtrlType sig)
+    {
+        Console.WriteLine("Exiting system due to external CTRL-C, or process kill, or shutdown");
+        Console.WriteLine("Upload all tag in redis in progress");
+
+        while (qword.Count != 0)
+        {
+            redis.GetDatabase().ListLeftPush("words_list", qword.Dequeue());
+        }
+
+        Console.WriteLine("All done press enter to exit");
+        Console.ReadLine();
+        Environment.Exit(-1);
+        return true;
+    }
+
+
     private static async Task Main(string[] args)
     {
+        qword = new();
+
+        _handler += new EventHandler(HandlerAsync);
+        SetConsoleCtrlHandler(_handler, true);
+
         Queue<string> word = new();
 
         //string[] readText = File.ReadAllText("words.txt").Split("\n");
@@ -32,12 +76,9 @@ internal static class Program
         var options = ConfigurationOptions.Parse($"{opts.Host}:{opts.Port},password={credentials[1]},user={credentials[0]}");
         options.ReconnectRetryPolicy = new ExponentialRetry(10);
         options.CommandMap = CommandMap.Create(new HashSet<string> { "SUBSCRIBE" }, false);
-        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(options);
+        redis = ConnectionMultiplexer.Connect(options);
 
         //write("mot random en cas de besoin", redis);
-
-
-        bool printLog = false;
 
         IDatabase conn = redis.GetDatabase();
 
@@ -46,7 +87,7 @@ internal static class Program
         using var brave = new BraveScraper();
         HtmlNodeCollection table;
 
-        Queue<string> qword = new();
+        
 
         var key = new RedisKey("already_done_list");
         var meow = await conn.ListGetByIndexAsync(key, 0);
@@ -60,14 +101,6 @@ internal static class Program
             waittime = double.Parse(args[1]);
         else
             waittime = 0;
-
-        //string[] readText = File.ReadAllLines("google_twunter_lol.txt");
-        //foreach (string s in readText)
-        //{
-        //    qword.Add(s);
-        //}
-        //
-        //qword.Reverse();
 
 
         if (redis.IsConnected)
@@ -97,45 +130,9 @@ internal static class Program
                 while (callQword.Count != 0)
                     qword.Enqueue(callQword.Dequeue()); // euh
 
+                var tr = await redisImagePush.GetAllImageAndPush(conn, site);
+                totalimageupload += tr;
 
-                foreach (var image in site)
-                {
-                    if (image.Value != null)
-                    {
-
-                        var list = new List<string>();
-
-                        foreach (var daata in image.Value)
-                        {
-                            if (printLog)
-                            {
-                                Console.WriteLine();
-                                Console.WriteLine(JsonSerializer.Serialize(daata, daata.GetType(), new JsonSerializerOptions { WriteIndented = true }));
-                                Console.WriteLine(daata.ToString());
-                            }
-                            list.Add(daata.Url);
-
-                            if (printLog)
-                                Console.WriteLine();
-                        }
-
-                        var parse = list.ToArray();
-                        var push = Array.ConvertAll(parse, item => (RedisValue)item);
-                        try
-                        {
-                            var truc = await conn.SetAddAsync("image_jobs", push);
-                            totalimageupload += truc;
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine($"{image.Key} Images found: {truc}");
-                            Console.ResetColor();
-                        }
-                        catch { Console.ForegroundColor = ConsoleColor.Red; await Console.Out.WriteLineAsync("Fail upload redis !"); Console.ResetColor(); }
-                    }
-                    else
-                    {
-                        await Console.Out.WriteLineAsync("Image is null fix it yourself !");
-                    }
-                }
                 site.Clear();
 
                 if (qword.Count <= 2)
@@ -213,7 +210,6 @@ internal static class Program
             }
         }
     }
-
 
     private static async Task<RedisValue> getNewtag(ConnectionMultiplexer redis) => await redis.GetDatabase().ListLeftPopAsync("words_list");
 
