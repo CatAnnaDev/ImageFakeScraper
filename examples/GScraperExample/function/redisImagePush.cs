@@ -11,8 +11,8 @@ namespace GScraperExample.function
     internal class redisImagePush
     {
         private static readonly bool printLog = false;
-        
-        public static async Task<long> GetAllImageAndPush(IDatabase conn, Dictionary<string, IEnumerable<IImageResult>> site)
+
+        public static async Task<long> GetAllImageAndPush(ConnectionMultiplexer conn, Dictionary<string, IEnumerable<IImageResult>> site)
         {
             long data = 0;
             foreach (KeyValuePair<string, IEnumerable<IImageResult>> image in site)
@@ -42,12 +42,29 @@ namespace GScraperExample.function
                     RedisValue[] push = Array.ConvertAll(list.ToArray(), item => (RedisValue)item);
                     try
                     {
-                        data = await conn.SetAddAsync("image_jobs", push);
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"{image.Key} Images found: {data}");
-                        Console.ResetColor();
-                        Program.totalimageupload += data;
-                        data = 0;
+                        if (conn.GetDatabase().SetLength(Program.key) >= 1_000_000)
+                        {
+                            var pattern = new RedisValue("DB0");
+                            var redisList = conn.GetServer("imagefake.net:6379").Keys(0, "*image_jobs*").ToArray();
+                            if(conn.GetDatabase().SetLength(redisList.Last()) >= 1_000_000)
+                            {
+                                var lastList = redisList.First().ToString().Split("_");
+                                var parse = int.Parse(lastList.Last());
+                                Program.key = $"{lastList[0]}_{lastList[1]}_{parse+1}";
+                            }
+                            else
+                            {
+                                Program.key = redisList.Last();
+                            }
+
+                        }
+
+                            data = await conn.GetDatabase().SetAddAsync(Program.key, push);
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine($"{image.Key} Images found: {data}");
+                            Console.ResetColor();
+                        GScraperExample.Program.totalimageupload += data;
+                            data = 0;
 
                     }
                     catch { Console.ForegroundColor = ConsoleColor.Red; await Console.Out.WriteLineAsync("Fail upload redis !"); Console.ResetColor(); }

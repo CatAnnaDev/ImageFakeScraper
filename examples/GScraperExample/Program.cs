@@ -2,7 +2,6 @@
 using GScraper.DuckDuckGo;
 using GScraper.Google;
 using GScraperExample.function;
-using GScraperExample.uselessCode;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -19,6 +18,7 @@ internal static class Program
     private static ConnectionMultiplexer? redis;
     public static Queue<string>? qword;
     private static Dictionary<string, IEnumerable<GScraper.IImageResult>> site;
+    public static string key = "image_jobs_0";
 
     [DllImport("Kernel32")]
     private static extern bool SetConsoleCtrlHandler(EventHandler handler, bool add);
@@ -73,7 +73,7 @@ internal static class Program
         //    word.Enqueue(s);
         //}
 
-        var redisConnector = new redisConnection(args[0]);
+        var redisConnector = new redisConnection(args[0], 10);
         var redis = redisConnector.redisConnect();
         IDatabase conn = redis.GetDatabase();
 
@@ -111,7 +111,7 @@ internal static class Program
                 while (callQword.Count != 0)
                     qword.Enqueue(callQword.Dequeue()); // euh
 
-                long tr = await redisImagePush.GetAllImageAndPush(conn, site);
+                long tr = await redisImagePush.GetAllImageAndPush(redis, site);
 
                 site.Clear();
 
@@ -136,12 +136,12 @@ internal static class Program
                     Console.ResetColor();
                 }
 
-                if (conn.SetLength("image_jobs") == uint.MaxValue - 10000)
+                if (conn.SetLength("image_jobs_0") == uint.MaxValue - 10000)
                 {
                     try
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Redis queue alomst full {conn.ListLength("image_jobs")}");
+                        Console.WriteLine($"Redis queue alomst full {conn.ListLength("image_jobs_0")}");
                         Console.ResetColor();
                         _ = Console.ReadLine();
                     }
@@ -153,7 +153,7 @@ internal static class Program
                 timer.Stop();
 
                 string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
-                long redisDBLength = conn.SetLength("image_jobs");
+                long redisDBLength = conn.SetLength("image_jobs_0");
                 string redisLength = $"{redisDBLength} / {uint.MaxValue} ({100.0 * redisDBLength / uint.MaxValue:0.000}%)";
 
                 printData(
