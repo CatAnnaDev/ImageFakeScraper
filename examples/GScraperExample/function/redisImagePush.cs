@@ -44,7 +44,6 @@ namespace GScraperExample.function
                     {
                         var batch_size = 20;
                         List<string> batch = new();
-                        string[] batchPush = batch.ToArray();
                         long size = 0;
                         if (parse.Length > 20)
                         {
@@ -52,11 +51,10 @@ namespace GScraperExample.function
                             {
                                 if(batch.Count >= batch_size)
                                 {
-                                    RedisValue[] pussh = Array.ConvertAll(batchPush, item => (RedisValue)item);
+                                    RedisValue[] pussh = Array.ConvertAll(batch.ToArray(), item => (RedisValue)item);
                                     if(pussh.Length != 0)
                                         size += await conn.SetAddAsync("image_jobs", pussh);
                                     batch.Clear();
-                                    batchPush = batch.ToArray();
                                 }
                                 else
                                 {
