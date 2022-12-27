@@ -1,9 +1,11 @@
 ﻿using GScraper;
+using GScraperExample.uselessCode;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GScraperExample.function
@@ -70,7 +72,12 @@ namespace GScraperExample.function
                         Console.ResetColor();
 
                         await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! /!\\");
-                        redisConnection.redisConnect();
+                        while (!conn.IsConnected)
+                        {
+                            Console.WriteLine("/!\\ Reconnecting to redis server ! 10sec /!\\");
+                            redisConnection.redisConnect();
+                            Thread.Sleep(TimeSpan.FromSeconds(10));
+                        }
                     }
                 }
                 else

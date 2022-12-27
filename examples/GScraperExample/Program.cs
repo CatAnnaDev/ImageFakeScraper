@@ -16,7 +16,7 @@ namespace GScraperExample;
 
 internal static class Program
 {
-    private static ConnectionMultiplexer? redis;
+    public static ConnectionMultiplexer? redis;
     public static redisConnection redisConnector;
     public static Queue<string>? qword;
     private static Dictionary<string, IEnumerable<GScraper.IImageResult>> site;
@@ -81,7 +81,7 @@ internal static class Program
         //    word.Enqueue(s);
         //}
         string credential = args[0];
-        redisConnection redisConnector = new redisConnection(credential, 10);
+        redisConnection redisConnector = new redisConnection(credential, 5000);
         var redis = redisConnection.redisConnect();
         redisConnection.redisConnect().ConnectionRestored += Program_ConnectionRestored;
         redisConnection.redisConnect().ConnectionFailed += Program_ConnectionFailed;
@@ -185,7 +185,7 @@ internal static class Program
         }
         else
         {
-            while (redis.IsConnected)
+            while (!redis.IsConnected)
             {
                 await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! 10sec /!\\");
                 redisConnection.redisConnect();
@@ -198,7 +198,7 @@ internal static class Program
     private static void Program_ConnectionFailed(object? sender, ConnectionFailedEventArgs e)
     {
         Console.WriteLine("/!\\ Connection Failed to redis server ! /!\\");
-        while (redis.IsConnected)
+        while (!redis.IsConnected)
         {
             Console.WriteLine("/!\\ Reconnecting to redis server ! 10sec /!\\");
             redisConnection.redisConnect();
