@@ -16,6 +16,7 @@ namespace GScraperExample;
 
 internal static class Program
 {
+    private static readonly object ConsoleWriterLock = new object();
     public static ConnectionMultiplexer? redis;
     public static redisConnection redisConnector;
     public static Queue<string>? qword;
@@ -60,10 +61,6 @@ internal static class Program
     private static async Task Main(string[] args)
     {
 
-        
-        //server.Start();
-
-
         using GoogleScraper scraper = new();
         using DuckDuckGoScraper duck = new();
         using BraveScraper brave = new();
@@ -80,6 +77,7 @@ internal static class Program
         //{
         //    word.Enqueue(s);
         //}
+
         string credential = args[0];
         redisConnection redisConnector = new redisConnection(credential, 5000);
         var redis = redisConnection.redisConnect();
@@ -90,8 +88,8 @@ internal static class Program
         //write("mot random en cas de besoin", redis);
 
         RedisKey key = new("already_done_list");
-        RedisValue meow = await conn.ListGetByIndexAsync(key, 0);
-        string text = meow.ToString();
+        RedisValue getredisValue = await conn.ListGetByIndexAsync(key, 0);
+        string text = getredisValue.ToString();
         qword.Enqueue(text);
 
         double waittime = args.Length > 0.1 ? double.Parse(args[1]) : 0;
@@ -214,9 +212,12 @@ internal static class Program
 
     private static void printData(string text)
     {
-        Console.WriteLine("================================================================================================================================");
-        Console.WriteLine(text);
-        Console.WriteLine("================================================================================================================================");
+        lock (ConsoleWriterLock)
+        {
+            Console.WriteLine("========================================================");
+            Console.WriteLine(text);
+            Console.WriteLine("========================================================");
+        }
     }
 
     private static async Task<RedisValue> redisGetNewTag(ConnectionMultiplexer redis) => await redis.GetDatabase().ListLeftPopAsync("words_list");

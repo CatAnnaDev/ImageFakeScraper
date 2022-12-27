@@ -34,7 +34,6 @@ namespace GScraperExample.function
                         list.Add(daata.Url);
                     }
 
-                    //string[] parse = list.ToArray();
                     RedisValue[] push = Array.ConvertAll(list.ToArray(), item => (RedisValue)item);
                     try
                     {
