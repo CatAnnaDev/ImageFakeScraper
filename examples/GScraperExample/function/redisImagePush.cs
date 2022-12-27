@@ -49,7 +49,7 @@ namespace GScraperExample.function
                             }
                             else
                             {
-                                Program.key = redisList.Last();
+                                Program.key = redisList.First();
                             }
 
                         }
