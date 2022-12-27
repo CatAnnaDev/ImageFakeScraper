@@ -161,7 +161,7 @@ internal static class Program
                 timer.Stop();
 
                 string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
-                long redisDBLength = conn.SetLength("image_jobs_0");
+                long redisDBLength = conn.SetLength(Program.key);
                 string redisLength = $"{redisDBLength} / {uint.MaxValue} ({100.0 * redisDBLength / uint.MaxValue:0.00000}%)";
 
                 printData(
