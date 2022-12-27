@@ -31,11 +31,6 @@ namespace GScraperExample.function
                             Console.WriteLine(daata.ToString());
                         }
                         list.Add(daata.Url);
-
-                        if (printLog)
-                        {
-                            Console.WriteLine();
-                        }
                     }
 
                     //string[] parse = list.ToArray();
@@ -67,7 +62,16 @@ namespace GScraperExample.function
                             data = 0;
 
                     }
-                    catch { Console.ForegroundColor = ConsoleColor.Red; await Console.Out.WriteLineAsync("Fail upload redis !"); Console.ResetColor(); }
+                    catch { 
+                        Console.ForegroundColor = ConsoleColor.Red; 
+                        await Console.Out.WriteLineAsync("/!\\ Fail upload redis ! /!\\");
+                        await Console.Out.WriteLineAsync("/!\\ Fail upload redis ! /!\\");
+                        await Console.Out.WriteLineAsync("/!\\ Fail upload redis ! /!\\");
+                        Console.ResetColor();
+
+                        await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! /!\\");
+                        redisConnection.redisConnect();
+                    }
                 }
                 else
                 {

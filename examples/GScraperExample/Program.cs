@@ -10,14 +10,17 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Prometheus;
 
 namespace GScraperExample;
 
 internal static class Program
 {
     private static ConnectionMultiplexer? redis;
+    public static redisConnection redisConnector;
     public static Queue<string>? qword;
     private static Dictionary<string, IEnumerable<GScraper.IImageResult>> site;
+    private static KestrelMetricServer server = new KestrelMetricServer(port: 4444);
     public static string key = "image_jobs_0";
 
     [DllImport("Kernel32")]
@@ -56,6 +59,11 @@ internal static class Program
 
     private static async Task Main(string[] args)
     {
+
+        
+        //server.Start();
+
+
         using GoogleScraper scraper = new();
         using DuckDuckGoScraper duck = new();
         using BraveScraper brave = new();
@@ -72,9 +80,11 @@ internal static class Program
         //{
         //    word.Enqueue(s);
         //}
-
-        var redisConnector = new redisConnection(args[0], 10);
-        var redis = redisConnector.redisConnect();
+        string credential = args[0];
+        redisConnection redisConnector = new redisConnection(credential, 10);
+        var redis = redisConnection.redisConnect();
+        redisConnection.redisConnect().ConnectionRestored += Program_ConnectionRestored;
+        redisConnection.redisConnect().ConnectionFailed += Program_ConnectionFailed;
         IDatabase conn = redis.GetDatabase();
 
         //write("mot random en cas de besoin", redis);
@@ -111,7 +121,7 @@ internal static class Program
                 while (callQword.Count != 0)
                     qword.Enqueue(callQword.Dequeue()); // euh
 
-                long tr = await redisImagePush.GetAllImageAndPush(redis, site);
+                _ = await redisImagePush.GetAllImageAndPush(redis, site);
 
                 site.Clear();
 
@@ -173,6 +183,33 @@ internal static class Program
                 timer.Reset();
             }
         }
+        else
+        {
+            while (redis.IsConnected)
+            {
+                await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! 10sec /!\\");
+                redisConnection.redisConnect();
+                Thread.Sleep(TimeSpan.FromSeconds(10));
+            }
+            
+        }
+    }
+
+    private static void Program_ConnectionFailed(object? sender, ConnectionFailedEventArgs e)
+    {
+        Console.WriteLine("/!\\ Connection Failed to redis server ! /!\\");
+        while (redis.IsConnected)
+        {
+            Console.WriteLine("/!\\ Reconnecting to redis server ! 10sec /!\\");
+            redisConnection.redisConnect();
+            Thread.Sleep(TimeSpan.FromSeconds(10));
+        }
+    }
+
+    private static void Program_ConnectionRestored(object? sender, ConnectionFailedEventArgs e)
+    {
+        Console.WriteLine("/!\\ Connection Restored to redis server ! /!\\");
+        redisConnection.redisConnect();
     }
 
     private static void printData(string text)

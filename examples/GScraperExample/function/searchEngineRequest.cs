@@ -222,13 +222,17 @@ namespace GScraperExample.function
             string url = $"https://www.google.com/search?q={text}&tbm=isch&hl={region[choice]}";
             using (HttpClient client = new())
             {
-                using HttpResponseMessage response = client.GetAsync(url).Result;
-                using HttpContent content = response.Content;
-                string result = content.ReadAsStringAsync().Result;
-                HtmlDocument document = new();
-                document.LoadHtml(result);
+                try
+                {
+                    using HttpResponseMessage response = client.GetAsync(url).Result;
+                    using HttpContent content = response.Content;
+                    string result = content.ReadAsStringAsync().Result;
+                    HtmlDocument document = new();
+                    document.LoadHtml(result);
 
-                table = document.DocumentNode.SelectNodes("//a[@class='TwVfHd']");
+                    table = document.DocumentNode.SelectNodes("//a[@class='TwVfHd']");
+                }
+                catch { }
 
                 try
                 {
