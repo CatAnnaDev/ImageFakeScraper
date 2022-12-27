@@ -1,5 +1,4 @@
 ﻿using GScraper;
-using GScraperExample.uselessCode;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
