@@ -252,7 +252,7 @@ namespace GScraperExample.function
 
         private static async Task<long> Read(ConnectionMultiplexer redis, string text)
         {
-            return await redis.GetDatabase().ListPositionAsync("already_done_list", text);
+            return await redis.GetDatabase().ListPositionAsync("words_done", text);
         }
     }
 

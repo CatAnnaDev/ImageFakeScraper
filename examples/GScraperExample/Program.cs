@@ -87,7 +87,7 @@ internal static class Program
 
         //write("mot random en cas de besoin", redis);
 
-        RedisKey key = new("already_done_list");
+        RedisKey key = new("words_done");
         RedisValue getredisValue = await conn.ListGetByIndexAsync(key, 0);
         string text = getredisValue.ToString();
         qword.Enqueue(text);
@@ -225,7 +225,7 @@ internal static class Program
     private static async void redisWriteNewTag(string text, ConnectionMultiplexer redis)
     {
         RedisValue value = new(text);
-        RedisKey key = new("already_done_list");
+        RedisKey key = new("words_done");
         await redis.GetDatabase().ListLeftPushAsync(key, value);
     }
 }
