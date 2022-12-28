@@ -169,11 +169,11 @@ internal static class Program
                 printData(
                         $"Uptime\t\t{uptimeFormated}\n" +
                         $"Done in\t\t{timer.ElapsedMilliseconds} ms\n" +
-                        $"Sleep\t\t{waittime} sec\n"+
+                        $"Sleep\t\t{waittime} sec\n" +
                         $"Memory\t\t{SizeSuffix(usedMemory)}\n"+
                         $"Previous\t{text}\n" +
                         $"Tags\t\t{qword.Count}\n" +
-                        $"Redis Key\t{Program.key}\n"+
+                        $"Redis Key\t{Program.key}\n" +
                         $"Redis Length\t{redisLength}\n" +
                         $"Words Length\t{await redis.GetDatabase().ListLengthAsync(key)}\n" +
                         $"Total upload\t{totalimageupload}\n");
