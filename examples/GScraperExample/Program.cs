@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,41 +22,7 @@ internal static class Program
     private static Dictionary<string, IEnumerable<GScraper.IImageResult>>? site;
     private static readonly KestrelMetricServer server = new(port: 4444);
     public static string key;
-
-
-    [DllImport("Kernel32")]
-    private static extern bool SetConsoleCtrlHandler(EventHandler handler, bool add);
-
-    private delegate bool EventHandler(CtrlType sig);
-
-    private static EventHandler? handler;
     public static long totalimageupload = 0;
-
-    private enum CtrlType
-    {
-        CTRL_C_EVENT = 0,
-        CTRL_BREAK_EVENT = 1,
-        CTRL_CLOSE_EVENT = 2,
-        CTRL_LOGOFF_EVENT = 5,
-        CTRL_SHUTDOWN_EVENT = 6
-    }
-
-    private static bool HandlerAsync(CtrlType sig)
-    {
-        Console.WriteLine("Exiting system due to external CTRL-C, or process kill, or shutdown");
-        Console.WriteLine("Upload all tag in redis in progress");
-
-        while (qword.Count != 0)
-        {
-            _ = redis.GetDatabase().ListLeftPush("words_list", qword.Dequeue());
-        }
-
-        Console.WriteLine("All done press enter to exit");
-        _ = Console.ReadLine();
-        Environment.Exit(-1);
-        return true;
-    }
-
 
     private static async Task Main(string[] args)
     {
@@ -67,9 +32,6 @@ internal static class Program
         using BraveScraper brave = new();
 
         qword = new();
-
-        handler += new EventHandler(HandlerAsync);
-        _ = SetConsoleCtrlHandler(handler, true);
 
         //Queue<string> word = new();
         //string[] readText = File.ReadAllText("words.txt").Split("\n");
