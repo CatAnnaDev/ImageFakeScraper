@@ -22,7 +22,7 @@ internal static class Program
     public static Queue<string>? qword;
     private static Dictionary<string, IEnumerable<GScraper.IImageResult>>? site;
     private static readonly KestrelMetricServer server = new(port: 4444);
-    public static string key = "image_jobs_0";
+    public static string key;
 
 
     [DllImport("Kernel32")]
