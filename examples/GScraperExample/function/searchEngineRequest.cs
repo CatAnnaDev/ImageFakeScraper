@@ -111,46 +111,92 @@ namespace GScraperExample.function
                     HttpResponseMessage resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={page}&mature=true");
 
                     var data = await resp.Content.ReadAsStringAsync();
-                    Root jsonparse = JsonConvert.DeserializeObject<Root>(data);
-                    if (jsonparse != null)
+                    if (data.StartsWith("{"))
                     {
-                        if (jsonparse?.results != null)
+                        Root jsonparse = JsonConvert.DeserializeObject<Root>(data);
+                        if (jsonparse != null)
                         {
-                            if (jsonparse?.results.Count != 0)
+                            if (jsonparse?.results != null)
                             {
-                                if (resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                                if (jsonparse?.results.Count != 0)
                                 {
-                                    Openserv409 = DateTime.Now + resp?.Headers?.RetryAfter?.Delta;
-                                    Console.ForegroundColor = ConsoleColor.Red;
-                                    Console.WriteLine($"Openverse RetryAfter {resp?.Headers?.RetryAfter?.Delta}");
-                                    Console.ResetColor();
-                                    //ov = false;
-                                }
-                                else
-                                {
-                                    try
+                                    if (resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                                     {
-                                        for (int i = 0; i < jsonparse.results.Count; i++)
+                                        Openserv409 = DateTime.Now + resp?.Headers?.RetryAfter?.Delta;
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine($"Openverse RetryAfter {resp?.Headers?.RetryAfter?.Delta}");
+                                        Console.ResetColor();
+                                        //ov = false;
+                                    }
+                                    else
+                                    {
+                                        try
                                         {
-                                            if (RegexCheck.IsMatch(jsonparse.results[i].url))
+                                            if (jsonparse.results.Count > 1)
                                             {
-
-                                                NeewItem blap2 = new()
+                                                for (int j = 0; j < jsonparse.page_count; j++)
                                                 {
-                                                    Url = jsonparse.results[i].url,
-                                                    Title = jsonparse.results[i].title,
-                                                    Height = 0,
-                                                    Width = 0
-                                                };
+                                                    resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={page}&mature=true");
 
-                                                OpenVersNewItem.Add(blap2);
+                                                    data = await resp.Content.ReadAsStringAsync();
+                                                    if (data.StartsWith("{"))
+                                                    {
+                                                        jsonparse = JsonConvert.DeserializeObject<Root>(data);
+                                                        if (jsonparse != null)
+                                                        {
+                                                            if (jsonparse?.results != null)
+                                                            {
+                                                                if (jsonparse?.results.Count != 0)
+                                                                {
+                                                                    page++;
+                                                                    for (int i = 0; i < jsonparse.results.Count; i++)
+                                                                    {
+                                                                        if (RegexCheck.IsMatch(jsonparse.results[i].url))
+                                                                        {
+
+                                                                            NeewItem blap2 = new()
+                                                                            {
+                                                                                Url = jsonparse.results[i].url,
+                                                                                Title = jsonparse.results[i].title,
+                                                                                Height = 0,
+                                                                                Width = 0
+                                                                            };
+
+                                                                            OpenVersNewItem.Add(blap2);
+                                                                        }
+                                                                    }
+
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
                                             }
+                                            else
+                                            {
+                                                for (int i = 0; i < jsonparse.results.Count; i++)
+                                                {
+                                                    if (RegexCheck.IsMatch(jsonparse.results[i].url))
+                                                    {
+
+                                                        NeewItem blap2 = new()
+                                                        {
+                                                            Url = jsonparse.results[i].url,
+                                                            Title = jsonparse.results[i].title,
+                                                            Height = 0,
+                                                            Width = 0
+                                                        };
+
+                                                        OpenVersNewItem.Add(blap2);
+                                                    }
+                                                }
+                                            }
+                                            tmp.Add($"Openverse", OpenVersNewItem.AsEnumerable());
+
                                         }
-                                        tmp.Add($"Openverse", OpenVersNewItem.AsEnumerable());
+                                        catch { }
 
                                     }
-                                    catch { }
-
                                 }
                             }
                         }
