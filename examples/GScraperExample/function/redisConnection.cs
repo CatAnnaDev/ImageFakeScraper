@@ -20,6 +20,7 @@ namespace GScraperExample.function
             string[] credentials = opts.UserInfo.Split(':');
             ConfigurationOptions options = ConfigurationOptions.Parse($"{opts.Host}:{opts.Port},password={credentials[1]},user={credentials[0]}");
             options.AbortOnConnectFail = false;
+            options.AsyncTimeout = 20000;
             options.ReconnectRetryPolicy = new ExponentialRetry(exponentialRetry);
             options.CommandMap = CommandMap.Create(new HashSet<string> { "SUBSCRIBE" }, false);
             return ConnectionMultiplexer.Connect(options);

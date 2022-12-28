@@ -65,9 +65,9 @@ namespace GScraperExample.function
                     }
                     catch { 
                         Console.ForegroundColor = ConsoleColor.Red; 
-                        await Console.Out.WriteLineAsync("/!\\ Fail upload redis ! /!\\");
-                        await Console.Out.WriteLineAsync("/!\\ Fail upload redis ! /!\\");
-                        await Console.Out.WriteLineAsync("/!\\ Fail upload redis ! /!\\");
+                        await Console.Out.WriteLineAsync($"/!\\ Fail upload redis {image.Key} ! /!\\");
+                        await Console.Out.WriteLineAsync($"/!\\ Fail upload redis {image.Key} ! /!\\");
+                        await Console.Out.WriteLineAsync($"/!\\ Fail upload redis {image.Key} ! /!\\");
                         Console.ResetColor();
 
                         await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! /!\\");
