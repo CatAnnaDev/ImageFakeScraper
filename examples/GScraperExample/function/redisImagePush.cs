@@ -39,18 +39,34 @@ namespace GScraperExample.function
                     {
                         if (conn.GetDatabase().SetLength(Program.key) >= 1_000_000)
                         {
+                            var DBnum = 0;
+                            var tmp = 0;
+                            RedisKey newKey;
                             Uri opts = new(args[0]);
                             var pattern = new RedisValue("DB0");
-                            var redisList = conn.GetServer($"{opts.Host}:{opts.Port}").Keys(0, "*image_jobs_*").ToArray();
-                            if (conn.GetDatabase().SetLength(redisList.First()) >= 1_000_000)
+                            var redisList = conn.GetServer($"{opts.Host}:{opts.Port}").Keys(0, "*image_jobs*").ToList();
+
+                            for (int y = 0; y < redisList.Count; y++)
                             {
-                                var lastList = redisList.First().ToString().Split("_");
-                                var parse = int.Parse(lastList.Last());
-                                Program.key = $"{lastList[0]}_{lastList[1]}_{parse + 1}";
+                                var lastList = redisList[y].ToString().Split("_");
+                                tmp = int.Parse(lastList.Last());
+                                if (DBnum < tmp)
+                                {
+                                    DBnum = tmp;
+                                    newKey = redisList[y];
+                                }
+                            }
+
+                            var lastLists = newKey.ToString().Split("_");
+                            if (conn.GetDatabase().SetLength(newKey) >= 1_000_000)
+                            {
+
+                                var parse = int.Parse(lastLists.Last());
+                                Program.key = $"{lastLists[0]}_{lastLists[1]}_{DBnum + 1}";
                             }
                             else
                             {
-                                Program.key = redisList.First();
+                                Program.key = newKey;
                             }
 
                         }

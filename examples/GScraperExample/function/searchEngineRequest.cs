@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -29,11 +30,12 @@ namespace GScraperExample.function
         private static readonly Dictionary<string, IEnumerable<IImageResult>> tmp = new();
         private static readonly Queue<string> qword = new();
         private static HtmlNodeCollection? table;
-        private static readonly List<NeewItem> newItem = new();
+        private static readonly List<NeewItem> OpenVersNewItem = new();
         private static readonly List<NeewItem> bingNewItem = new();
         private static readonly List<NeewItem> YahooNewItem = new();
         private static readonly HttpClient http = new();
         private static readonly Regex RegexCheck = new(@".*\.(jpg|png|gif)?$");
+        private static DateTime? Openserv409;
 
 
         public static async Task<Dictionary<string, IEnumerable<IImageResult>>> getAllDataFromsearchEngineAsync(string text)
@@ -105,27 +107,39 @@ namespace GScraperExample.function
             {
                 try
                 {
-                    newItem.Clear();
-                    string data = await http.GetStringAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page=1&mature=true");
-                    Root jsonparse = JsonConvert.DeserializeObject<Root>(data);
 
-                    for (int i = 0; i < jsonparse.results.Count; i++)
+                    HttpResponseMessage resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page=1&mature=true");
+                    if (resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                     {
-                        if (RegexCheck.IsMatch(jsonparse.results[i].url))
-                        {
-
-                            NeewItem blap2 = new()
-                            {
-                                Url = jsonparse.results[i].url,
-                                Title = jsonparse.results[i].title,
-                                Height = 0,
-                                Width = 0
-                            };
-
-                            newItem.Add(blap2);
-                        }
+                        Openserv409 = DateTime.Now + resp?.Headers?.RetryAfter?.Delta;
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"Openverse RetryAfter {resp?.Headers?.RetryAfter?.Delta}");
+                        Console.ResetColor();
+                        ov = false;
                     }
-                    tmp.Add($"Openverse", newItem.AsEnumerable());
+                    else
+                    {
+                        var data = await resp.Content.ReadAsStringAsync();
+                        Root jsonparse = JsonConvert.DeserializeObject<Root>(data);
+
+                        for (int i = 0; i < jsonparse.results.Count; i++)
+                        {
+                            if (RegexCheck.IsMatch(jsonparse.results[i].url))
+                            {
+
+                                NeewItem blap2 = new()
+                                {
+                                    Url = jsonparse.results[i].url,
+                                    Title = jsonparse.results[i].title,
+                                    Height = 0,
+                                    Width = 0
+                                };
+
+                                OpenVersNewItem.Add(blap2);
+                            }
+                        }
+                        tmp.Add($"Openverse", OpenVersNewItem.AsEnumerable());
+                    }
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
                 {
@@ -244,7 +258,6 @@ namespace GScraperExample.function
                     {
                         Console.WriteLine("Google stopped");
                     }
-
                     Console.ResetColor();
                     GoogleScraper.gg = true;
                 }
@@ -255,7 +268,6 @@ namespace GScraperExample.function
                     {
                         Console.WriteLine("Duckduckgo stopped");
                     }
-
                     Console.ResetColor();
                     //ddc = true;
                 }
@@ -266,18 +278,16 @@ namespace GScraperExample.function
                     {
                         Console.WriteLine("Brave stopped");
                     }
-
                     Console.ResetColor();
                     //brv = true;
                 }
-                if (!ov)
+                if (!ov && DateTime.Now <= Openserv409)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     if (printLog)
                     {
                         Console.WriteLine("Openverse stopped");
                     }
-
                     Console.ResetColor();
                     ov = true;
                 }
@@ -288,7 +298,6 @@ namespace GScraperExample.function
                     {
                         Console.WriteLine("Bing stopped");
                     }
-
                     Console.ResetColor();
                     bing = true;
                 }
@@ -299,7 +308,6 @@ namespace GScraperExample.function
                     {
                         Console.WriteLine("Yahoo stopped");
                     }
-
                     Console.ResetColor();
                     yahoo = true;
                 }

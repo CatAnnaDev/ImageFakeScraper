@@ -11,6 +11,8 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Prometheus;
+using System.IO;
+using Reddit.Things;
 
 namespace GScraperExample;
 
@@ -67,7 +69,7 @@ internal static class Program
         using BraveScraper brave = new();
 
         qword = new();
-        
+
         handler += new EventHandler(HandlerAsync);
         _ = SetConsoleCtrlHandler(handler, true);
 
@@ -181,13 +183,13 @@ internal static class Program
                         $"Uptime\t\t{uptimeFormated}\n" +
                         $"Done in\t\t{timer.ElapsedMilliseconds} ms\n" +
                         $"Sleep\t\t{waittime} sec\n" +
-                        $"Memory\t\t{SizeSuffix(usedMemory)}\n"+
+                        $"Memory\t\t{SizeSuffix(usedMemory)}\n" +
                         $"Previous\t{text}\n" +
-                        $"Tags\t\t{qword.Count}\n" +  
+                        $"Tags\t\t{qword.Count}\n" +
                         $"Tag done\t{await redis.GetDatabase().ListLengthAsync(key)}\n" +
                         $"Tag remaining\t{await redis.GetDatabase().ListLengthAsync("words_list")}\n" +
                         $"{Program.key}\t{redisLength}\n" +
-                        $"Total upload\t{totalimageupload}\n");
+                        $"Total upload\t{totalimageupload}");
 
 
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
@@ -203,7 +205,7 @@ internal static class Program
                 redisConnection.redisConnect();
                 Thread.Sleep(TimeSpan.FromSeconds(10));
             }
-            
+
         }
     }
 
