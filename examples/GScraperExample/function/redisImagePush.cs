@@ -3,8 +3,8 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace GScraperExample.function
@@ -13,7 +13,7 @@ namespace GScraperExample.function
     {
         private static readonly bool printLog = false;
 
-        public static async Task<long> GetAllImageAndPush(ConnectionMultiplexer conn, Dictionary<string, IEnumerable<IImageResult>> site)
+        public static async Task<long> GetAllImageAndPush(ConnectionMultiplexer conn, Dictionary<string, IEnumerable<IImageResult>> site, string[] args)
         {
             long data = 0;
             foreach (KeyValuePair<string, IEnumerable<IImageResult>> image in site)
@@ -39,8 +39,9 @@ namespace GScraperExample.function
                     {
                         if (conn.GetDatabase().SetLength(Program.key) >= 1_000_000)
                         {
+                            Uri opts = new(args[0]);
                             var pattern = new RedisValue("DB0");
-                            var redisList = conn.GetServer("imagefake.net:6379").Keys(0, "*image_jobs*").ToArray();
+                            var redisList = conn.GetServer($"{opts.Host}:{opts.Port}").Keys(0, "*image_jobs_*").ToArray();
                             if(conn.GetDatabase().SetLength(redisList.First()) >= 1_000_000)
                             {
                                 var lastList = redisList.First().ToString().Split("_");

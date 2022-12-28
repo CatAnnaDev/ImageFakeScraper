@@ -121,7 +121,7 @@ internal static class Program
                 while (callQword.Count != 0)
                     qword.Enqueue(callQword.Dequeue()); // euh
 
-                _ = await redisImagePush.GetAllImageAndPush(redis, site);
+                _ = await redisImagePush.GetAllImageAndPush(redis, site, args);
 
                 site.Clear();
 
@@ -144,6 +144,16 @@ internal static class Program
                     Console.ForegroundColor = ConsoleColor.Red;
                     printData("redis disconnected");
                     Console.ResetColor();
+                }
+                else
+                {
+                    while (!redis.IsConnected)
+                    {
+                        await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! 10sec /!\\");
+                        redisConnection.redisConnect();
+                        Thread.Sleep(TimeSpan.FromSeconds(10));
+                    }
+
                 }
 
                 if (conn.SetLength("image_jobs_0") == uint.MaxValue - 10000)
