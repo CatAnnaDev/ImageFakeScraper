@@ -140,10 +140,11 @@ internal static class Program
                 string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
                 long redisDBLength = conn.SetLength(Program.key);
                 string redisLength = $"{redisDBLength} / {1_000_000} ({100.0 * redisDBLength / 1_000_000:0.00}%)";
+                var elapsed = TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds;
 
                 printData(
                         $"Uptime\t\t{uptimeFormated}\n" +
-                        $"Done in\t\t{TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds)} ms\n" +
+                        $"Done in\t\t{elapsed}s\n" +
                         $"Sleep\t\t{waittime} sec\n" +
                         $"Memory\t\t{SizeSuffix(usedMemory)}\n" +
                         $"Previous\t{text}\n" +
@@ -167,7 +168,7 @@ internal static class Program
                 _ = redisConnection.redisConnect();
                 Thread.Sleep(TimeSpan.FromSeconds(10));
             }
-
+            await Main(args);
         }
     }
 

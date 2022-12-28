@@ -357,7 +357,7 @@ namespace GScraperExample.function
                         Console.WriteLine("Brave stopped");
                     }
                     Console.ResetColor();
-                    brv = true;
+                    //brv = true;
                 }
                 if (!ov)
                 {

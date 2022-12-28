@@ -64,6 +64,8 @@ namespace GScraperExample.function
                         Console.ForegroundColor = ConsoleColor.Green;
                         if (image.Key == "Openverse")
                             Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");
+                        else if(image.Key == "DuckDuckGo")
+                            Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");
                         else
                             Console.WriteLine($"{image.Key}:\t\t{data} / {push.Length}");
                         Console.ResetColor();
