@@ -24,6 +24,7 @@ internal static class Program
     private static KestrelMetricServer server = new KestrelMetricServer(port: 4444);
     public static string key = "image_jobs_0";
 
+
     [DllImport("Kernel32")]
     private static extern bool SetConsoleCtrlHandler(EventHandler handler, bool add);
 

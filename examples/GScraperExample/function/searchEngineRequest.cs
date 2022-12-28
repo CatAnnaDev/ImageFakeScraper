@@ -23,11 +23,13 @@ namespace GScraperExample.function
         private static bool ddc = false;
         private static bool brv = false;
         private static bool ov = true;
+        private static bool bing = true;
         private static readonly bool printLog = false;
         private static readonly Dictionary<string, IEnumerable<IImageResult>> tmp = new();
         private static readonly Queue<string> qword = new();
         private static HtmlNodeCollection? table;
         private static readonly List<NeewItem> newItem = new();
+        private static readonly List<NeewItem> bingNewItem = new();
         private static readonly HttpClient http = new();
         private static readonly Regex RegexCheck = new(@".*\.(jpg|png|gif)?$");
 
@@ -101,6 +103,7 @@ namespace GScraperExample.function
             {
                 try
                 {
+                    newItem.Clear();
                     string data = await http.GetStringAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page=1&mature=true");
                     Root jsonparse = JsonConvert.DeserializeObject<Root>(data);
 
@@ -118,7 +121,6 @@ namespace GScraperExample.function
                             };
 
                             newItem.Add(blap2);
-
                         }
                     }
                     tmp.Add($"Openverse", newItem.AsEnumerable());
@@ -135,13 +137,54 @@ namespace GScraperExample.function
                 }
             }
 
-            if (!GoogleScraper.gg && !ddc && !brv && !ov)
+            if (bing)
+            {
+                try
+                {
+                    var uri = $"https://www.bing.com/images/search?q={text}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&cw=1224&ch=1215";
+                    using HttpClient http = new HttpClient();
+
+                    HttpResponseMessage resp = await http.GetAsync(uri);
+                    var data = await resp.Content.ReadAsStringAsync();
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(data);
+                    var urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src2", null)).Where(s => !String.IsNullOrEmpty(s));
+
+                    foreach (var datsa in urls)
+                    {
+
+                        NeewItem blap2 = new()
+                        {
+                            Url = datsa,
+                            Title = "",
+                            Height = 0,
+                            Width = 0
+                        };
+
+                        bingNewItem.Add(blap2);
+                    }
+                    tmp.Add($"Bing", bingNewItem.AsEnumerable());
+                    
+                }
+                catch (Exception e) when (e is HttpRequestException or GScraperException)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Bing: {e.Message}");
+                    Console.ResetColor();
+                    if (e.Message.Contains("429"))
+                    {
+                        bing = false;
+                    }
+                }
+            }
+
+            if (!GoogleScraper.gg && !ddc && !brv && !ov && !bing)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 await Console.Out.WriteLineAsync("All search engine down for now");
                 Console.ResetColor();
             }
-            else if (GoogleScraper.gg && ddc && brv && ov)
+            else if (GoogleScraper.gg && ddc && brv && ov && bing)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 await Console.Out.WriteLineAsync("All search engine up");
@@ -180,7 +223,7 @@ namespace GScraperExample.function
                     }
 
                     Console.ResetColor();
-                    brv = true;
+                    //brv = true;
                 }
                 if (!ov)
                 {
@@ -192,6 +235,17 @@ namespace GScraperExample.function
 
                     Console.ResetColor();
                     ov = true;
+                }
+                if (!bing)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    if (printLog)
+                    {
+                        Console.WriteLine("Bing stopped");
+                    }
+
+                    Console.ResetColor();
+                    bing = true;
                 }
             }
 
