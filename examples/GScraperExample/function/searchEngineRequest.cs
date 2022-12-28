@@ -8,6 +8,7 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -265,6 +266,22 @@ namespace GScraperExample.function
                     using HttpClient http = new HttpClient();
 
                     HttpResponseMessage resp = await http.GetAsync(uri);
+
+                    switch (resp.StatusCode)
+                    {
+                        case HttpStatusCode.TooManyRequests:
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine($"Yahoo Error 429");
+                            Console.ResetColor();
+                            yahoo = false;
+                            break;
+                        case HttpStatusCode.InternalServerError:
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine($"Yahoo Error 500");
+                            Console.ResetColor();
+                            yahoo = false;
+                            break;
+                    }
                     var data = await resp.Content.ReadAsStringAsync();
                     var doc = new HtmlDocument();
                     doc.LoadHtml(data);
