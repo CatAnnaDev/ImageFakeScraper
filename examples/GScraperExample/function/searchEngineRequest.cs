@@ -212,6 +212,10 @@ namespace GScraperExample.function
                             tmp.Add($"Openverse", null);
                         }
                     }
+                    else
+                    {
+                        tmp.Add($"Openverse", null);
+                    }
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
                 {
@@ -365,7 +369,7 @@ namespace GScraperExample.function
                         Console.WriteLine("Duckduckgo stopped");
                     }
                     Console.ResetColor();
-                    ddc = true;
+                    //ddc = true;
                 }
                 if (!brv)
                 {
@@ -375,7 +379,7 @@ namespace GScraperExample.function
                         Console.WriteLine("Brave stopped");
                     }
                     Console.ResetColor();
-                    brv = true;
+                    //brv = true;
                 }
                 if (!ov)
                 {
