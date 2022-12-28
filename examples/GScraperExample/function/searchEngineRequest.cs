@@ -143,6 +143,7 @@ namespace GScraperExample.function
             {
                 try
                 {
+                    bingNewItem.Clear();
                     var uri = $"https://www.bing.com/images/search?q={text}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&cw=1224&ch=1215";
                     using HttpClient http = new HttpClient();
 
@@ -184,6 +185,7 @@ namespace GScraperExample.function
             {
                 try
                 {
+                    YahooNewItem.Clear();
                     var uri = $"https://images.search.yahoo.com/search/images?ei=UTF-8&p={text}&fr2=p%3As%2Cv%3Ai&.bcrumb=4N2SA8f4BZT&save=0";
                     using HttpClient http = new HttpClient();
 

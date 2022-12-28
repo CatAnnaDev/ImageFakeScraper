@@ -57,7 +57,7 @@ namespace GScraperExample.function
 
                             data = await conn.GetDatabase().SetAddAsync(Program.key, push);
                             Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine($"{image.Key} Images found: {data}");
+                            Console.WriteLine($"{image.Key} Images found:\t\t{data} / {push.Length}");
                             Console.ResetColor();
                             Program.totalimageupload += data;
                             data = 0;
