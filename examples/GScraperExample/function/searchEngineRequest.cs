@@ -107,7 +107,7 @@ namespace GScraperExample.function
             {
                 try
                 {
-
+                    OpenVersNewItem.Clear();
                     HttpResponseMessage resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page=1&mature=true");
                     if (resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                     {
