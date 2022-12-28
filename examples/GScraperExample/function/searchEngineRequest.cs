@@ -107,45 +107,53 @@ namespace GScraperExample.function
                 try
                 {
                     OpenVersNewItem.Clear();
-                    HttpResponseMessage resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page=1&mature=true");
+                    int page = 1;
+                    HttpResponseMessage resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={page}&mature=true");
 
                     var data = await resp.Content.ReadAsStringAsync();
                     Root jsonparse = JsonConvert.DeserializeObject<Root>(data);
-
-                    if (resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                    if (jsonparse != null)
                     {
-                        Openserv409 = DateTime.Now + resp?.Headers?.RetryAfter?.Delta;
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Openverse RetryAfter {resp?.Headers?.RetryAfter?.Delta}");
-                        Console.ResetColor();
-                        //ov = false;
-                    }
-                    else
-                    {
-                        try
+                        if (jsonparse?.results != null)
                         {
-
-                            for (int i = 0; i < jsonparse.results.Count; i++)
+                            if (jsonparse?.results.Count != 0)
                             {
-                                if (RegexCheck.IsMatch(jsonparse.results[i].url))
+                                if (resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                                 {
-
-                                    NeewItem blap2 = new()
+                                    Openserv409 = DateTime.Now + resp?.Headers?.RetryAfter?.Delta;
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    Console.WriteLine($"Openverse RetryAfter {resp?.Headers?.RetryAfter?.Delta}");
+                                    Console.ResetColor();
+                                    //ov = false;
+                                }
+                                else
+                                {
+                                    try
                                     {
-                                        Url = jsonparse.results[i].url,
-                                        Title = jsonparse.results[i].title,
-                                        Height = 0,
-                                        Width = 0
-                                    };
+                                        for (int i = 0; i < jsonparse.results.Count; i++)
+                                        {
+                                            if (RegexCheck.IsMatch(jsonparse.results[i].url))
+                                            {
 
-                                    OpenVersNewItem.Add(blap2);
+                                                NeewItem blap2 = new()
+                                                {
+                                                    Url = jsonparse.results[i].url,
+                                                    Title = jsonparse.results[i].title,
+                                                    Height = 0,
+                                                    Width = 0
+                                                };
+
+                                                OpenVersNewItem.Add(blap2);
+                                            }
+                                        }
+                                        tmp.Add($"Openverse", OpenVersNewItem.AsEnumerable());
+
+                                    }
+                                    catch { }
+
                                 }
                             }
-                            tmp.Add($"Openverse", OpenVersNewItem.AsEnumerable());
-
                         }
-                        catch { }
-
                     }
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
@@ -289,7 +297,7 @@ namespace GScraperExample.function
                     //brv = true;
                 }
                 if (!ov)
-                { 
+                {
                     // && DateTime.Now >= Openserv409
                     Console.ForegroundColor = ConsoleColor.Red;
                     if (printLog)
