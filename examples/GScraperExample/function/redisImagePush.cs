@@ -55,11 +55,11 @@ namespace GScraperExample.function
                                     DBnum = tmp;
                                     newKey = redisList[y];
 
-                                    if (conn.GetDatabase().SetLength(redisList[y]) <= 1_000_000)
-                                    {
-                                        newKey = redisList[y];
-                                        break;
-                                    }
+                                   // if (conn.GetDatabase().SetLength(redisList[y]) <= 1_000_000)
+                                   // {
+                                   //     newKey = redisList[y];
+                                   //     break;
+                                   // }
                                 }
                             }
 
