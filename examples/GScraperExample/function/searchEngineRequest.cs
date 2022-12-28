@@ -118,7 +118,7 @@ namespace GScraperExample.function
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"Openverse RetryAfter {resp?.Headers?.RetryAfter?.Delta}");
                         Console.ResetColor();
-                        ov = false;
+                        //ov = false;
                     }
                     else
                     {
@@ -288,9 +288,9 @@ namespace GScraperExample.function
                     Console.ResetColor();
                     //brv = true;
                 }
-                if (!ov && DateTime.Now >= Openserv409)
-                {
-                    //
+                if (!ov)
+                { 
+                    // && DateTime.Now >= Openserv409
                     Console.ForegroundColor = ConsoleColor.Red;
                     if (printLog)
                     {
