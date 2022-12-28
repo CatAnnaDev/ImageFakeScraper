@@ -183,10 +183,10 @@ internal static class Program
                         $"Sleep\t\t{waittime} sec\n" +
                         $"Memory\t\t{SizeSuffix(usedMemory)}\n"+
                         $"Previous\t{text}\n" +
-                        $"Tags\t\t{qword.Count}\n" +
-                        $"{Program.key}\t{redisLength}\n" +
+                        $"Tags\t\t{qword.Count}\n" +  
                         $"Tag done\t{await redis.GetDatabase().ListLengthAsync(key)}\n" +
                         $"Tag remaining\t{await redis.GetDatabase().ListLengthAsync("words_list")}\n" +
+                        $"{Program.key}\t{redisLength}\n" +
                         $"Total upload\t{totalimageupload}\n");
 
 
