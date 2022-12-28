@@ -109,37 +109,41 @@ namespace GScraperExample.function
                 {
                     OpenVersNewItem.Clear();
                     HttpResponseMessage resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page=1&mature=true");
-                    if (resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
-                    {
-                        Openserv409 = DateTime.Now + resp?.Headers?.RetryAfter?.Delta;
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Openverse RetryAfter {resp?.Headers?.RetryAfter?.Delta}");
-                        Console.ResetColor();
-                        //ov = false;
-                    }
-                    else
-                    {
-                        var data = await resp.Content.ReadAsStringAsync();
-                        Root jsonparse = JsonConvert.DeserializeObject<Root>(data);
 
-                        for (int i = 0; i < jsonparse.results.Count; i++)
+                    var data = await resp.Content.ReadAsStringAsync();
+                    Root jsonparse = JsonConvert.DeserializeObject<Root>(data);
+
+                    for (int i = 0; i < jsonparse.results.Count; i++)
+                    {
+                        if (RegexCheck.IsMatch(jsonparse.results[i].url))
                         {
-                            if (RegexCheck.IsMatch(jsonparse.results[i].url))
+
+                            NeewItem blap2 = new()
                             {
+                                Url = jsonparse.results[i].url,
+                                Title = jsonparse.results[i].title,
+                                Height = 0,
+                                Width = 0
+                            };
 
-                                NeewItem blap2 = new()
-                                {
-                                    Url = jsonparse.results[i].url,
-                                    Title = jsonparse.results[i].title,
-                                    Height = 0,
-                                    Width = 0
-                                };
-
-                                OpenVersNewItem.Add(blap2);
-                            }
+                            OpenVersNewItem.Add(blap2);
                         }
-                        tmp.Add($"Openverse", OpenVersNewItem.AsEnumerable());
                     }
+                    tmp.Add($"Openverse", OpenVersNewItem.AsEnumerable());
+
+
+                  //  if (resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                  //  {
+                  //      Openserv409 = DateTime.Now + resp?.Headers?.RetryAfter?.Delta;
+                  //      Console.ForegroundColor = ConsoleColor.Red;
+                  //      Console.WriteLine($"Openverse RetryAfter {resp?.Headers?.RetryAfter?.Delta}");
+                  //      Console.ResetColor();
+                  //      //ov = false;
+                  //  }
+                  //  else
+                  //  {
+                  //
+                  //  }
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
                 {
@@ -281,8 +285,9 @@ namespace GScraperExample.function
                     Console.ResetColor();
                     //brv = true;
                 }
-                if (!ov && DateTime.Now >= Openserv409)
+                if (!ov)
                 {
+                     //&& DateTime.Now >= Openserv409
                     Console.ForegroundColor = ConsoleColor.Red;
                     if (printLog)
                     {
