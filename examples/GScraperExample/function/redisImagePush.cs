@@ -42,11 +42,11 @@ namespace GScraperExample.function
                             Uri opts = new(args[0]);
                             var pattern = new RedisValue("DB0");
                             var redisList = conn.GetServer($"{opts.Host}:{opts.Port}").Keys(0, "*image_jobs_*").ToArray();
-                            if(conn.GetDatabase().SetLength(redisList.First()) >= 1_000_000)
+                            if (conn.GetDatabase().SetLength(redisList.First()) >= 1_000_000)
                             {
                                 var lastList = redisList.First().ToString().Split("_");
                                 var parse = int.Parse(lastList.Last());
-                                Program.key = $"{lastList[0]}_{lastList[1]}_{parse+1}";
+                                Program.key = $"{lastList[0]}_{lastList[1]}_{parse + 1}";
                             }
                             else
                             {
@@ -55,16 +55,20 @@ namespace GScraperExample.function
 
                         }
 
-                            data = await conn.GetDatabase().SetAddAsync(Program.key, push);
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine($"{image.Key} Images found:\t\t{data} / {push.Length}");
-                            Console.ResetColor();
-                            Program.totalimageupload += data;
-                            data = 0;
+                        data = await conn.GetDatabase().SetAddAsync(Program.key, push);
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        if (image.Key == "Openverse")
+                            Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");
+                        else
+                            Console.WriteLine($"{image.Key}:\t\t{data} / {push.Length}");
+                        Console.ResetColor();
+                        Program.totalimageupload += data;
+                        data = 0;
 
                     }
-                    catch { 
-                        Console.ForegroundColor = ConsoleColor.Red; 
+                    catch
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         await Console.Out.WriteLineAsync($"/!\\ Fail upload redis {image.Key} ! /!\\");
                         await Console.Out.WriteLineAsync($"/!\\ Fail upload redis {image.Key} ! /!\\");
                         await Console.Out.WriteLineAsync($"/!\\ Fail upload redis {image.Key} ! /!\\");
