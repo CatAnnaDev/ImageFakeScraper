@@ -70,12 +70,7 @@ namespace GScraperExample.function
                         Console.ResetColor();
 
                         await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! /!\\");
-                        while (!conn.IsConnected)
-                        {
-                            Console.WriteLine("/!\\ Reconnecting to redis server ! 10sec /!\\");
-                            redisConnection.redisConnect();
-                            Thread.Sleep(TimeSpan.FromSeconds(10));
-                        }
+                        redisConnection.redisConnect();
                     }
                 }
                 else

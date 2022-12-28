@@ -81,8 +81,6 @@ internal static class Program
         string credential = args[0];
         redisConnection redisConnector = new redisConnection(credential, 5000);
         var redis = redisConnection.redisConnect();
-        redisConnection.redisConnect().ConnectionRestored += Program_ConnectionRestored;
-        redisConnection.redisConnect().ConnectionFailed += Program_ConnectionFailed;
         IDatabase conn = redis.GetDatabase();
 
         //write("mot random en cas de besoin", redis);
@@ -111,6 +109,10 @@ internal static class Program
             while (qword.Count != 0)
             {
                 timer.Start();
+
+
+                Process currentProcess = Process.GetCurrentProcess();
+                long usedMemory = currentProcess.PrivateMemorySize64;
 
                 site = await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
 
@@ -168,6 +170,7 @@ internal static class Program
                         $"Uptime\t\t{uptimeFormated}\n" +
                         $"Done in\t\t{timer.ElapsedMilliseconds} ms\n" +
                         $"Sleep\t\t{waittime} sec\n"+
+                        $"Memory\t\t{SizeSuffix(usedMemory)}\n"+
                         $"Previous\t{text}\n" +
                         $"Tags\t\t{qword.Count}\n" +
                         $"Redis Key\t{Program.key}\n"+
@@ -193,23 +196,6 @@ internal static class Program
         }
     }
 
-    private static void Program_ConnectionFailed(object? sender, ConnectionFailedEventArgs e)
-    {
-        Console.WriteLine("/!\\ Connection Failed to redis server ! /!\\");
-        while (!redis.IsConnected)
-        {
-            Console.WriteLine("/!\\ Reconnecting to redis server ! 10sec /!\\");
-            redisConnection.redisConnect();
-            Thread.Sleep(TimeSpan.FromSeconds(10));
-        }
-    }
-
-    private static void Program_ConnectionRestored(object? sender, ConnectionFailedEventArgs e)
-    {
-        Console.WriteLine("/!\\ Connection Restored to redis server ! /!\\");
-        redisConnection.redisConnect();
-    }
-
     private static void printData(string text)
     {
         lock (ConsoleWriterLock)
@@ -227,5 +213,20 @@ internal static class Program
         RedisValue value = new(text);
         RedisKey key = new("words_done");
         await redis.GetDatabase().ListLeftPushAsync(key, value);
+    }
+
+    static string SizeSuffix(long value, int decimalPlaces = 1)
+    {
+        string[] SizeSuffixes = { "bytes", "KB", "MB", "GB" };
+        if (decimalPlaces < 0) { throw new ArgumentOutOfRangeException("decimalPlaces"); }
+        if (value < 0) { return "-" + SizeSuffix(-value, decimalPlaces); }
+        if (value == 0) { return string.Format("{0:n" + decimalPlaces + "} bytes", 0); }
+        int mag = (int)Math.Log(value, 1024);
+        decimal adjustedSize = (decimal)value / (1L << (mag * 10));
+        if (Math.Round(adjustedSize, decimalPlaces) >= 1000)
+        { mag += 1; adjustedSize /= 1024; }
+        return string.Format("{0:n" + decimalPlaces + "} {1}",
+            adjustedSize,
+            SizeSuffixes[mag]);
     }
 }
