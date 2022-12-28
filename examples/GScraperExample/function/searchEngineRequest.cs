@@ -58,6 +58,7 @@ namespace GScraperExample.function
                     if (e.Message.Contains("429"))
                     {
                         GoogleScraper.gg = false;
+                        tmp.Add("Google", null);
                     }
                 }
             }
@@ -74,11 +75,12 @@ namespace GScraperExample.function
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Duckduckgo: {e.Message}");
+                    //Console.WriteLine($"Duckduckgo: {e.Message}");
                     Console.ResetColor();
                     if (e.Message.Contains("token") || e.Message.Contains("403"))
                     {
                         ddc = false;
+                        tmp.Add("DuckDuckGo", null);
                     }
                 }
             }
@@ -94,11 +96,12 @@ namespace GScraperExample.function
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Brave: {e.Message}");
+                    //Console.WriteLine($"Brave: {e.Message}");
                     Console.ResetColor();
                     if (e.Message.Contains("429"))
                     {
                         brv = false;
+                        tmp.Add("Brave", null);
                     }
                 }
             }
@@ -128,6 +131,7 @@ namespace GScraperExample.function
                                         Console.WriteLine($"Openverse RetryAfter {resp?.Headers?.RetryAfter?.Delta}");
                                         Console.ResetColor();
                                         //ov = false;
+                                        tmp.Add($"Openverse", null);
                                     }
                                     else
                                     {
@@ -195,11 +199,17 @@ namespace GScraperExample.function
                                             tmp.Add($"Openverse", OpenVersNewItem.AsEnumerable());
 
                                         }
-                                        catch { }
+                                        catch {
+                                            tmp.Add($"Openverse", null);
+                                        }
 
                                     }
                                 }
                             }
+                        }
+                        else
+                        {
+                            tmp.Add($"Openverse", null);
                         }
                     }
                 }
@@ -211,6 +221,7 @@ namespace GScraperExample.function
                     if (e.Message.Contains("429"))
                     {
                         ov = false;
+                        tmp.Add($"Openverse", null);
                     }
                 }
             }
@@ -253,6 +264,7 @@ namespace GScraperExample.function
                     if (e.Message.Contains("429"))
                     {
                         bing = false;
+                        tmp.Add($"Bing", null);
                     }
                 }
             }
@@ -266,42 +278,48 @@ namespace GScraperExample.function
                     using HttpClient http = new HttpClient();
 
                     HttpResponseMessage resp = await http.GetAsync(uri);
-
-                    switch (resp.StatusCode)
+                    if (resp.StatusCode != HttpStatusCode.OK)
                     {
-                        case HttpStatusCode.TooManyRequests:
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine($"Yahoo Error 429");
-                            Console.ResetColor();
-                            yahoo = false;
-                            break;
-                        case HttpStatusCode.InternalServerError:
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine($"Yahoo Error 500");
-                            Console.ResetColor();
-                            yahoo = false;
-                            break;
-                    }
-                    var data = await resp.Content.ReadAsStringAsync();
-                    var doc = new HtmlDocument();
-                    doc.LoadHtml(data);
-                    var urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("data-src", null)).Where(s => !String.IsNullOrEmpty(s));
-
-                    foreach (var datsa in urls)
-                    {
-
-                        NeewItem blap2 = new()
+                        switch (resp.StatusCode)
                         {
-                            Url = datsa.Replace("&pid=Api&P=0&w=300&h=300", ""),
-                            Title = "",
-                            Height = 0,
-                            Width = 0
-                        };
-
-                        YahooNewItem.Add(blap2);
+                            case HttpStatusCode.TooManyRequests:
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                //Console.WriteLine($"Yahoo Error 429");
+                                Console.ResetColor();
+                                yahoo = false;
+                                tmp.Add($"Yahoo", null);
+                                break;
+                            case HttpStatusCode.InternalServerError:
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                //Console.WriteLine($"Yahoo Error 500");
+                                Console.ResetColor();
+                                yahoo = false;
+                                tmp.Add($"Yahoo", null);
+                                break;
+                        }
                     }
-                    tmp.Add($"Yahoo", YahooNewItem.AsEnumerable());
+                    else
+                    {
+                        var data = await resp.Content.ReadAsStringAsync();
+                        var doc = new HtmlDocument();
+                        doc.LoadHtml(data);
+                        var urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("data-src", null)).Where(s => !String.IsNullOrEmpty(s));
 
+                        foreach (var datsa in urls)
+                        {
+
+                            NeewItem blap2 = new()
+                            {
+                                Url = datsa.Replace("&pid=Api&P=0&w=300&h=300", ""),
+                                Title = "",
+                                Height = 0,
+                                Width = 0
+                            };
+
+                            YahooNewItem.Add(blap2);
+                        }
+                        tmp.Add($"Yahoo", YahooNewItem.AsEnumerable());
+                    }
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
                 {
@@ -357,7 +375,7 @@ namespace GScraperExample.function
                         Console.WriteLine("Brave stopped");
                     }
                     Console.ResetColor();
-                    //brv = true;
+                    brv = true;
                 }
                 if (!ov)
                 {

@@ -87,7 +87,14 @@ namespace GScraperExample.function
                 }
                 else
                 {
-                    await Console.Out.WriteLineAsync("Image is null fix it yourself !");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    if (image.Key == "Openverse")
+                        Console.WriteLine($"{image.Key}\tdown");
+                    else if (image.Key == "DuckDuckGo")
+                        Console.WriteLine($"{image.Key}\tdown");
+                    else
+                        Console.WriteLine($"{image.Key}\t\tdown");
+                    Console.ResetColor();
                 }
             }
             return data;

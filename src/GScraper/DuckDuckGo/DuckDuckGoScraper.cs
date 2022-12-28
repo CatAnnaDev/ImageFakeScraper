@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -73,7 +74,7 @@ public class DuckDuckGoScraper : IDisposable
         {
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_defaultUserAgent);
         }
-        catch { _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_defaultUserAgent); }
+        catch { _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36"); }
 
         _httpClient.DefaultRequestHeaders.Referrer ??= _httpClient.BaseAddress;
     }
@@ -107,7 +108,7 @@ public class DuckDuckGoScraper : IDisposable
         string token = await GetTokenAsync(query).ConfigureAwait(false);
         Uri uri = new(BuildImageQuery(token, query, safeSearch, time, size, color, type, layout, license, region), UriKind.Relative);
 
-        System.IO.Stream stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
+        Stream stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
         try
         {
             response = (await JsonSerializer.DeserializeAsync(stream, DuckDuckGoImageSearchResponseContext.Default.DuckDuckGoImageSearchResponse).ConfigureAwait(false))!;
