@@ -24,12 +24,14 @@ namespace GScraperExample.function
         private static bool brv = false;
         private static bool ov = true;
         private static bool bing = true;
+        private static bool yahoo = true;
         private static readonly bool printLog = false;
         private static readonly Dictionary<string, IEnumerable<IImageResult>> tmp = new();
         private static readonly Queue<string> qword = new();
         private static HtmlNodeCollection? table;
         private static readonly List<NeewItem> newItem = new();
         private static readonly List<NeewItem> bingNewItem = new();
+        private static readonly List<NeewItem> YahooNewItem = new();
         private static readonly HttpClient http = new();
         private static readonly Regex RegexCheck = new(@".*\.(jpg|png|gif)?$");
 
@@ -178,13 +180,54 @@ namespace GScraperExample.function
                 }
             }
 
-            if (!GoogleScraper.gg && !ddc && !brv && !ov && !bing)
+            if (yahoo)
+            {
+                try
+                {
+                    var uri = $"https://images.search.yahoo.com/search/images?ei=UTF-8&p={text}&fr2=p%3As%2Cv%3Ai&.bcrumb=4N2SA8f4BZT&save=0";
+                    using HttpClient http = new HttpClient();
+
+                    HttpResponseMessage resp = await http.GetAsync(uri);
+                    var data = await resp.Content.ReadAsStringAsync();
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(data);
+                    var urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("data-src", null)).Where(s => !String.IsNullOrEmpty(s));
+
+                    foreach (var datsa in urls)
+                    {
+
+                        NeewItem blap2 = new()
+                        {
+                            Url = datsa.Replace("&pid=Api&P=0&w=300&h=300", ""),
+                            Title = "",
+                            Height = 0,
+                            Width = 0
+                        };
+
+                        YahooNewItem.Add(blap2);
+                    }
+                    tmp.Add($"Yahoo", YahooNewItem.AsEnumerable());
+
+                }
+                catch (Exception e) when (e is HttpRequestException or GScraperException)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Yahoo: {e.Message}");
+                    Console.ResetColor();
+                    if (e.Message.Contains("429"))
+                    {
+                        yahoo = false;
+                    }
+                }
+            }
+
+            if (!GoogleScraper.gg && !ddc && !brv && !ov && !bing && !yahoo)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 await Console.Out.WriteLineAsync("All search engine down for now");
                 Console.ResetColor();
             }
-            else if (GoogleScraper.gg && ddc && brv && ov && bing)
+            else if (GoogleScraper.gg && ddc && brv && ov && bing && yahoo)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 await Console.Out.WriteLineAsync("All search engine up");
@@ -246,6 +289,17 @@ namespace GScraperExample.function
 
                     Console.ResetColor();
                     bing = true;
+                }
+                if (!yahoo)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    if (printLog)
+                    {
+                        Console.WriteLine("Yahoo stopped");
+                    }
+
+                    Console.ResetColor();
+                    yahoo = true;
                 }
             }
 
