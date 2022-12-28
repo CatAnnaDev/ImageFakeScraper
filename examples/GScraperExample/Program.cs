@@ -175,7 +175,7 @@ internal static class Program
 
                 string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
                 long redisDBLength = conn.SetLength(Program.key);
-                string redisLength = $"{redisDBLength} / {uint.MaxValue} ({100.0 * redisDBLength / uint.MaxValue:0.00000}%)";
+                string redisLength = $"{redisDBLength} / {1_000_000} ({100.0 * redisDBLength / 1_000_000:0.00}%)";
 
                 printData(
                         $"Uptime\t\t{uptimeFormated}\n" +
@@ -184,9 +184,9 @@ internal static class Program
                         $"Memory\t\t{SizeSuffix(usedMemory)}\n"+
                         $"Previous\t{text}\n" +
                         $"Tags\t\t{qword.Count}\n" +
-                        $"Redis Key\t{Program.key}\n" +
-                        $"Redis Length\t{redisLength}\n" +
-                        $"Words Length\t{await redis.GetDatabase().ListLengthAsync(key)}\n" +
+                        $"{Program.key}\t{redisLength}\n" +
+                        $"Tag done\t{await redis.GetDatabase().ListLengthAsync(key)}\n" +
+                        $"Tag remaining\t{await redis.GetDatabase().ListLengthAsync("words_list")}\n" +
                         $"Total upload\t{totalimageupload}\n");
 
 

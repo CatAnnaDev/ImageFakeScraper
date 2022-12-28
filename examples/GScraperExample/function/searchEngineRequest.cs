@@ -334,7 +334,8 @@ namespace GScraperExample.function
                         {
                             if (await Read(redis, table[j].InnerText) == -1)
                             {
-                                qword.Enqueue(table[j].InnerText);
+                                //qword.Enqueue(table[j].InnerText);
+
                                 //Console.ForegroundColor = ConsoleColor.Green;
                                 //await Console.Out.WriteLineAsync($"Tag Added {table[j].InnerText}");
                                 //Console.ResetColor();
