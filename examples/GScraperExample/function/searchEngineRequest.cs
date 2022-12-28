@@ -281,7 +281,7 @@ namespace GScraperExample.function
                     Console.ResetColor();
                     //brv = true;
                 }
-                if (!ov && DateTime.Now <= Openserv409)
+                if (!ov && DateTime.Now >= Openserv409)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     if (printLog)
