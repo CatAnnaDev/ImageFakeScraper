@@ -115,7 +115,7 @@ namespace GScraperExample.function
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"Openverse RetryAfter {resp?.Headers?.RetryAfter?.Delta}");
                         Console.ResetColor();
-                        ov = false;
+                        //ov = false;
                     }
                     else
                     {
