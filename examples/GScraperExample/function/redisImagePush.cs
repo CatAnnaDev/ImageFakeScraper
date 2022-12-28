@@ -46,12 +46,12 @@ namespace GScraperExample.function
                         if (conn.GetDatabase().SetLength(Program.key) >= 1_000_000)
                         {
 
-                            var lastLists = sorted.ToString().Split("_");
+                            var lastLists = sorted.Last().ToString().Split("_");
                             if (conn.GetDatabase().SetLength(sorted.Last()) >= 1_000_000)
                             {
 
                                 var parse = int.Parse(lastLists.Last());
-                                Program.key = $"{lastLists[0]}_{lastLists[1]}_{lastLists[2] + 1}";
+                                Program.key = $"{lastLists[0]}_{lastLists[1]}_{int.Parse(lastLists[2]) + 1}";
                             }
                             else
                             {
