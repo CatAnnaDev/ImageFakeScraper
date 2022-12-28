@@ -2,6 +2,7 @@
 using GScraper.DuckDuckGo;
 using GScraper.Google;
 using GScraperExample.function;
+using Prometheus;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -10,20 +11,17 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Prometheus;
-using System.IO;
-using Reddit.Things;
 
 namespace GScraperExample;
 
 internal static class Program
 {
-    private static readonly object ConsoleWriterLock = new object();
+    private static readonly object ConsoleWriterLock = new();
     public static ConnectionMultiplexer? redis;
-    public static redisConnection redisConnector;
+    public static redisConnection? redisConnector;
     public static Queue<string>? qword;
-    private static Dictionary<string, IEnumerable<GScraper.IImageResult>> site;
-    private static KestrelMetricServer server = new KestrelMetricServer(port: 4444);
+    private static Dictionary<string, IEnumerable<GScraper.IImageResult>>? site;
+    private static readonly KestrelMetricServer server = new(port: 4444);
     public static string key = "image_jobs_0";
 
 
@@ -82,8 +80,8 @@ internal static class Program
         //}
 
         string credential = args[0];
-        redisConnection redisConnector = new redisConnection(credential, 5000);
-        var redis = redisConnection.redisConnect();
+        redisConnection redisConnector = new(credential, 5000);
+        ConnectionMultiplexer redis = redisConnection.redisConnect();
         IDatabase conn = redis.GetDatabase();
 
         //write("mot random en cas de besoin", redis);
@@ -122,7 +120,9 @@ internal static class Program
                 Queue<string> callQword = await searchEngineRequest.getAllNextTag(text, redis);
 
                 while (callQword.Count != 0)
+                {
                     qword.Enqueue(callQword.Dequeue()); // euh
+                }
 
                 _ = await redisImagePush.GetAllImageAndPush(redis, site, args);
 
@@ -153,7 +153,7 @@ internal static class Program
                     while (!redis.IsConnected)
                     {
                         await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! 10sec /!\\");
-                        redisConnection.redisConnect();
+                        _ = redisConnection.redisConnect();
                         Thread.Sleep(TimeSpan.FromSeconds(10));
                     }
 
@@ -181,7 +181,7 @@ internal static class Program
 
                 printData(
                         $"Uptime\t\t{uptimeFormated}\n" +
-                        $"Done in\t\t{timer.ElapsedMilliseconds} ms\n" +
+                        $"Done in\t\t{TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds)} ms\n" +
                         $"Sleep\t\t{waittime} sec\n" +
                         $"Memory\t\t{SizeSuffix(usedMemory)}\n" +
                         $"Previous\t{text}\n" +
@@ -202,7 +202,7 @@ internal static class Program
             while (!redis.IsConnected)
             {
                 await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! 10sec /!\\");
-                redisConnection.redisConnect();
+                _ = redisConnection.redisConnect();
                 Thread.Sleep(TimeSpan.FromSeconds(10));
             }
 
@@ -219,16 +219,19 @@ internal static class Program
         }
     }
 
-    private static async Task<RedisValue> redisGetNewTag(ConnectionMultiplexer redis) => await redis.GetDatabase().ListLeftPopAsync("words_list");
+    private static async Task<RedisValue> redisGetNewTag(ConnectionMultiplexer redis)
+    {
+        return await redis.GetDatabase().ListLeftPopAsync("words_list");
+    }
 
     private static async void redisWriteNewTag(string text, ConnectionMultiplexer redis)
     {
         RedisValue value = new(text);
         RedisKey key = new("words_done");
-        await redis.GetDatabase().ListLeftPushAsync(key, value);
+        _ = await redis.GetDatabase().ListLeftPushAsync(key, value);
     }
 
-    static string SizeSuffix(long value, int decimalPlaces = 1)
+    private static string SizeSuffix(long value, int decimalPlaces = 1)
     {
         string[] SizeSuffixes = { "bytes", "KB", "MB", "GB" };
         if (decimalPlaces < 0) { throw new ArgumentOutOfRangeException("decimalPlaces"); }
