@@ -15,6 +15,7 @@ namespace GScraperExample.function
         public static async Task<long> GetAllImageAndPush(ConnectionMultiplexer conn, Dictionary<string, IEnumerable<IImageResult>> site, string[] args)
         {
             long data = 0;
+            long totalpushactual = 0;
             foreach (KeyValuePair<string, IEnumerable<IImageResult>> image in site)
             {
                 if (image.Value != null)
@@ -73,6 +74,12 @@ namespace GScraperExample.function
                             Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");
                         else
                             Console.WriteLine($"{image.Key}:\t\t{data} / {push.Length}");
+                        totalpushactual += data;
+                        if(image.Key == "Yahoo")
+                        {
+                            Console.WriteLine($"Total:\t\t{totalpushactual}");
+                            totalpushactual = 0;
+                        }
                         Console.ResetColor();
                         Program.totalimageupload += data;
                         data = 0;

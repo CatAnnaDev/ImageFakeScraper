@@ -124,97 +124,76 @@ namespace GScraperExample.function
                             {
                                 if (jsonparse?.results.Count != 0)
                                 {
-                                    if (resp.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                                    try
                                     {
-                                        Openserv409 = DateTime.Now + resp?.Headers?.RetryAfter?.Delta;
-                                        Console.ForegroundColor = ConsoleColor.Red;
-                                        Console.WriteLine($"Openverse RetryAfter {resp?.Headers?.RetryAfter?.Delta}");
-                                        Console.ResetColor();
-                                        //ov = false;
-                                        tmp.Add($"Openverse", null);
-                                    }
-                                    else
-                                    {
-                                        try
+                                        if (jsonparse.results.Count > 1)
                                         {
-                                            if (jsonparse.results.Count > 1)
+                                            for (int j = 0; j < jsonparse.page_count; j++)
                                             {
-                                                for (int j = 0; j < jsonparse.page_count; j++)
+                                                resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={page}&mature=true");
+
+                                                data = await resp.Content.ReadAsStringAsync();
+                                                if (data.StartsWith("{"))
                                                 {
-                                                    resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={page}&mature=true");
-
-                                                    data = await resp.Content.ReadAsStringAsync();
-                                                    if (data.StartsWith("{"))
+                                                    jsonparse = JsonConvert.DeserializeObject<Root>(data);
+                                                    if (jsonparse != null)
                                                     {
-                                                        jsonparse = JsonConvert.DeserializeObject<Root>(data);
-                                                        if (jsonparse != null)
+                                                        if (jsonparse?.results != null)
                                                         {
-                                                            if (jsonparse?.results != null)
+                                                            if (jsonparse?.results.Count != 0)
                                                             {
-                                                                if (jsonparse?.results.Count != 0)
+                                                                page++;
+                                                                for (int i = 0; i < jsonparse.results.Count; i++)
                                                                 {
-                                                                    page++;
-                                                                    for (int i = 0; i < jsonparse.results.Count; i++)
+                                                                    if (RegexCheck.IsMatch(jsonparse.results[i].url))
                                                                     {
-                                                                        if (RegexCheck.IsMatch(jsonparse.results[i].url))
+
+                                                                        NeewItem blap2 = new()
                                                                         {
+                                                                            Url = jsonparse.results[i].url,
+                                                                            Title = jsonparse.results[i].title,
+                                                                            Height = 0,
+                                                                            Width = 0
+                                                                        };
 
-                                                                            NeewItem blap2 = new()
-                                                                            {
-                                                                                Url = jsonparse.results[i].url,
-                                                                                Title = jsonparse.results[i].title,
-                                                                                Height = 0,
-                                                                                Width = 0
-                                                                            };
-
-                                                                            OpenVersNewItem.Add(blap2);
-                                                                        }
+                                                                        OpenVersNewItem.Add(blap2);
                                                                     }
-
                                                                 }
+
                                                             }
                                                         }
                                                     }
                                                 }
                                             }
-                                            else
+                                        }
+                                        else
+                                        {
+                                            for (int i = 0; i < jsonparse.results.Count; i++)
                                             {
-                                                for (int i = 0; i < jsonparse.results.Count; i++)
+                                                if (RegexCheck.IsMatch(jsonparse.results[i].url))
                                                 {
-                                                    if (RegexCheck.IsMatch(jsonparse.results[i].url))
+
+                                                    NeewItem blap2 = new()
                                                     {
+                                                        Url = jsonparse.results[i].url,
+                                                        Title = jsonparse.results[i].title,
+                                                        Height = 0,
+                                                        Width = 0
+                                                    };
 
-                                                        NeewItem blap2 = new()
-                                                        {
-                                                            Url = jsonparse.results[i].url,
-                                                            Title = jsonparse.results[i].title,
-                                                            Height = 0,
-                                                            Width = 0
-                                                        };
-
-                                                        OpenVersNewItem.Add(blap2);
-                                                    }
+                                                    OpenVersNewItem.Add(blap2);
                                                 }
                                             }
-                                            tmp.Add($"Openverse", OpenVersNewItem.AsEnumerable());
-
                                         }
-                                        catch {
-                                            tmp.Add($"Openverse", null);
-                                        }
-
+                                        tmp.Add($"Openverse", OpenVersNewItem.AsEnumerable());
+                                    }
+                                    catch
+                                    {
+                                        tmp.Add($"Openverse", null);
                                     }
                                 }
                             }
                         }
-                        else
-                        {
-                            tmp.Add($"Openverse", null);
-                        }
-                    }
-                    else
-                    {
-                        tmp.Add($"Openverse", null);
                     }
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
