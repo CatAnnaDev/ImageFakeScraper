@@ -36,18 +36,29 @@ namespace GScraperExample.function
                     RedisValue[] push = Array.ConvertAll(list.ToArray(), item => (RedisValue)item);
                     try
                     {
+                        int DBnum = 0;
+                        int tmp = 0;
                         Uri opts = new(args[0]);
                         var redisList = conn.GetServer($"{opts.Host}:{opts.Port}").Keys(0, "*image_jobs*").ToList();
                         var sorted = redisList.Select(key => key.ToString()).ToList();
                         sorted.Sort();
 
-                        Program.key = sorted.Last();
+                        for (int y = 0; y < redisList.Count; y++)
+                        {
+                            var lastList = redisList[y].ToString().Split("_");
+                            tmp = int.Parse(lastList.Last());
+                            if (DBnum < tmp)
+                            {
+                                DBnum = tmp;
+                                Program.key = redisList[y].ToString();
+                            }
+                        }
 
                         if (conn.GetDatabase().SetLength(Program.key) >= 1_000_000)
                         {
 
-                            var lastLists = sorted.Last().ToString().Split("_");
-                            if (conn.GetDatabase().SetLength(sorted.Last()) >= 1_000_000)
+                            var lastLists = Program.key.ToString().Split("_");
+                            if (conn.GetDatabase().SetLength(Program.key) >= 1_000_000)
                             {
 
                                 var parse = int.Parse(lastLists.Last());
@@ -55,7 +66,7 @@ namespace GScraperExample.function
                             }
                             else
                             {
-                                Program.key = sorted.Last();
+                                //Program.key = sorted.Last();
                             }
 
                         }
