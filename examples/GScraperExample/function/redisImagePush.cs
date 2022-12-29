@@ -74,6 +74,7 @@ namespace GScraperExample.function
                             Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");
                         else
                             Console.WriteLine($"{image.Key}:\t\t{data} / {push.Length}");
+
                         totalpushactual += data;
                         if(image.Key == "Yahoo")
                         {
@@ -107,6 +108,16 @@ namespace GScraperExample.function
                     else
                         Console.WriteLine($"{image.Key}\t\tdown");
                     Console.ResetColor();
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+
+                    if (image.Key == "Yahoo")
+                    {
+                        Console.WriteLine($"Total:\t\t{totalpushactual}");
+                        totalpushactual = 0;
+                    }
+                    Console.ResetColor();
+
                 }
             }
             return data;
