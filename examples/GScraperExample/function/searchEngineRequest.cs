@@ -12,6 +12,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace GScraperExample.function
 {
@@ -26,6 +27,8 @@ namespace GScraperExample.function
         private static bool ov = true;
         private static bool bing = true;
         private static bool yahoo = true;
+        private static bool getty = true;
+        private static bool every = true;
         private static readonly bool printLog = false;
         private static readonly Dictionary<string, IEnumerable<IImageResult>> tmp = new();
         private static readonly Queue<string> qword = new();
@@ -40,7 +43,7 @@ namespace GScraperExample.function
         private static DateTime? Openserv409;
 
         private static bool addNewTag_Bing_Google = false;
-        private static bool addNewTag_Bing = true;
+        private static bool addNewTag_Bing = false;
         private static bool addNewTag_Google = false;
 
 
@@ -251,7 +254,7 @@ namespace GScraperExample.function
                     foreach (var datsa in urls)
                     {
 
-                        NeewItem blap2 = new()
+                        NeewItem blap2 = new NeewItem()
                         {
                             Url = datsa,
                             Title = "",
@@ -341,10 +344,8 @@ namespace GScraperExample.function
                 }
             }
 
-            if (false)
+            if (getty)
             {
-
-                // link en 400
                 try
                 {
                     GettyNewItem.Clear();
@@ -362,12 +363,11 @@ namespace GScraperExample.function
                     {
                         NeewItem blap2 = new()
                         {
-                            Url = datsa,
+                            Url = datsa.Replace("&amp;", "&"),
                             Title = "",
                             Height = 0,
                             Width = 0
                         };
-
                         GettyNewItem.Add(blap2);
                     }
 
@@ -385,7 +385,7 @@ namespace GScraperExample.function
                     {
                         NeewItem blap2 = new()
                         {
-                            Url = datsa,
+                            Url = datsa.Replace("&amp;", "&"),
                             Title = "",
                             Height = 0,
                             Width = 0
@@ -399,7 +399,7 @@ namespace GScraperExample.function
                 catch { tmp.Add($"Getty", null); }
             }
 
-            if (true)
+            if (every)
             {
                 try
                 {

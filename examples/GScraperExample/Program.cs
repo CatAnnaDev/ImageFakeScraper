@@ -31,17 +31,16 @@ internal static class Program
         using GoogleScraper scraper = new();
         using DuckDuckGoScraper duck = new();
         using BraveScraper brave = new();
-
+        Random random = new Random();
         qword = new();
 
-
-       // Queue<string> word = new();
-       // string[] readText = File.ReadAllText("google_twunter_lol.txt").Split("\n");
+       //string[] readText = File.ReadAllText("google_twunter_lol.txt").Split("\n");
        //
-       // foreach (string s in readText)
-       // {
-       //     qword.Enqueue(s);
-       // }
+       //random.Shuffle(readText);
+       //foreach (string s in readText)
+       //{
+       //    qword.Enqueue(s);
+       //}
 
         string credential = args[0];
         redisConnection redisConnector = new(credential, 5000);
@@ -52,8 +51,8 @@ internal static class Program
 
         RedisKey key = new("words_list");
         var rng = await conn.ListLengthAsync(key);
-        Random random = new Random();  
-        RedisValue getredisValue = await conn.ListGetByIndexAsync(key, (long)random.Next(0, (int)rng-1));
+        random = new Random();
+        RedisValue getredisValue = await conn.ListGetByIndexAsync(key, (long)random.Next(0, (int)rng - 1));
         string text = getredisValue.ToString();
         qword.Enqueue(text);
 
@@ -212,5 +211,17 @@ internal static class Program
         return string.Format("{0:n" + decimalPlaces + "} {1}",
             adjustedSize,
             SizeSuffixes[mag]);
+    }
+
+    public static void Shuffle<T>(this Random rng, T[] array)
+    {
+        int n = array.Length;
+        while (n > 1)
+        {
+            int k = rng.Next(n--);
+            T temp = array[n];
+            array[n] = array[k];
+            array[k] = temp;
+        }
     }
 }
