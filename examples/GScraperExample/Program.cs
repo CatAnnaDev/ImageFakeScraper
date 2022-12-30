@@ -119,7 +119,7 @@ internal static class Program
                     while (!redis.IsConnected)
                     {
                         await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! 10sec /!\\");
-                        _ = redisConnection.redisConnect();
+                        //_ = redisConnection.redisConnect();
                         Thread.Sleep(TimeSpan.FromSeconds(10));
                     }
 
@@ -169,7 +169,7 @@ internal static class Program
             while (!redis.IsConnected)
             {
                 await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! 10sec /!\\");
-                _ = redisConnection.redisConnect();
+                //_ = redisConnection.redisConnect();
                 Thread.Sleep(TimeSpan.FromSeconds(10));
             }
             await Main(args);

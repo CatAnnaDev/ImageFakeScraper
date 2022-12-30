@@ -265,7 +265,6 @@ namespace GScraperExample.function
                         bingNewItem.Add(blap2);
                     }
                     tmp.Add($"Bing", bingNewItem.AsEnumerable());
-
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
                 {

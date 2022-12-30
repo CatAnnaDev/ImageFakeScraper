@@ -94,7 +94,7 @@ namespace GScraperExample.function
                         Console.ResetColor();
 
                         await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! /!\\");
-                        redisConnection.redisConnect();
+                        //redisConnection.redisConnect();
                     }
                 }
                 else
