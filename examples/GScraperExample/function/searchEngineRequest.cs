@@ -406,6 +406,7 @@ namespace GScraperExample.function
             {
                 try
                 {
+                    EveryNewItem.Clear();
                     var uri = $"https://www.everypixel.com/search?q={text}&stocks_type=free";
                     using HttpClient http = new HttpClient();
 
