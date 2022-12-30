@@ -50,8 +50,10 @@ internal static class Program
 
         //write("mot random en cas de besoin", redis);
 
-        RedisKey key = new("words_done");
-        RedisValue getredisValue = await conn.ListGetByIndexAsync(key, 0);
+        RedisKey key = new("words_list");
+        var rng = await conn.ListLengthAsync(key);
+        Random random = new Random();  
+        RedisValue getredisValue = await conn.ListGetByIndexAsync(key, (long)random.Next(0, (int)rng-1));
         string text = getredisValue.ToString();
         qword.Enqueue(text);
 
@@ -84,7 +86,7 @@ internal static class Program
 
                 Queue<string> callQword = await searchEngineRequest.getAllNextTag(text, redis);
 
-                while (callQword.Count != 0 && qword.Count < 1000)
+                while (callQword.Count != 0)
                 {
                     qword.Enqueue(callQword.Dequeue()); // euh
                 }

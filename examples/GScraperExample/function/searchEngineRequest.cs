@@ -2,17 +2,14 @@
 using GScraper.Brave;
 using GScraper.DuckDuckGo;
 using GScraper.Google;
-using GScraperExample.uselessCode;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
-using Reddit.Things;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -42,8 +39,8 @@ namespace GScraperExample.function
         private static readonly Regex RegexCheck = new(@".*\.(jpg|png|gif)?$");
         private static DateTime? Openserv409;
 
-        private static bool addNewTag_Bing_Google = true;
-        private static bool addNewTag_Bing = false;
+        private static bool addNewTag_Bing_Google = false;
+        private static bool addNewTag_Bing = true;
         private static bool addNewTag_Google = false;
 
 
