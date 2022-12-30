@@ -2,14 +2,17 @@
 using GScraper.Brave;
 using GScraper.DuckDuckGo;
 using GScraper.Google;
+using GScraperExample.uselessCode;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
+using Reddit.Things;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -33,15 +36,19 @@ namespace GScraperExample.function
         private static readonly List<NeewItem> OpenVersNewItem = new();
         private static readonly List<NeewItem> bingNewItem = new();
         private static readonly List<NeewItem> YahooNewItem = new();
+        private static readonly List<NeewItem> GettyNewItem = new();
+        private static readonly List<NeewItem> EveryNewItem = new();
         private static readonly HttpClient http = new();
         private static readonly Regex RegexCheck = new(@".*\.(jpg|png|gif)?$");
         private static DateTime? Openserv409;
 
+        private static bool addNewTag_Bing_Google = true;
+        private static bool addNewTag_Bing = false;
+        private static bool addNewTag_Google = false;
+
 
         public static async Task<Dictionary<string, IEnumerable<IImageResult>>> getAllDataFromsearchEngineAsync(string text)
         {
-
-
             if (GoogleScraper.gg)
             {
                 IEnumerable<IImageResult> google;
@@ -130,7 +137,7 @@ namespace GScraperExample.function
                                         {
                                             for (int j = 0; j < jsonparse.page_count; j++)
                                             {
-                                                resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={page}&mature=true");
+                                                resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={page}");
 
                                                 data = await resp.Content.ReadAsStringAsync();
                                                 if (data.StartsWith("{"))
@@ -214,14 +221,35 @@ namespace GScraperExample.function
                 try
                 {
                     bingNewItem.Clear();
-                    var uri = $"https://www.bing.com/images/search?q={text}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&cw=1224&ch=1215";
+                    var uri = $"https://www.bing.com/images/search?q={text}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle";
+
+                    //var uri = $"https://www.bing.com/images/search?q=asian+pussy&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&ADLT=OFF";
+
                     using HttpClient http = new HttpClient();
 
                     HttpResponseMessage resp = await http.GetAsync(uri);
+
                     var data = await resp.Content.ReadAsStringAsync();
                     var doc = new HtmlDocument();
                     doc.LoadHtml(data);
                     var urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src2", null)).Where(s => !String.IsNullOrEmpty(s));
+
+                    var tag = doc.DocumentNode.SelectNodes("//div[@class='suggestion-title-wrapper']");
+
+                    if (tag != null)
+                    {
+                        foreach (var item in tag)
+                        {
+                            if (addNewTag_Bing_Google || addNewTag_Bing)
+                            {
+                                if (await Read(Program.redis, item.FirstChild.InnerText) == -1)
+                                {
+                                    if(!qword.Contains(item.FirstChild.InnerText))
+                                        qword.Enqueue(item.FirstChild.InnerText);
+                                }
+                            }
+                        }
+                    }
 
                     foreach (var datsa in urls)
                     {
@@ -315,6 +343,98 @@ namespace GScraperExample.function
                     }
                 }
             }
+
+            if (false)
+            {
+
+                // link en 400
+                try
+                {
+                    GettyNewItem.Clear();
+                    var uri = $"https://www.gettyimages.fr/photos/{text}?assettype=image&family=creative&sort=best&suppressfamilycorrection=true&phrase={text}&license=rf%2Crm";
+                    using HttpClient http = new HttpClient();
+
+                    HttpResponseMessage resp = await http.GetAsync(uri);
+                    var data = await resp.Content.ReadAsStringAsync();
+
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(data);
+                    var urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !String.IsNullOrEmpty(s));
+
+                    foreach (var datsa in urls)
+                    {
+                        NeewItem blap2 = new()
+                        {
+                            Url = datsa,
+                            Title = "",
+                            Height = 0,
+                            Width = 0
+                        };
+
+                        GettyNewItem.Add(blap2);
+                    }
+
+
+                    uri = $"https://www.gettyimages.fr/photos/{text}?assettype=image&family=editorial&phrase={text}&license=rf%2Crm";
+
+                    resp = await http.GetAsync(uri);
+                    data = await resp.Content.ReadAsStringAsync();
+
+                    doc = new HtmlDocument();
+                    doc.LoadHtml(data);
+                    urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !String.IsNullOrEmpty(s));
+
+                    foreach (var datsa in urls)
+                    {
+                        NeewItem blap2 = new()
+                        {
+                            Url = datsa,
+                            Title = "",
+                            Height = 0,
+                            Width = 0
+                        };
+
+                        GettyNewItem.Add(blap2);
+                    }
+
+                    tmp.Add($"Getty", GettyNewItem.AsEnumerable());
+                }
+                catch { tmp.Add($"Getty", null); }
+            }
+
+            if (true)
+            {
+                try
+                {
+                    var uri = $"https://www.everypixel.com/search?q={text}&stocks_type=free";
+                    using HttpClient http = new HttpClient();
+
+                    HttpResponseMessage resp = await http.GetAsync(uri);
+                    var data = await resp.Content.ReadAsStringAsync();
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(data);
+                    var urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !String.IsNullOrEmpty(s));
+
+                    foreach (var datsa in urls)
+                    {
+                        if (!datsa.Contains("adserver"))
+                        {
+                            NeewItem blap2 = new()
+                            {
+                                Url = datsa,
+                                Title = "",
+                                Height = 0,
+                                Width = 0
+                            };
+
+                            EveryNewItem.Add(blap2);
+                        }
+                    }
+                    tmp.Add($"Every", EveryNewItem.AsEnumerable());
+                }
+                catch { tmp.Add($"Every", null);  }
+            }
+
 
             if (!GoogleScraper.gg && !ddc && !brv && !ov && !bing && !yahoo)
             {
@@ -422,7 +542,8 @@ namespace GScraperExample.function
                         {
                             if (await Read(redis, table[j].InnerText) == -1)
                             {
-                                //qword.Enqueue(table[j].InnerText);
+                                if (addNewTag_Bing_Google || addNewTag_Google)
+                                    qword.Enqueue(table[j].InnerText);
 
                                 //Console.ForegroundColor = ConsoleColor.Green;
                                 //await Console.Out.WriteLineAsync($"Tag Added {table[j].InnerText}");

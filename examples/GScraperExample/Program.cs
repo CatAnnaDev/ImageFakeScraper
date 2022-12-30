@@ -7,6 +7,7 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace GScraperExample;
 internal static class Program
 {
     private static readonly object ConsoleWriterLock = new();
-    public static ConnectionMultiplexer? redis;
+    public static ConnectionMultiplexer redis;
     public static redisConnection? redisConnector;
     public static Queue<string>? qword;
     private static Dictionary<string, IEnumerable<GScraper.IImageResult>>? site;
@@ -33,17 +34,18 @@ internal static class Program
 
         qword = new();
 
-        //Queue<string> word = new();
-        //string[] readText = File.ReadAllText("words.txt").Split("\n");
 
-        //foreach (string s in readText)
-        //{
-        //    word.Enqueue(s);
-        //}
+       // Queue<string> word = new();
+       // string[] readText = File.ReadAllText("google_twunter_lol.txt").Split("\n");
+       //
+       // foreach (string s in readText)
+       // {
+       //     qword.Enqueue(s);
+       // }
 
         string credential = args[0];
         redisConnection redisConnector = new(credential, 5000);
-        ConnectionMultiplexer redis = redisConnection.redisConnect();
+        redis = redisConnection.redisConnect();
         IDatabase conn = redis.GetDatabase();
 
         //write("mot random en cas de besoin", redis);
@@ -52,6 +54,7 @@ internal static class Program
         RedisValue getredisValue = await conn.ListGetByIndexAsync(key, 0);
         string text = getredisValue.ToString();
         qword.Enqueue(text);
+
 
         double waittime = args.Length > 0.1 ? double.Parse(args[1]) : 0;
 
@@ -81,7 +84,7 @@ internal static class Program
 
                 Queue<string> callQword = await searchEngineRequest.getAllNextTag(text, redis);
 
-                while (callQword.Count != 0)
+                while (callQword.Count != 0 && qword.Count < 1000)
                 {
                     qword.Enqueue(callQword.Dequeue()); // euh
                 }

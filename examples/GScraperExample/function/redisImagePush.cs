@@ -20,7 +20,6 @@ namespace GScraperExample.function
             {
                 if (image.Value != null)
                 {
-
                     List<string> list = new();
 
                     foreach (IImageResult daata in image.Value)
@@ -76,7 +75,7 @@ namespace GScraperExample.function
                             Console.WriteLine($"{image.Key}:\t\t{data} / {push.Length}");
 
                         totalpushactual += data;
-                        if(image.Key == "Yahoo")
+                        if(image.Key == "Every")
                         {
                             Console.WriteLine($"Total:\t\t{totalpushactual}");
                             totalpushactual = 0;
@@ -111,7 +110,7 @@ namespace GScraperExample.function
 
                     Console.ForegroundColor = ConsoleColor.Green;
 
-                    if (image.Key == "Yahoo")
+                    if (image.Key == "Every")
                     {
                         Console.WriteLine($"Total:\t\t{totalpushactual}");
                         totalpushactual = 0;
