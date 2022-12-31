@@ -1,21 +1,8 @@
-﻿using GScraper.Brave;
-using GScraper.DuckDuckGo;
-using GScraper.Google;
-using GScraperExample.function;
-using Prometheus;
-using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace GScraperExample;
+﻿namespace GScraperExample;
 
 internal static class Program
 {
+    #region Var
     private static readonly object ConsoleWriterLock = new();
     public static ConnectionMultiplexer redis;
     public static redisConnection? redisConnector;
@@ -24,7 +11,9 @@ internal static class Program
     private static readonly KestrelMetricServer server = new(port: 4444);
     public static string key;
     public static long totalimageupload = 0;
+    #endregion
 
+    #region Start
     private static async Task Main(string[] args)
     {
 
@@ -179,7 +168,9 @@ internal static class Program
             await Main(args);
         }
     }
+    #endregion
 
+    #region printData
     private static void printData(string text)
     {
         lock (ConsoleWriterLock)
@@ -189,19 +180,22 @@ internal static class Program
             Console.WriteLine("========================================================");
         }
     }
-
+    #endregion
+    #region redisGetNewTag
     private static async Task<RedisValue> redisGetNewTag(ConnectionMultiplexer redis)
     {
         return await redis.GetDatabase().ListLeftPopAsync("words_list");
     }
-
+    #endregion
+    #region redisWriteNewTag
     private static async void redisWriteNewTag(string text, ConnectionMultiplexer redis)
     {
         RedisValue value = new(text);
         RedisKey key = new("words_done");
         _ = await redis.GetDatabase().ListLeftPushAsync(key, value);
     }
-
+    #endregion
+    #region SizeSuffix
     private static string SizeSuffix(long value, int decimalPlaces = 1)
     {
         string[] SizeSuffixes = { "bytes", "KB", "MB", "GB" };
@@ -216,7 +210,8 @@ internal static class Program
             adjustedSize,
             SizeSuffixes[mag]);
     }
-
+    #endregion
+    #region ShuffleArray
     public static void Shuffle<T>(this Random rng, T[] array)
     {
         int n = array.Length;
@@ -228,4 +223,5 @@ internal static class Program
             array[k] = temp;
         }
     }
+    #endregion
 }
