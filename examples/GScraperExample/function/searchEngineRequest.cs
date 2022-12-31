@@ -221,9 +221,7 @@ namespace GScraperExample.function
                 try
                 {
                     bingNewItem.Clear();
-                    var uri = $"https://www.bing.com/images/search?q={text}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle";
-
-                    //var uri = $"https://www.bing.com/images/search?q=asian+pussy&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&ADLT=OFF";
+                    var uri = $"https://www.bing.com/images/search?q={text}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&ADLT=OFF";
 
                     using HttpClient http = new HttpClient();
 

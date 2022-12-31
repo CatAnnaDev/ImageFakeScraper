@@ -11,6 +11,8 @@ namespace GScraperExample.function
     internal class redisImagePush
     {
         private static readonly bool printLog = false;
+        public static long recordtmp { get; private set; } = 0;
+        public static long record { get; private set; } = 0;
 
         public static async Task<long> GetAllImageAndPush(ConnectionMultiplexer conn, Dictionary<string, IEnumerable<IImageResult>> site, string[] args)
         {
@@ -78,9 +80,17 @@ namespace GScraperExample.function
                         if(image.Key == "Every")
                         {
                             Console.WriteLine($"Total:\t\t{totalpushactual}");
+                            recordtmp = totalpushactual;
                             totalpushactual = 0;
                         }
                         Console.ResetColor();
+                        if (recordtmp > record)
+                        {
+                            record = recordtmp;
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.WriteLine($"RECORD:\t\t{record}");
+                            Console.ResetColor();
+                        }
                         Program.totalimageupload += data;
                         data = 0;
 
@@ -113,10 +123,17 @@ namespace GScraperExample.function
                     if (image.Key == "Every")
                     {
                         Console.WriteLine($"Total:\t\t{totalpushactual}");
+                        recordtmp = totalpushactual;
                         totalpushactual = 0;
-                    }
+                    }                  
                     Console.ResetColor();
-
+                    if (recordtmp > record)
+                    {
+                        record = recordtmp;
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine($"RECORD:\t\t{record}");
+                        Console.ResetColor();
+                    }
                 }
             }
             return data;

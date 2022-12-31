@@ -145,6 +145,7 @@ internal static class Program
                 long redisDBLength = conn.SetLength(Program.key);
                 string redisLength = $"{redisDBLength} / {1_000_000} ({100.0 * redisDBLength / 1_000_000:0.00}%)";
                 var elapsed = TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds;
+                RedisKey key_done = new("words_done");
 
                 printData(
                         $"Uptime\t\t{uptimeFormated}\n" +
@@ -153,10 +154,11 @@ internal static class Program
                         $"Memory\t\t{SizeSuffix(usedMemory)}\n" +
                         $"Previous\t{text}\n" +
                         $"Tags\t\t{qword.Count}\n" +
-                        $"Tag done\t{await redis.GetDatabase().ListLengthAsync(key)}\n" +
+                        $"Tag done\t{await redis.GetDatabase().ListLengthAsync(key_done)}\n" +
                         $"Tag remaining\t{await redis.GetDatabase().ListLengthAsync("words_list")}\n" +
                         $"{Program.key}\t{redisLength}\n" +
-                        $"Total upload\t{totalimageupload}");
+                        $"Total upload\t{totalimageupload}\n"+
+                        $"Record:\t\t{redisImagePush.record}");
 
 
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
