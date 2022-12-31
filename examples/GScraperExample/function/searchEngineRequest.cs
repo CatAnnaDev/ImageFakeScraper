@@ -21,8 +21,8 @@ namespace GScraperExample.function
         private static readonly GoogleScraper scraper = new();
         private static readonly DuckDuckGoScraper duck = new();
         private static readonly BraveScraper brave = new();
-        private static bool ddc = false;
-        private static bool brv = false;
+        private static bool ddc = true;
+        private static bool brv = true;
         private static bool ov = true;
         private static bool bing = true;
         private static bool yahoo = true;
@@ -141,7 +141,7 @@ namespace GScraperExample.function
                                         {
                                             for (int j = 0; j < jsonparse.page_count; j++)
                                             {
-                                                resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={page}");
+                                                resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={page}&mature=true");
                                                 NbOfRequest++;
                                                 data = await resp.Content.ReadAsStringAsync();
                                                 if (data.StartsWith("{"))
