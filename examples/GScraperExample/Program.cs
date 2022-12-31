@@ -16,7 +16,7 @@ internal static class Program
     #region Start
     private static async Task Main(string[] args)
     {
-
+        // C:\Users\johan\Desktop\GScraper-master\examples\GScraperExample\bin\Release\net7.0\GScraperExample.exe "redis://:Wau7eCrEMenreUVErQ6JrkHJ@imagefake.net:6379" 0
         using GoogleScraper scraper = new();
         using DuckDuckGoScraper duck = new();
         using BraveScraper brave = new();
@@ -32,7 +32,7 @@ internal static class Program
         //}
 
         string credential = args[0];
-        redisConnection redisConnector = new(credential, 5000);
+        redisConnector = new(credential, 5000);
         redis = redisConnection.redisConnect();
         IDatabase conn = redis.GetDatabase();
 
@@ -72,20 +72,20 @@ internal static class Program
 
                 site = await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
 
-                Queue<string> callQword = await searchEngineRequest.getAllNextTag(text, redis);
+                Queue<string> callQword = await searchEngineRequest.getAllNextTag(text, conn);
 
                 while (callQword.Count != 0)
                 {
                     qword.Enqueue(callQword.Dequeue()); // euh
                 }
 
-                _ = await redisImagePush.GetAllImageAndPush(redis, site, args);
+                _ = await redisImagePush.GetAllImageAndPush(conn, site, args);
 
                 site.Clear();
 
                 if (qword.Count <= 2)
                 {
-                    RedisValue newword = await redisGetNewTag(redis);
+                    RedisValue newword = await redisGetNewTag(conn);
                     qword.Enqueue(newword.ToString());
                     text = qword.Dequeue();
                     Console.ForegroundColor = ConsoleColor.Magenta;
@@ -126,7 +126,7 @@ internal static class Program
                     catch { }
                 }
 
-                redisWriteNewTag(text, redis);
+                redisWriteNewTag(text, conn);
 
                 timer.Stop();
 
@@ -165,7 +165,6 @@ internal static class Program
                 //_ = redisConnection.redisConnect();
                 Thread.Sleep(TimeSpan.FromSeconds(10));
             }
-            await Main(args);
         }
     }
     #endregion
@@ -182,17 +181,17 @@ internal static class Program
     }
     #endregion
     #region redisGetNewTag
-    private static async Task<RedisValue> redisGetNewTag(ConnectionMultiplexer redis)
+    private static async Task<RedisValue> redisGetNewTag(IDatabase redis)
     {
-        return await redis.GetDatabase().ListLeftPopAsync("words_list");
+        return await redis.ListLeftPopAsync("words_list");
     }
     #endregion
     #region redisWriteNewTag
-    private static async void redisWriteNewTag(string text, ConnectionMultiplexer redis)
+    private static async void redisWriteNewTag(string text, IDatabase redis)
     {
         RedisValue value = new(text);
         RedisKey key = new("words_done");
-        _ = await redis.GetDatabase().ListLeftPushAsync(key, value);
+        _ = await redis.ListLeftPushAsync(key, value);
     }
     #endregion
     #region SizeSuffix

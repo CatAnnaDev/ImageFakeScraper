@@ -9,7 +9,7 @@ internal class redisImagePush
     #endregion
 
     #region getAllImage
-    public static async Task<long> GetAllImageAndPush(ConnectionMultiplexer conn, Dictionary<string, IEnumerable<IImageResult>> site, string[] args)
+    public static async Task<long> GetAllImageAndPush(IDatabase conn, Dictionary<string, IEnumerable<IImageResult>> site, string[] args)
     {
         long data = 0;
         long totalpushactual = 0;
@@ -36,7 +36,7 @@ internal class redisImagePush
                     int DBnum = 0;
                     int tmp = 0;
                     Uri opts = new(args[0]);
-                    List<RedisKey> redisList = conn.GetServer($"{opts.Host}:{opts.Port}").Keys(0, "*image_jobs*").ToList();
+                    List<RedisKey> redisList = redisConnection.GetServers.Keys(0, "*image_jobs*").ToList();
                     List<string> sorted = redisList.Select(key => key.ToString()).ToList();
                     sorted.Sort();
 
@@ -51,18 +51,18 @@ internal class redisImagePush
                         }
                     }
 
-                    if (conn.GetDatabase().SetLength(Program.key) >= 1_000_000)
+                    if (conn.SetLength(Program.key) >= 1_000_000)
                     {
 
                         string[] lastLists = Program.key.ToString().Split("_");
-                        if (conn.GetDatabase().SetLength(Program.key) >= 1_000_000)
+                        if (conn.SetLength(Program.key) >= 1_000_000)
                         {
                             int parse = int.Parse(lastLists.Last());
                             Program.key = $"{lastLists[0]}_{lastLists[1]}_{int.Parse(lastLists[2]) + 1}";
                         }
                     }
 
-                    data = await conn.GetDatabase().SetAddAsync(Program.key, push);
+                    data = await conn.SetAddAsync(Program.key, push);
                     Console.ForegroundColor = ConsoleColor.Green;
                     if (image.Key == "Openverse")
                         Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");

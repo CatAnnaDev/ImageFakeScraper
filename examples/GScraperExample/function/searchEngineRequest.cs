@@ -235,7 +235,7 @@ internal class searchEngineRequest
                     {
                         if (addNewTag_Bing_Google || addNewTag_Bing)
                         {
-                            if (await Read(Program.redis, item.FirstChild.InnerText) == -1)
+                            if (await Read(redisConnection.GetDatabase, item.FirstChild.InnerText) == -1)
                             {
                                 if (!qword.Contains(item.FirstChild.InnerText))
                                     qword.Enqueue(item.FirstChild.InnerText);
@@ -516,7 +516,7 @@ internal class searchEngineRequest
     #endregion
 
     #region getAllNextTag
-    public static async Task<Queue<string>> getAllNextTag(string text, ConnectionMultiplexer redis)
+    public static async Task<Queue<string>> getAllNextTag(string text, IDatabase redis)
     {
 
         string url = $"https://www.google.com/search?q={text}&tbm=isch&hl=en";
@@ -573,9 +573,9 @@ internal class searchEngineRequest
     #endregion
 
     #region redisRead
-    private static async Task<long> Read(ConnectionMultiplexer redis, string text)
+    private static async Task<long> Read(IDatabase redis, string text)
     {
-        return await redis.GetDatabase().ListPositionAsync("words_done", text);
+        return await redis.ListPositionAsync("words_done", text);
     }
     #endregion
 }

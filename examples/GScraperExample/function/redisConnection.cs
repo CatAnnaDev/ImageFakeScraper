@@ -7,6 +7,8 @@ internal class redisConnection
     static string credential = "";
     static int exponentialRetry = 0;
     static ConnectionMultiplexer Connection { get; set; }
+    public static IServer GetServers { get; set; }
+    public static IDatabase GetDatabase { get; set; }
     #endregion
 
     #region Constuctor
@@ -30,7 +32,10 @@ internal class redisConnection
         options.SyncTimeout = int.MaxValue;
         options.ReconnectRetryPolicy = new ExponentialRetry(exponentialRetry);
         options.CommandMap = CommandMap.Create(new HashSet<string> { "SUBSCRIBE" }, false);
-        Connection = ConnectionMultiplexer.Connect(options);
+        TextWriter log = Console.Out;
+        Connection = ConnectionMultiplexer.Connect(options, log);
+        GetServers = Connection.GetServer($"{opts.Host}:{opts.Port}");
+        GetDatabase = Connection.GetDatabase();
         return Connection;
     }
     #endregion
