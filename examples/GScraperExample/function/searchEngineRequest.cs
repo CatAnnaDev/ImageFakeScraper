@@ -115,7 +115,7 @@ internal class searchEngineRequest
                 int page = 1;
                 HttpResponseMessage resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={page}&mature=true");
                 NbOfRequest++;
-                var data = await resp.Content.ReadAsStringAsync();
+                string data = await resp.Content.ReadAsStringAsync();
                 if (data.StartsWith("{"))
                 {
                     Root jsonparse = JsonConvert.DeserializeObject<Root>(data);
@@ -216,35 +216,35 @@ internal class searchEngineRequest
             try
             {
                 bingNewItem.Clear();
-                var uri = $"https://www.bing.com/images/search?q={text}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&ADLT=OFF";
+                string uri = $"https://www.bing.com/images/search?q={text}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&ADLT=OFF";
 
                 using HttpClient http = new HttpClient();
 
                 HttpResponseMessage resp = await http.GetAsync(uri);
 
-                var data = await resp.Content.ReadAsStringAsync();
-                var doc = new HtmlDocument();
+                string data = await resp.Content.ReadAsStringAsync();
+                HtmlDocument doc = new HtmlDocument();
                 doc.LoadHtml(data);
-                var urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src2", null)).Where(s => !String.IsNullOrEmpty(s));
+                IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src2", null)).Where(s => !String.IsNullOrEmpty(s));
 
-                var tag = doc.DocumentNode.SelectNodes("//div[@class='suggestion-title-wrapper']");
+                HtmlNodeCollection tag = doc.DocumentNode.SelectNodes("//div[@class='suggestion-title-wrapper']");
 
                 if (tag != null)
                 {
-                    foreach (var item in tag)
+                    foreach (HtmlNode? item in tag)
                     {
                         if (addNewTag_Bing_Google || addNewTag_Bing)
                         {
                             if (await Read(Program.redis, item.FirstChild.InnerText) == -1)
                             {
-                                if(!qword.Contains(item.FirstChild.InnerText))
+                                if (!qword.Contains(item.FirstChild.InnerText))
                                     qword.Enqueue(item.FirstChild.InnerText);
                             }
                         }
                     }
                 }
 
-                foreach (var datsa in urls)
+                foreach (string? datsa in urls)
                 {
 
                     NewItem blap2 = new NewItem()
@@ -279,7 +279,7 @@ internal class searchEngineRequest
             try
             {
                 YahooNewItem.Clear();
-                var uri = $"https://images.search.yahoo.com/search/images?ei=UTF-8&p={text}&fr2=p%3As%2Cv%3Ai&.bcrumb=4N2SA8f4BZT&save=0";
+                string uri = $"https://images.search.yahoo.com/search/images?ei=UTF-8&p={text}&fr2=p%3As%2Cv%3Ai&.bcrumb=4N2SA8f4BZT&save=0";
                 using HttpClient http = new HttpClient();
 
                 HttpResponseMessage resp = await http.GetAsync(uri);
@@ -305,12 +305,12 @@ internal class searchEngineRequest
                 }
                 else
                 {
-                    var data = await resp.Content.ReadAsStringAsync();
-                    var doc = new HtmlDocument();
+                    string data = await resp.Content.ReadAsStringAsync();
+                    HtmlDocument doc = new HtmlDocument();
                     doc.LoadHtml(data);
-                    var urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("data-src", null)).Where(s => !String.IsNullOrEmpty(s));
+                    IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("data-src", null)).Where(s => !String.IsNullOrEmpty(s));
 
-                    foreach (var datsa in urls)
+                    foreach (string? datsa in urls)
                     {
 
                         NewItem blap2 = new()
@@ -345,17 +345,17 @@ internal class searchEngineRequest
             try
             {
                 GettyNewItem.Clear();
-                var uri = $"https://www.gettyimages.fr/photos/{text}?assettype=image&family=creative&sort=best&suppressfamilycorrection=true&phrase={text}&license=rf%2Crm";
+                string uri = $"https://www.gettyimages.fr/photos/{text}?assettype=image&family=creative&sort=best&suppressfamilycorrection=true&phrase={text}&license=rf%2Crm";
                 using HttpClient http = new HttpClient();
 
                 HttpResponseMessage resp = await http.GetAsync(uri);
-                var data = await resp.Content.ReadAsStringAsync();
+                string data = await resp.Content.ReadAsStringAsync();
 
-                var doc = new HtmlDocument();
+                HtmlDocument doc = new HtmlDocument();
                 doc.LoadHtml(data);
-                var urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !String.IsNullOrEmpty(s));
+                IEnumerable<string> urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !String.IsNullOrEmpty(s));
 
-                foreach (var datsa in urls)
+                foreach (string? datsa in urls)
                 {
                     NewItem blap2 = new()
                     {
@@ -377,7 +377,7 @@ internal class searchEngineRequest
                 doc.LoadHtml(data);
                 urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !String.IsNullOrEmpty(s));
 
-                foreach (var datsa in urls)
+                foreach (string? datsa in urls)
                 {
                     NewItem blap2 = new()
                     {
@@ -402,16 +402,16 @@ internal class searchEngineRequest
             try
             {
                 EveryNewItem.Clear();
-                var uri = $"https://www.everypixel.com/search?q={text}&stocks_type=free";
+                string uri = $"https://www.everypixel.com/search?q={text}&stocks_type=free";
                 using HttpClient http = new HttpClient();
 
                 HttpResponseMessage resp = await http.GetAsync(uri);
-                var data = await resp.Content.ReadAsStringAsync();
-                var doc = new HtmlDocument();
+                string data = await resp.Content.ReadAsStringAsync();
+                HtmlDocument doc = new HtmlDocument();
                 doc.LoadHtml(data);
-                var urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !String.IsNullOrEmpty(s));
+                IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !String.IsNullOrEmpty(s));
 
-                foreach (var datsa in urls)
+                foreach (string? datsa in urls)
                 {
                     if (!datsa.Contains("adserver"))
                     {
@@ -429,7 +429,7 @@ internal class searchEngineRequest
                 tmp.Add($"Every", EveryNewItem.AsEnumerable());
                 NbOfRequest++;
             }
-            catch { tmp.Add($"Every", null);  }
+            catch { tmp.Add($"Every", null); }
         }
         #endregion
         #region boolCheckOnline

@@ -23,13 +23,13 @@ internal static class Program
         Random random = new Random();
         qword = new();
 
-       //string[] readText = File.ReadAllText("google_twunter_lol.txt").Split("\n");
-       //
-       //random.Shuffle(readText);
-       //foreach (string s in readText)
-       //{
-       //    qword.Enqueue(s);
-       //}
+        //string[] readText = File.ReadAllText("google_twunter_lol.txt").Split("\n");
+        //
+        //random.Shuffle(readText);
+        //foreach (string s in readText)
+        //{
+        //    qword.Enqueue(s);
+        //}
 
         string credential = args[0];
         redisConnection redisConnector = new(credential, 5000);
@@ -39,9 +39,9 @@ internal static class Program
         //write("mot random en cas de besoin", redis);
 
         RedisKey key = new("words_list");
-        var rng = await conn.ListLengthAsync(key);
+        long rng = await conn.ListLengthAsync(key);
         random = new Random();
-        RedisValue getredisValue = await conn.ListGetByIndexAsync(key, (long)random.Next(0, (int)rng - 1));
+        RedisValue getredisValue = await conn.ListGetByIndexAsync(key, random.Next(0, (int)rng - 1));
         string text = getredisValue.ToString();
         qword.Enqueue(text);
 
@@ -133,7 +133,7 @@ internal static class Program
                 string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
                 long redisDBLength = conn.SetLength(Program.key);
                 string redisLength = $"{redisDBLength} / {1_000_000} ({100.0 * redisDBLength / 1_000_000:0.00}%)";
-                var elapsed = TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds;
+                double elapsed = TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds;
                 RedisKey key_done = new("words_done");
 
                 printData(
@@ -147,7 +147,7 @@ internal static class Program
                         $"Tag done\t{await redis.GetDatabase().ListLengthAsync(key_done)}\n" +
                         $"Tag remaining\t{await redis.GetDatabase().ListLengthAsync("words_list")}\n" +
                         $"{Program.key}\t{redisLength}\n" +
-                        $"Total upload\t{totalimageupload}\n"+
+                        $"Total upload\t{totalimageupload}\n" +
                         $"Record:\t\t{redisImagePush.record}");
 
 

@@ -36,13 +36,13 @@ internal class redisImagePush
                     int DBnum = 0;
                     int tmp = 0;
                     Uri opts = new(args[0]);
-                    var redisList = conn.GetServer($"{opts.Host}:{opts.Port}").Keys(0, "*image_jobs*").ToList();
-                    var sorted = redisList.Select(key => key.ToString()).ToList();
+                    List<RedisKey> redisList = conn.GetServer($"{opts.Host}:{opts.Port}").Keys(0, "*image_jobs*").ToList();
+                    List<string> sorted = redisList.Select(key => key.ToString()).ToList();
                     sorted.Sort();
 
                     for (int y = 0; y < redisList.Count; y++)
                     {
-                        var lastList = redisList[y].ToString().Split("_");
+                        string[] lastList = redisList[y].ToString().Split("_");
                         tmp = int.Parse(lastList.Last());
                         if (DBnum < tmp)
                         {
@@ -54,10 +54,10 @@ internal class redisImagePush
                     if (conn.GetDatabase().SetLength(Program.key) >= 1_000_000)
                     {
 
-                        var lastLists = Program.key.ToString().Split("_");
+                        string[] lastLists = Program.key.ToString().Split("_");
                         if (conn.GetDatabase().SetLength(Program.key) >= 1_000_000)
                         {
-                            var parse = int.Parse(lastLists.Last());
+                            int parse = int.Parse(lastLists.Last());
                             Program.key = $"{lastLists[0]}_{lastLists[1]}_{int.Parse(lastLists[2]) + 1}";
                         }
                     }
@@ -66,13 +66,13 @@ internal class redisImagePush
                     Console.ForegroundColor = ConsoleColor.Green;
                     if (image.Key == "Openverse")
                         Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");
-                    else if(image.Key == "DuckDuckGo")
+                    else if (image.Key == "DuckDuckGo")
                         Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");
                     else
                         Console.WriteLine($"{image.Key}:\t\t{data} / {push.Length}");
 
                     totalpushactual += data;
-                    if(image.Key == "Every")
+                    if (image.Key == "Every")
                     {
                         Console.WriteLine($"Total:\t\t{totalpushactual}");
                         recordtmp = totalpushactual;
@@ -120,7 +120,7 @@ internal class redisImagePush
                     Console.WriteLine($"Total:\t\t{totalpushactual}");
                     recordtmp = totalpushactual;
                     totalpushactual = 0;
-                }                  
+                }
                 Console.ResetColor();
                 if (recordtmp > record)
                 {
