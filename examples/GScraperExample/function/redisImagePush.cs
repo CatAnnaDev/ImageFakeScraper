@@ -79,14 +79,25 @@ internal class redisImagePush
                         totalpushactual = 0;
                     }
                     Console.ResetColor();
-                    if (recordtmp > long.Parse(conn.StringGet("record_push")))
+                    if (recordtmp > record)
                     {
                         record = recordtmp;
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine($"RECORD:\t\t{record}");
-                        await conn.StringSetAsync("record_push", record.ToString());
                         Console.ResetColor();
                     }
+                    try
+                    {
+                        if (recordtmp > int.Parse(conn.StringGet("record_push").ToString().Split(" ").Last()))
+                        {
+                            record = recordtmp;
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.WriteLine($"RECORD:\t\t{record}");
+                            await conn.StringSetAsync("record_push", $"{args[2]} {record}");
+                            Console.ResetColor();
+                        }
+                    }
+                    catch { }
                     Program.totalimageupload += data;
                     data = 0;
 
@@ -123,14 +134,25 @@ internal class redisImagePush
                     totalpushactual = 0;
                 }
                 Console.ResetColor();
-                if (recordtmp > long.Parse(conn.StringGet("record_push")))
+                if(recordtmp > record)
                 {
                     record = recordtmp;
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine($"RECORD:\t\t{record}");
-                    await conn.StringSetAsync("record_push", record.ToString());
                     Console.ResetColor();
                 }
+                try
+                {
+                    if (recordtmp > int.Parse(conn.StringGet("record_push").ToString().Split(" ").Last()))
+                    {
+                        record = recordtmp;
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine($"RECORD:\t\t{record}");
+                        await conn.StringSetAsync("record_push", $"{args[2]} {record}");
+                        Console.ResetColor();
+                    }
+                }
+                catch { }
             }
         }
         return data;

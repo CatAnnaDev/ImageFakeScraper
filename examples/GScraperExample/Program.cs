@@ -37,8 +37,8 @@ internal static class Program
         redisConnector = new(credential, 5000);
         redis = redisConnection.redisConnect();
         IDatabase conn = redis.GetDatabase();
-
         //write("mot random en cas de besoin", redis);
+
 
         RedisKey key = new("words_list");
         long rng = await conn.ListLengthAsync(key);
@@ -128,9 +128,12 @@ internal static class Program
                             $"Tag remaining\t{await conn.ListLengthAsync("words_list")}\n" +
                             $"{Program.key}\t{redisLength}\n" +
                             $"Total upload\t{totalimageupload}\n" +
-                            $"Record:\t\t{long.Parse(conn.StringGet("record_push"))}");
+                            $"Record\t\t{redisImagePush.record}\n" +
+                            $"Record Glb:\t{conn.StringGet("record_push")}");
                 }
-                catch (Exception e) { Console.WriteLine(e.Message); }
+                catch (Exception e) { 
+                    Console.WriteLine(e.Message); 
+                }
 
 
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
