@@ -24,7 +24,7 @@ internal class redisImagePush
                     if (printLog)
                     {
                         Console.WriteLine();
-                        Console.WriteLine(JsonSerializer.Serialize(daata, daata.GetType(), new JsonSerializerOptions { WriteIndented = true }));
+                        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(daata, daata.GetType(), new JsonSerializerOptions { WriteIndented = true }));
                         Console.WriteLine(daata.ToString());
                     }
                     list.Add(daata.Url);
