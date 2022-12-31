@@ -16,7 +16,6 @@ internal static class Program
     #region Start
     private static async Task Main(string[] args)
     {
-        // C:\Users\johan\Desktop\GScraper-master\examples\GScraperExample\bin\Release\net7.0\GScraperExample.exe "redis://:Wau7eCrEMenreUVErQ6JrkHJ@imagefake.net:6379" 0
         using GoogleScraper scraper = new();
         using DuckDuckGoScraper duck = new();
         using BraveScraper brave = new();
@@ -129,7 +128,7 @@ internal static class Program
                             $"Tag remaining\t{await conn.ListLengthAsync("words_list")}\n" +
                             $"{Program.key}\t{redisLength}\n" +
                             $"Total upload\t{totalimageupload}\n" +
-                            $"Record:\t\t{redisImagePush.record}");
+                            $"Record:\t\t{long.Parse(conn.StringGet("record_push"))}");
                 }
                 catch (Exception e) { Console.WriteLine(e.Message); }
 
@@ -180,7 +179,7 @@ internal static class Program
     static void OnProcessExit(object sender, EventArgs e)
     {
         Console.WriteLine("redisDisconnet");
-        redisConnection.redisDisconnet();
+        //redisConnection.redisDisconnet();
     }
 
 

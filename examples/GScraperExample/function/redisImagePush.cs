@@ -79,11 +79,12 @@ internal class redisImagePush
                         totalpushactual = 0;
                     }
                     Console.ResetColor();
-                    if (recordtmp > record)
+                    if (recordtmp > long.Parse(conn.StringGet("record_push")))
                     {
                         record = recordtmp;
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine($"RECORD:\t\t{record}");
+                        await conn.StringSetAsync("record_push", record.ToString());
                         Console.ResetColor();
                     }
                     Program.totalimageupload += data;
@@ -122,11 +123,12 @@ internal class redisImagePush
                     totalpushactual = 0;
                 }
                 Console.ResetColor();
-                if (recordtmp > record)
+                if (recordtmp > long.Parse(conn.StringGet("record_push")))
                 {
                     record = recordtmp;
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine($"RECORD:\t\t{record}");
+                    await conn.StringSetAsync("record_push", record.ToString());
                     Console.ResetColor();
                 }
             }
