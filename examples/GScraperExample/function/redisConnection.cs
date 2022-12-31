@@ -9,6 +9,7 @@ internal class redisConnection
     static ConnectionMultiplexer Connection { get; set; }
     public static IServer GetServers { get; set; }
     public static IDatabase GetDatabase { get; set; }
+    public static bool Connected { get; private set; } = false;
     #endregion
 
     #region Constuctor
@@ -36,7 +37,29 @@ internal class redisConnection
         Connection = ConnectionMultiplexer.Connect(options, log);
         GetServers = Connection.GetServer($"{opts.Host}:{opts.Port}");
         GetDatabase = Connection.GetDatabase();
+
+        Connection.ConnectionFailed += Connection_ConnectionFailed;
+        Connection.ConnectionRestored += Connection_ConnectionRestored;
+        Connection.ConfigurationChanged += Connection_ConfigurationChanged;
         return Connection;
+    }
+
+    private static void Connection_ConfigurationChanged(object? sender, EndPointEventArgs e)
+    {
+        Console.WriteLine("Configuration Changed");
+    }
+
+    private static void Connection_ConnectionRestored(object? sender, ConnectionFailedEventArgs e)
+    {
+        Console.WriteLine("Connection Restored");
+        Connected = true;
+    }
+
+    private static void Connection_ConnectionFailed(object? sender, ConnectionFailedEventArgs e)
+    {
+        Console.WriteLine("Connection Failed");
+        //redisDisconnet();
+        Connected = false;
     }
     #endregion
 

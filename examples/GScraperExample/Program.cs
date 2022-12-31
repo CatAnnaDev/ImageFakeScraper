@@ -23,6 +23,9 @@ internal static class Program
         Random random = new Random();
         qword = new();
 
+        AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
+
+
         //string[] readText = File.ReadAllText("google_twunter_lol.txt").Split("\n");
         //
         //random.Shuffle(readText);
@@ -85,12 +88,16 @@ internal static class Program
 
                 if (qword.Count <= 2)
                 {
+
                     RedisValue newword = await redisGetNewTag(conn);
-                    qword.Enqueue(newword.ToString());
-                    text = qword.Dequeue();
-                    Console.ForegroundColor = ConsoleColor.Magenta;
-                    Console.WriteLine($"Missing tag pick a new random: {newword}");
-                    Console.ResetColor();
+                    if (newword.IsNull)
+                    {
+                        qword.Enqueue(newword.ToString());
+                        text = qword.Dequeue();
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.WriteLine($"Missing tag pick a new random: {newword}");
+                        Console.ResetColor();
+                    }
                 }
                 else
                 {
@@ -157,15 +164,6 @@ internal static class Program
                 searchEngineRequest.NbOfRequest = 0;
             }
         }
-        else
-        {
-            while (!redis.IsConnected)
-            {
-                await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! 10sec /!\\");
-                //_ = redisConnection.redisConnect();
-                Thread.Sleep(TimeSpan.FromSeconds(10));
-            }
-        }
     }
     #endregion
 
@@ -183,17 +181,32 @@ internal static class Program
     #region redisGetNewTag
     private static async Task<RedisValue> redisGetNewTag(IDatabase redis)
     {
-        return await redis.ListLeftPopAsync("words_list");
+        try
+        {
+            return await redis.ListLeftPopAsync("words_list");
+        }catch { return RedisValue.Null; }
     }
     #endregion
     #region redisWriteNewTag
     private static async void redisWriteNewTag(string text, IDatabase redis)
     {
-        RedisValue value = new(text);
-        RedisKey key = new("words_done");
-        _ = await redis.ListLeftPushAsync(key, value);
+        try
+        {
+            RedisValue value = new(text);
+            RedisKey key = new("words_done");
+            await redis.ListLeftPushAsync(key, value);
+        }
+        catch { }
     }
     #endregion
+
+    static void OnProcessExit(object sender, EventArgs e)
+    {
+        Console.WriteLine("redisDisconnet");
+        redisConnection.redisDisconnet();
+    }
+
+
     #region SizeSuffix
     private static string SizeSuffix(long value, int decimalPlaces = 1)
     {
