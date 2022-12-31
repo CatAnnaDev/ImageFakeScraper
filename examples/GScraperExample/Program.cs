@@ -91,7 +91,7 @@ internal static class Program
                 {
 
                     RedisValue newword = await redisGetNewTag(conn);
-                    if (newword.IsNull)
+                    if (!newword.IsNull)
                     {
                         qword.Enqueue(newword.ToString());
                         text = qword.Dequeue();
