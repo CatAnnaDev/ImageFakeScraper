@@ -64,6 +64,7 @@ internal static class Program
 
             Stopwatch uptime = new();
             uptime.Start();
+ 
 
             while (qword.Count != 0)
             {
@@ -82,7 +83,7 @@ internal static class Program
                     qword.Enqueue(callQword.Dequeue()); // euh
                 }
 
-                _ = await redisImagePush.GetAllImageAndPush(conn, site, args);
+                await redisImagePush.GetAllImageAndPush(conn, site, args);
 
                 site.Clear();
 
@@ -104,58 +105,33 @@ internal static class Program
                     text = qword.Dequeue();
                 }
 
-                if (!redis.IsConnected)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    printData("redis disconnected");
-                    Console.ResetColor();
-                }
-                else
-                {
-                    while (!redis.IsConnected)
-                    {
-                        await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! 10sec /!\\");
-                        //_ = redisConnection.redisConnect();
-                        Thread.Sleep(TimeSpan.FromSeconds(10));
-                    }
-
-                }
-
-                if (conn.SetLength("image_jobs_0") == uint.MaxValue - 10000)
-                {
-                    try
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Redis queue alomst full {conn.ListLength("image_jobs_0")}");
-                        Console.ResetColor();
-                        _ = Console.ReadLine();
-                    }
-                    catch { }
-                }
-
                 redisWriteNewTag(text, conn);
 
                 timer.Stop();
 
-                string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
-                long redisDBLength = conn.SetLength(Program.key);
-                string redisLength = $"{redisDBLength} / {1_000_000} ({100.0 * redisDBLength / 1_000_000:0.00}%)";
-                double elapsed = TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds;
-                RedisKey key_done = new("words_done");
+                try
+                {
+                    string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
+                    long redisDBLength = conn.SetLength(Program.key);
+                    string redisLength = $"{redisDBLength} / {1_000_000} ({100.0 * redisDBLength / 1_000_000:0.00}%)";
+                    double elapsed = TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds;
+                    RedisKey key_done = new("words_done");
 
-                printData(
-                        $"Uptime\t\t{uptimeFormated}\n" +
-                        $"Done in\t\t{elapsed}s\n" +
-                        $"Sleep\t\t{waittime} sec\n" +
-                        $"Memory\t\t{SizeSuffix(usedMemory)}\n" +
-                        $"Previous\t{text}\n" +
-                        $"NbRequest\t{searchEngineRequest.NbOfRequest}\n" +
-                        $"Tags\t\t{qword.Count}\n" +
-                        $"Tag done\t{await redis.GetDatabase().ListLengthAsync(key_done)}\n" +
-                        $"Tag remaining\t{await redis.GetDatabase().ListLengthAsync("words_list")}\n" +
-                        $"{Program.key}\t{redisLength}\n" +
-                        $"Total upload\t{totalimageupload}\n" +
-                        $"Record:\t\t{redisImagePush.record}");
+                    printData(
+                            $"Uptime\t\t{uptimeFormated}\n" +
+                            $"Done in\t\t{elapsed}s\n" +
+                            $"Sleep\t\t{waittime} sec\n" +
+                            $"Memory\t\t{SizeSuffix(usedMemory)}\n" +
+                            $"Previous\t{text}\n" +
+                            $"NbRequest\t{searchEngineRequest.NbOfRequest}\n" +
+                            $"Tags\t\t{qword.Count}\n" +
+                            $"Tag done\t{await conn.ListLengthAsync(key_done)}\n" +
+                            $"Tag remaining\t{await conn.ListLengthAsync("words_list")}\n" +
+                            $"{Program.key}\t{redisLength}\n" +
+                            $"Total upload\t{totalimageupload}\n" +
+                            $"Record:\t\t{redisImagePush.record}");
+                }
+                catch (Exception e) { Console.WriteLine(e.Message); }
 
 
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
@@ -184,7 +160,8 @@ internal static class Program
         try
         {
             return await redis.ListLeftPopAsync("words_list");
-        }catch { return RedisValue.Null; }
+        }
+        catch { return RedisValue.Null; }
     }
     #endregion
     #region redisWriteNewTag
