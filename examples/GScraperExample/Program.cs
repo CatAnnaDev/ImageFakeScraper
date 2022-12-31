@@ -153,6 +153,7 @@ internal static class Program
                         $"Sleep\t\t{waittime} sec\n" +
                         $"Memory\t\t{SizeSuffix(usedMemory)}\n" +
                         $"Previous\t{text}\n" +
+                        $"NbRequest\t{searchEngineRequest.NbOfRequest}\n" +
                         $"Tags\t\t{qword.Count}\n" +
                         $"Tag done\t{await redis.GetDatabase().ListLengthAsync(key_done)}\n" +
                         $"Tag remaining\t{await redis.GetDatabase().ListLengthAsync("words_list")}\n" +
@@ -164,6 +165,7 @@ internal static class Program
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
 
                 timer.Reset();
+                searchEngineRequest.NbOfRequest = 0;
             }
         }
         else

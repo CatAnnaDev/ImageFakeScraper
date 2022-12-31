@@ -12,7 +12,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace GScraperExample.function
 {
@@ -46,6 +45,8 @@ namespace GScraperExample.function
         private static bool addNewTag_Bing = false;
         private static bool addNewTag_Google = false;
 
+        public static int NbOfRequest = 0;
+
 
         public static async Task<Dictionary<string, IEnumerable<IImageResult>>> getAllDataFromsearchEngineAsync(string text)
         {
@@ -56,6 +57,7 @@ namespace GScraperExample.function
                 {
                     google = await scraper.GetImagesAsync(text);
                     tmp.Add("Google", google);
+                    NbOfRequest++;
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
                 {
@@ -77,6 +79,7 @@ namespace GScraperExample.function
                 {
                     duckduck = await duck.GetImagesAsync(text);
                     tmp.Add("DuckDuckGo", duckduck);
+                    NbOfRequest++;
 
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
@@ -99,6 +102,7 @@ namespace GScraperExample.function
                 {
                     bravelist = await brave.GetImagesAsync(text);
                     tmp.Add("Brave", bravelist);
+                    NbOfRequest++;
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
                 {
@@ -120,7 +124,7 @@ namespace GScraperExample.function
                     OpenVersNewItem.Clear();
                     int page = 1;
                     HttpResponseMessage resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={page}&mature=true");
-
+                    NbOfRequest++;
                     var data = await resp.Content.ReadAsStringAsync();
                     if (data.StartsWith("{"))
                     {
@@ -138,7 +142,7 @@ namespace GScraperExample.function
                                             for (int j = 0; j < jsonparse.page_count; j++)
                                             {
                                                 resp = await http.GetAsync($"https://api.openverse.engineering/v1/images/?format=json&q={text}&page={page}");
-
+                                                NbOfRequest++;
                                                 data = await resp.Content.ReadAsStringAsync();
                                                 if (data.StartsWith("{"))
                                                 {
@@ -263,6 +267,7 @@ namespace GScraperExample.function
                         bingNewItem.Add(blap2);
                     }
                     tmp.Add($"Bing", bingNewItem.AsEnumerable());
+                    NbOfRequest++;
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
                 {
@@ -327,6 +332,7 @@ namespace GScraperExample.function
                             YahooNewItem.Add(blap2);
                         }
                         tmp.Add($"Yahoo", YahooNewItem.AsEnumerable());
+                        NbOfRequest++;
                     }
                 }
                 catch (Exception e) when (e is HttpRequestException or GScraperException)
@@ -392,6 +398,7 @@ namespace GScraperExample.function
                     }
 
                     tmp.Add($"Getty", GettyNewItem.AsEnumerable());
+                    NbOfRequest++;
                 }
                 catch { tmp.Add($"Getty", null); }
             }
@@ -426,6 +433,7 @@ namespace GScraperExample.function
                         }
                     }
                     tmp.Add($"Every", EveryNewItem.AsEnumerable());
+                    NbOfRequest++;
                 }
                 catch { tmp.Add($"Every", null);  }
             }
@@ -551,6 +559,7 @@ namespace GScraperExample.function
                                 //Console.ResetColor();
                             }
                         }
+                        NbOfRequest++;
                     }
                 }
                 catch (Exception e)
