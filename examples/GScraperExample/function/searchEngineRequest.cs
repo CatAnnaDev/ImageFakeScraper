@@ -345,55 +345,65 @@ internal class searchEngineRequest
             try
             {
                 GettyNewItem.Clear();
-                string uri = $"https://www.gettyimages.fr/photos/{text}?assettype=image&family=creative&sort=best&suppressfamilycorrection=true&phrase={text}&license=rf%2Crm";
-                using HttpClient http = new HttpClient();
-
-                HttpResponseMessage resp = await http.GetAsync(uri);
-                string data = await resp.Content.ReadAsStringAsync();
-
-                HtmlDocument doc = new HtmlDocument();
-                doc.LoadHtml(data);
-                IEnumerable<string> urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !String.IsNullOrEmpty(s));
-
-                foreach (string? datsa in urls)
+                for (int i = 0; i < 100; i++)
                 {
-                    NewItem blap2 = new()
+
+                    string uri = $"https://www.gettyimages.fr/photos/{text}?assettype=image&sort=best&suppressfamilycorrection=true&phrase={text}&license=rf%2Crm&page={i}";
+                    using HttpClient http = new HttpClient();
+
+                    HttpResponseMessage resp = await http.GetAsync(uri);
+                    if (resp.StatusCode == HttpStatusCode.OK)
                     {
-                        Url = datsa.Replace("&amp;", "&"),
-                        Title = "",
-                        Height = 0,
-                        Width = 0
-                    };
-                    GettyNewItem.Add(blap2);
+                        string data = await resp.Content.ReadAsStringAsync();
+
+                        HtmlDocument doc = new HtmlDocument();
+                        doc.LoadHtml(data);
+                        IEnumerable<string> urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !String.IsNullOrEmpty(s));
+                        if (urls == null)
+                            break;
+                        foreach (string? datsa in urls)
+                        {
+                            NewItem blap2 = new()
+                            {
+                                Url = datsa.Replace("&amp;", "&"),
+                                Title = "",
+                                Height = 0,
+                                Width = 0
+                            };
+                            GettyNewItem.Add(blap2);
+                        }
+                    }
+                    else
+                        break;
                 }
 
 
-                uri = $"https://www.gettyimages.fr/photos/{text}?assettype=image&family=editorial&phrase={text}&license=rf%2Crm";
-
-                resp = await http.GetAsync(uri);
-                data = await resp.Content.ReadAsStringAsync();
-
-                doc = new HtmlDocument();
-                doc.LoadHtml(data);
-                urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !String.IsNullOrEmpty(s));
-
-                foreach (string? datsa in urls)
-                {
-                    NewItem blap2 = new()
-                    {
-                        Url = datsa.Replace("&amp;", "&"),
-                        Title = "",
-                        Height = 0,
-                        Width = 0
-                    };
-
-                    GettyNewItem.Add(blap2);
-                }
+                //uri = $"https://www.gettyimages.fr/photos/{text}?assettype=imag&suppressfamilycorrection=true&phrase={text}&license=rf%2Crm";
+                //
+                //resp = await http.GetAsync(uri);
+                //data = await resp.Content.ReadAsStringAsync();
+                //
+                //doc = new HtmlDocument();
+                //doc.LoadHtml(data);
+                //urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !String.IsNullOrEmpty(s));
+                //
+                //foreach (string? datsa in urls)
+                //{
+                //    NewItem blap2 = new()
+                //    {
+                //        Url = datsa.Replace("&amp;", "&"),
+                //        Title = "",
+                //        Height = 0,
+                //        Width = 0
+                //    };
+                //
+                //    GettyNewItem.Add(blap2);
+                //}
 
                 tmp.Add($"Getty", GettyNewItem.AsEnumerable());
                 NbOfRequest++;
             }
-            catch { tmp.Add($"Getty", null); }
+            catch { /*tmp.Add($"Getty", null);*/ }
         }
         #endregion
         #region EveryPixel
@@ -402,34 +412,41 @@ internal class searchEngineRequest
             try
             {
                 EveryNewItem.Clear();
-                string uri = $"https://www.everypixel.com/search?q={text}&stocks_type=free";
-                using HttpClient http = new HttpClient();
-
-                HttpResponseMessage resp = await http.GetAsync(uri);
-                string data = await resp.Content.ReadAsStringAsync();
-                HtmlDocument doc = new HtmlDocument();
-                doc.LoadHtml(data);
-                IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !String.IsNullOrEmpty(s));
-
-                foreach (string? datsa in urls)
+                for (int i = 0; i < 100; i++)
                 {
-                    if (!datsa.Contains("adserver"))
-                    {
-                        NewItem blap2 = new()
-                        {
-                            Url = datsa,
-                            Title = "",
-                            Height = 0,
-                            Width = 0
-                        };
+                    string uri = $"https://www.everypixel.com/search?q={text}&stocks_type=&meaning=&media_type=0&page={i}";
+                    using HttpClient http = new HttpClient();
 
-                        EveryNewItem.Add(blap2);
+                    HttpResponseMessage resp = await http.GetAsync(uri);
+                    if (resp.StatusCode == HttpStatusCode.OK)
+                    {
+                        string data = await resp.Content.ReadAsStringAsync();
+                        HtmlDocument doc = new HtmlDocument();
+                        doc.LoadHtml(data);
+                        IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !String.IsNullOrEmpty(s));
+                        if (urls == null)
+                            break;
+                        foreach (string? datsa in urls)
+                        {
+                            if (!datsa.Contains("adserver"))
+                            {
+                                NewItem blap2 = new()
+                                {
+                                    Url = datsa,
+                                    Title = "",
+                                    Height = 0,
+                                    Width = 0
+                                };
+
+                                EveryNewItem.Add(blap2);
+                            }
+                        }
+                        tmp.Add($"Every", EveryNewItem.AsEnumerable());
                     }
                 }
-                tmp.Add($"Every", EveryNewItem.AsEnumerable());
                 NbOfRequest++;
             }
-            catch { tmp.Add($"Every", null); }
+            catch { /*tmp.Add($"Every", null);*/ }
         }
         #endregion
         #region boolCheckOnline
