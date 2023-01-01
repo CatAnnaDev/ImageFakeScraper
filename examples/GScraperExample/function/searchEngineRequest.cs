@@ -359,7 +359,7 @@ internal class searchEngineRequest
                         HtmlDocument doc = new HtmlDocument();
                         doc.LoadHtml(data);
                         IEnumerable<string> urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !String.IsNullOrEmpty(s));
-                        if (urls == null)
+                        if (urls.Count() == 0)
                             break;
                         foreach (string? datsa in urls)
                         {
@@ -425,7 +425,7 @@ internal class searchEngineRequest
                         HtmlDocument doc = new HtmlDocument();
                         doc.LoadHtml(data);
                         IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !String.IsNullOrEmpty(s));
-                        if (urls == null)
+                        if (urls.Count() == 0)
                             break;
                         foreach (string? datsa in urls)
                         {
