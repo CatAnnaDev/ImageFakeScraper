@@ -150,9 +150,10 @@ internal static class Program
     {
         lock (ConsoleWriterLock)
         {
-            Console.WriteLine(new string('=', Console.WindowWidth));
+            var line = string.Concat(Enumerable.Repeat("=", Console.WindowWidth));
+            Console.WriteLine(line);
             Console.WriteLine(text);
-            Console.WriteLine(new string('=', Console.WindowWidth));
+            Console.WriteLine(line);
         }
     }
     #endregion
