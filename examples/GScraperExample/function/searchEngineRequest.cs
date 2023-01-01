@@ -375,6 +375,7 @@ internal class searchEngineRequest
                     }
                     else
                         break;
+                    NbOfRequest++;
                 }
 
 
@@ -401,7 +402,7 @@ internal class searchEngineRequest
                 //}
 
                 tmp.Add($"Getty", GettyNewItem.AsEnumerable());
-                NbOfRequest++;
+                
             }
             catch { /*tmp.Add($"Getty", null);*/ }
         }
@@ -443,8 +444,9 @@ internal class searchEngineRequest
                         }
                         tmp.Add($"Every", EveryNewItem.AsEnumerable());
                     }
+                    NbOfRequest++;
                 }
-                NbOfRequest++;
+                
             }
             catch { /*tmp.Add($"Every", null);*/ }
         }

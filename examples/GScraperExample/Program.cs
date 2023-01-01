@@ -47,7 +47,7 @@ internal static class Program
         string text = getredisValue.ToString();
         qword.Enqueue(text);
 
-
+        
         double waittime = args.Length > 0.1 ? double.Parse(args[1]) : 0;
 
         if (redis.IsConnected)
