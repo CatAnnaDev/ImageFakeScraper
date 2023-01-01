@@ -150,9 +150,9 @@ internal static class Program
     {
         lock (ConsoleWriterLock)
         {
-            Console.WriteLine("========================================================");
+            Console.WriteLine(new string('=', Console.WindowWidth));
             Console.WriteLine(text);
-            Console.WriteLine("========================================================");
+            Console.WriteLine(new string('=', Console.WindowWidth));
         }
     }
     #endregion
