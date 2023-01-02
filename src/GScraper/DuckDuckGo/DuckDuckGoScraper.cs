@@ -32,6 +32,8 @@ public class DuckDuckGoScraper : IDisposable
     private static readonly Uri _defaultBaseAddress = new(DefaultApiEndpoint);
 
     private readonly HttpClient _httpClient;
+    private readonly List<string> tmp = new();
+
     private bool _disposed;
 
     private DuckDuckGoImageSearchResponse response;
@@ -96,7 +98,7 @@ public class DuckDuckGoScraper : IDisposable
     /// <exception cref="ArgumentNullException"><paramref name="query"/> is null or empty.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="query"/> is larger than <see cref="MaxQueryLength"/>.</exception>
     /// <exception cref="GScraperException">An error occurred during the scraping process.</exception>
-    public async Task<IEnumerable<DuckDuckGoImageResult>?> GetImagesAsync(string query, SafeSearchLevel safeSearch = SafeSearchLevel.Off,
+    public async Task<List<string>?> GetImagesAsync(string query, SafeSearchLevel safeSearch = SafeSearchLevel.Off,
         DuckDuckGoImageTime time = DuckDuckGoImageTime.Any, DuckDuckGoImageSize size = DuckDuckGoImageSize.All, DuckDuckGoImageColor color = DuckDuckGoImageColor.All,
         DuckDuckGoImageType type = DuckDuckGoImageType.All, DuckDuckGoImageLayout layout = DuckDuckGoImageLayout.All, DuckDuckGoImageLicense license = DuckDuckGoImageLicense.All,
         string region = DuckDuckGoRegions.UsEnglish)
@@ -111,10 +113,18 @@ public class DuckDuckGoScraper : IDisposable
         Stream stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
         try
         {
+            tmp.Clear();
             response = (await JsonSerializer.DeserializeAsync(stream, DuckDuckGoImageSearchResponseContext.Default.DuckDuckGoImageSearchResponse).ConfigureAwait(false))!;
+            if (response != null)
+            {
+                foreach (var data in response.Results)
+                {
+                    tmp.Add(data.Url);
+                }
+            }
         }
         catch { return null; }
-        return Array.AsReadOnly(response.Results);
+        return tmp;
     }
 
     private static string BuildImageQuery(string token, string query, SafeSearchLevel safeSearch, DuckDuckGoImageTime time, DuckDuckGoImageSize size,

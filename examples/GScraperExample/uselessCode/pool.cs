@@ -13,6 +13,7 @@
         private static readonly Queue myQ = new();
         public static Queue mySyncdQ = Queue.Synchronized(myQ);
         private static readonly List<Task> tasks = new();
+        private static readonly object lockObj = new();
 
         public static void addtrucenQueue(string value)
         {
@@ -34,7 +35,7 @@
             }));
         }
 
-        private static readonly object lockObj = new();
+        
 
         private static void ShowThreadInformation(string taskName)
         {

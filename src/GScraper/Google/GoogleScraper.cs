@@ -24,6 +24,7 @@ public class GoogleScraper : IDisposable
     private static readonly Uri _defaultBaseAddress = new(DefaultApiEndpoint);
 
     private readonly HttpClient _httpClient;
+    private readonly List<string> tmp = new();
     private bool _disposed;
 
     public static string completUrl = DefaultApiEndpoint;
@@ -92,7 +93,7 @@ public class GoogleScraper : IDisposable
     /// <returns>A task representing the asynchronous operation. The result contains an <see cref="IEnumerable{T}"/> of <see cref="GScraper.GoogleImageResult"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="query"/> is null or empty.</exception>
     /// <exception cref="GScraperException">An error occurred during the scraping process.</exception>
-    public async Task<IEnumerable<GoogleImageResult>> GetImagesAsync(string query, SafeSearchLevel safeSearch = SafeSearchLevel.Off, GoogleImageSize size = GoogleImageSize.Any,
+    public async Task<List<string>> GetImagesAsync(string query, SafeSearchLevel safeSearch = SafeSearchLevel.Off, GoogleImageSize size = GoogleImageSize.Any,
         string? color = null, GoogleImageType type = GoogleImageType.Any, GoogleImageTime time = GoogleImageTime.Any,
         string? license = null, string? language = null)
     {
@@ -115,11 +116,19 @@ public class GoogleScraper : IDisposable
 
         try
         {
+            tmp.Clear();
             images = JsonSerializer.Deserialize(bytes.AsSpan(5, bytes.Length - 5), GoogleImageSearchResponseContext.Default.GoogleImageSearchResponse)!.Ischj.Metadata;
+            if (images != null)
+            {
+                foreach (var data in images)
+                {
+                    tmp.Add(data.Url);
+                }
+            }
         }
         catch { return null; }
 
-        return Array.AsReadOnly(images ?? Array.Empty<GoogleImageResultModel>());
+        return tmp;
     }
 
     private static string BuildImageQuery(string query, SafeSearchLevel safeSearch, GoogleImageSize size, string? color,

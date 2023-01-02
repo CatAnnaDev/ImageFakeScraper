@@ -22,6 +22,7 @@ public class BraveScraper : IDisposable
     private static readonly Uri _defaultBaseAddress = new(DefaultApiEndpoint);
 
     private readonly HttpClient _httpClient;
+    private readonly List<string> tmp = new();
     private bool _disposed;
 
     private BraveImageSearchResponse response;
@@ -82,7 +83,7 @@ public class BraveScraper : IDisposable
     /// <returns>A task representing the asynchronous operation. The result contains an <see cref="IEnumerable{T}"/> of <see cref="BraveImageResult"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="query"/> is null or empty.</exception>
     /// <exception cref="GScraperException">An error occurred during the scraping process.</exception>
-    public async Task<IEnumerable<BraveImageResult>?> GetImagesAsync(string query, SafeSearchLevel safeSearch = SafeSearchLevel.Off,
+    public async Task<List<string>> GetImagesAsync(string query, SafeSearchLevel safeSearch = SafeSearchLevel.Off,
         string? country = null, BraveImageSize size = BraveImageSize.All, BraveImageType type = BraveImageType.All,
         BraveImageLayout layout = BraveImageLayout.All, BraveImageColor color = BraveImageColor.All, BraveImageLicense license = BraveImageLicense.All)
     {
@@ -93,11 +94,19 @@ public class BraveScraper : IDisposable
         System.IO.Stream stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
         try
         {
+            tmp.Clear();
             response = (await JsonSerializer.DeserializeAsync(stream, BraveImageSearchResponseContext.Default.BraveImageSearchResponse).ConfigureAwait(false))!;
+            if (response != null)
+            {
+                foreach (var data in response.Results)
+                {
+                    tmp.Add(data.Url);
+                }
+            }
         }
         catch { return null; }
 
-        return Array.AsReadOnly(response.Results);
+        return tmp;
     }
 
     private static string BuildImageQuery(string query, SafeSearchLevel safeSearch, string? country, BraveImageSize size, BraveImageType type,

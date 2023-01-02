@@ -55,7 +55,7 @@ internal static class Reddit
                 }
 
             }
-            catch (Exception e) { Console.WriteLine(e.Message); }
+            catch (Exception e) { Console.WriteLine(e); }
         });
         return Url;
 

@@ -1,4 +1,9 @@
-﻿namespace GScraperExample;
+﻿using System;
+using System.Drawing.Printing;
+using System.Threading;
+using static System.Net.Mime.MediaTypeNames;
+
+namespace GScraperExample;
 
 internal static class Program
 {
@@ -6,21 +11,33 @@ internal static class Program
     private static readonly object ConsoleWriterLock = new();
     public static ConnectionMultiplexer redis;
     public static redisConnection? redisConnector;
-    public static Queue<string>? qword;
-    private static Dictionary<string, IEnumerable<GScraper.IImageResult>>? site;
+    public static Queue qword;
+    private static Dictionary<string, List<string>> site;
     private static readonly KestrelMetricServer server = new(port: 4444);
     public static string key;
     public static long totalimageupload = 0;
+    public static List<string> blackList = new List<string>();
+    //Thread Pool
+    public static Queue mySyncdQ;
+    private static List<Task> tasks = new();
+    private static object lockObj = new();
+    private static Stopwatch timer = new();
+    private static Stopwatch uptime = new();
+    private static string text = "";
+    private static double waittime = 0;
+    private static IDatabase conn;
+    private static string[] passArgs;
+    private static Random random;
+    private static readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
     #endregion
 
     #region Start
     private static async Task Main(string[] args)
     {
-        using GoogleScraper scraper = new();
-        using DuckDuckGoScraper duck = new();
-        using BraveScraper brave = new();
-        Random random = new Random();
+        passArgs = args;
+        random = new Random();
         qword = new();
+        mySyncdQ = Queue.Synchronized(qword);
 
         AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
 
@@ -36,19 +53,16 @@ internal static class Program
         string credential = args[0];
         redisConnector = new(credential, 5000);
         redis = redisConnection.redisConnect();
-        IDatabase conn = redis.GetDatabase();
+        conn = redis.GetDatabase();
         //write("mot random en cas de besoin", redis);
 
+        var bl = await conn.ListRangeAsync("domain_blacklist");
+        foreach (var item in bl)
+        {
+            blackList.Add(item.ToString());
+        }
 
-        RedisKey key = new("words_list");
-        long rng = await conn.ListLengthAsync(key);
-        random = new Random();
-        RedisValue getredisValue = await conn.ListGetByIndexAsync(key, random.Next(0, (int)rng - 1));
-        string text = getredisValue.ToString();
-        qword.Enqueue(text);
-
-        
-        double waittime = args.Length > 0.1 ? double.Parse(args[1]) : 0;
+        waittime = args.Length > 0.1 ? double.Parse(args[1]) : 0;
 
         if (redis.IsConnected)
         {
@@ -57,93 +71,158 @@ internal static class Program
             Console.WriteLine("Redis Connected");
             Console.ResetColor();
 
-            printData(qword.First());
 
-            Stopwatch timer = new();
-
-            Stopwatch uptime = new();
-            uptime.Start();
- 
+            RedisKey key = new("words_list");
+            long rng = await conn.ListLengthAsync(key);
+            random = new Random();
+            RedisValue getredisValue = await conn.ListGetByIndexAsync(key, random.Next(0, (int)rng - 1));
+            text = getredisValue.ToString();
+            mySyncdQ.Enqueue(text);
 
             while (qword.Count != 0)
             {
-                timer.Start();
-
-
                 Process currentProcess = Process.GetCurrentProcess();
                 long usedMemory = currentProcess.PrivateMemorySize64;
-
-                site = await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
-
-                Queue<string> callQword = await searchEngineRequest.getAllNextTag(text, conn);
-
-                while (callQword.Count != 0)
+                lock (mySyncdQ.SyncRoot)
                 {
-                    qword.Enqueue(callQword.Dequeue()); // euh
+                    ShowThreadInformation(currentProcess.Id.ToString());
+                    timer.Start();
+                    uptime.Start();
                 }
 
-                await redisImagePush.GetAllImageAndPush(conn, site, args);
 
-                site.Clear();
+                await _lock.WaitAsync();
+                try
+                {
+                    site = await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
+                    await redisImagePush.GetAllImageAndPush(conn, site, passArgs);
+                }
+                finally { _lock.Release(); }
+
+                //Queue<string> callQword = await searchEngineRequest.getAllNextTag(text, conn);
+                //
+                //while (callQword.Count != 0)
+                //{
+                //    qword.Enqueue(callQword.Dequeue()); // euh
+                //}
+
+
+
+                lock (mySyncdQ.SyncRoot)
+                {
+                    site.Clear();
+                }
 
                 if (qword.Count <= 2)
                 {
+                    RedisValue newword;
+                    await _lock.WaitAsync();
+                    try
+                    {
+                        newword = await redisGetNewTag(conn);
+                    }
+                    finally { _lock.Release(); }
 
-                    RedisValue newword = await redisGetNewTag(conn);
                     if (!newword.IsNull)
                     {
-                        qword.Enqueue(newword.ToString());
-                        text = qword.Dequeue();
-                        Console.ForegroundColor = ConsoleColor.Magenta;
-                        Console.WriteLine($"Missing tag pick a new random: {newword}");
-                        Console.ResetColor();
+                        lock (mySyncdQ.SyncRoot)
+                        {
+                            qword.Enqueue(newword.ToString());
+                            text = (string)mySyncdQ.Dequeue();
+                            Console.ForegroundColor = ConsoleColor.Magenta;
+                            Console.WriteLine($"Missing tag pick a new random: {newword}");
+                            Console.ResetColor();
+                        }
                     }
                 }
                 else
                 {
-                    text = qword.Dequeue();
+                    lock (mySyncdQ.SyncRoot)
+                    {
+                        text = (string)mySyncdQ.Dequeue();
+                    }
                 }
 
-                redisWriteNewTag(text, conn);
-
-                timer.Stop();
-
-                try
+                lock (mySyncdQ.SyncRoot)
                 {
-                    string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
-                    long redisDBLength = conn.SetLength(Program.key);
-                    string redisLength = $"{redisDBLength} / {1_000_000} ({100.0 * redisDBLength / 1_000_000:0.00}%)";
-                    double elapsed = TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds;
-                    RedisKey key_done = new("words_done");
+                    redisWriteNewTag(text, conn);
 
-                    printData(
-                            $"Uptime\t\t{uptimeFormated}\n" +
-                            $"Done in\t\t{elapsed}s\n" +
-                            $"Sleep\t\t{waittime} sec\n" +
-                            $"Memory\t\t{SizeSuffix(usedMemory)}\n" +
-                            $"Previous\t{text}\n" +
-                            $"NbRequest\t{searchEngineRequest.NbOfRequest}\n" +
-                            $"Tags\t\t{qword.Count}\n" +
-                            $"Tag done\t{await conn.ListLengthAsync(key_done)}\n" +
-                            $"Tag remaining\t{await conn.ListLengthAsync("words_list")}\n" +
-                            $"{Program.key}\t{redisLength}\n" +
-                            $"Total upload\t{totalimageupload}\n" +
-                            $"Record\t\t{redisImagePush.record}\n" +
-                            $"Record Glb:\t{conn.StringGet("record_push")}");
+                    timer.Stop();
                 }
-                catch (Exception e) { 
-                    Console.WriteLine(e.Message); 
+                lock (mySyncdQ.SyncRoot)
+                {
+                    try
+                    {
+                        string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
+                        long redisDBLength = conn.SetLength(Program.key);
+                        string redisLength = $"{redisDBLength} / {1_000_000} ({100.0 * redisDBLength / 1_000_000:0.00}%)";
+                        double elapsed = TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds;
+                        RedisKey key_done = new("words_done");
+
+                        printData(
+                                $"Uptime\t\t{uptimeFormated}\n" +
+                                $"Done in\t\t{elapsed}s\n" +
+                                $"Sleep\t\t{waittime} sec\n" +
+                                $"Memory\t\t{SizeSuffix(usedMemory)}\n" +
+                                $"Previous\t{text}\n" +
+                                $"NbRequest\t{searchEngineRequest.NbOfRequest}\n" +
+                                $"BlackLisst\t{blackList.Count}\n" +
+                                $"Tags\t\t{qword.Count}\n" +
+                                $"Tag done\t{conn.ListLengthAsync(key_done).Result}\n" +
+                                $"Tag remaining\t{conn.ListLengthAsync("words_list").Result}\n" +
+                                $"{Program.key}\t{redisLength}\n" +
+                                $"Total upload\t{totalimageupload}\n" +
+                                $"Record\t\t{redisImagePush.record}\n" +
+                                $"Record Glb:\t{conn.StringGet("record_push")}");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
                 }
 
+                lock (mySyncdQ.SyncRoot)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(waittime));
 
-                Thread.Sleep(TimeSpan.FromSeconds(waittime));
-
-                timer.Reset();
-                searchEngineRequest.NbOfRequest = 0;
+                    timer.Reset();
+                    searchEngineRequest.NbOfRequest = 0;
+                }
             }
+
+            //for (int i = 0; i < 1; i++)
+            //{
+            //    Worker();
+            //}
+
+            //Console.ReadLine();
         }
+        Console.WriteLine("Done");
     }
     #endregion
+
+    public static void Worker()
+    {
+        tasks.Add(Task.Run(async () =>
+        {
+
+        }));
+    }
+
+
+    private static void ShowThreadInformation(string taskName)
+    {
+        string? msg = null;
+        Thread thread = Thread.CurrentThread;
+        lock (lockObj)
+        {
+            msg = string.Format("{0} thread information\n", taskName) +
+                  string.Format("   Background: {0}\n", thread.IsBackground) +
+                  string.Format("   Thread Pool: {0}\n", thread.IsThreadPoolThread) +
+                  string.Format("   Thread ID: {0}\n", thread.ManagedThreadId);
+        }
+        Console.WriteLine(msg);
+    }
 
     #region printData
     private static void printData(string text)

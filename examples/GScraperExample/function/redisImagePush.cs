@@ -9,25 +9,31 @@ internal class redisImagePush
     #endregion
 
     #region getAllImage
-    public static async Task<long> GetAllImageAndPush(IDatabase conn, Dictionary<string, IEnumerable<IImageResult>> site, string[] args)
+    public static async Task<long> GetAllImageAndPush(IDatabase conn, Dictionary<string, List<string>> site, string[] args)
     {
         long data = 0;
         long totalpushactual = 0;
-        foreach (KeyValuePair<string, IEnumerable<IImageResult>> image in site)
+        foreach (KeyValuePair<string, List<string>> image in site)
         {
             if (image.Value != null)
             {
                 List<string> list = new();
 
-                foreach (IImageResult daata in image.Value)
+                foreach (var daata in image.Value)
                 {
-                    if (printLog)
+                    list.Add(daata);
+                }
+
+                foreach (var item in Program.blackList)
+                {
+                    for(int i=0;i<list.Count;i++)
                     {
-                        Console.WriteLine();
-                        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(daata, daata.GetType(), new JsonSerializerOptions { WriteIndented = true }));
-                        Console.WriteLine(daata.ToString());
+                        if (list[i].Contains(item))
+                        {
+                            list.Remove(list[i]);
+                        }
+                            
                     }
-                    list.Add(daata.Url);
                 }
 
                 RedisValue[] push = Array.ConvertAll(list.ToArray(), item => (RedisValue)item);
@@ -62,17 +68,16 @@ internal class redisImagePush
                         }
                     }
 
+
                     data = await conn.SetAddAsync(Program.key, push);
                     Console.ForegroundColor = ConsoleColor.Green;
-                    if (image.Key == "Openverse")
-                        Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");
-                    else if (image.Key == "DuckDuckGo")
+                    if (image.Key == "DuckDuckGo")
                         Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");
                     else
                         Console.WriteLine($"{image.Key}:\t\t{data} / {push.Length}");
 
                     totalpushactual += data;
-                    if (image.Key == "Every")
+                    if (image.Key == "Getty")
                     {
                         Console.WriteLine($"Total:\t\t{totalpushactual}");
                         recordtmp = totalpushactual;
@@ -117,9 +122,7 @@ internal class redisImagePush
             else
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                if (image.Key == "Openverse")
-                    Console.WriteLine($"{image.Key}\tdown");
-                else if (image.Key == "DuckDuckGo")
+                if (image.Key == "DuckDuckGo")
                     Console.WriteLine($"{image.Key}\tdown");
                 else
                     Console.WriteLine($"{image.Key}\t\tdown");
@@ -127,7 +130,7 @@ internal class redisImagePush
 
                 Console.ForegroundColor = ConsoleColor.Green;
 
-                if (image.Key == "Every")
+                if (image.Key == "Getty")
                 {
                     Console.WriteLine($"Total:\t\t{totalpushactual}");
                     recordtmp = totalpushactual;
@@ -158,4 +161,6 @@ internal class redisImagePush
         return data;
     }
     #endregion
+
+
 }

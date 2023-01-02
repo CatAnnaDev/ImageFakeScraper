@@ -1,4 +1,6 @@
-﻿namespace GScraperExample.function;
+﻿using System.Collections.Generic;
+
+namespace GScraper.OpenVerse;
 
 public class Result
 {
