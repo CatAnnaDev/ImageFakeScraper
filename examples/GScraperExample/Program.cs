@@ -148,27 +148,30 @@ internal static class Program
                 {
                     try
                     {
-                        string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
-                        long redisDBLength = conn.SetLength(Program.key);
-                        string redisLength = $"{redisDBLength} / {1_000_000} ({100.0 * redisDBLength / 1_000_000:0.00}%)";
-                        double elapsed = TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds;
-                        RedisKey key_done = new("words_done");
+                        if (Program.key != null)
+                        {
+                            string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
+                            long redisDBLength = conn.SetLength(Program.key);
+                            string redisLength = $"{redisDBLength} / {1_000_000} ({100.0 * redisDBLength / 1_000_000:0.00}%)";
+                            double elapsed = TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds;
+                            RedisKey key_done = new("words_done");
 
-                        printData(
-                                $"Uptime\t\t{uptimeFormated}\n" +
-                                $"Done in\t\t{elapsed}s\n" +
-                                $"Sleep\t\t{waittime} sec\n" +
-                                $"Memory\t\t{SizeSuffix(usedMemory)}\n" +
-                                $"Previous\t{text}\n" +
-                                $"NbRequest\t{searchEngineRequest.NbOfRequest}\n" +
-                                $"BlackLisst\t{blackList.Count}\n" +
-                                $"Tags\t\t{qword.Count}\n" +
-                                $"Tag done\t{conn.ListLengthAsync(key_done).Result}\n" +
-                                $"Tag remaining\t{conn.ListLengthAsync("words_list").Result}\n" +
-                                $"{Program.key}\t{redisLength}\n" +
-                                $"Total upload\t{totalimageupload}\n" +
-                                $"Record\t\t{redisImagePush.record}\n" +
-                                $"Record Glb:\t{conn.StringGet("record_push")}");
+                            printData(
+                                    $"Uptime\t\t{uptimeFormated}\n" +
+                                    $"Done in\t\t{elapsed}s\n" +
+                                    $"Sleep\t\t{waittime} sec\n" +
+                                    $"Memory\t\t{SizeSuffix(usedMemory)}\n" +
+                                    $"Previous\t{text}\n" +
+                                    $"NbRequest\t{searchEngineRequest.NbOfRequest}\n" +
+                                    $"BlackLisst\t{blackList.Count}\n" +
+                                    $"Tags\t\t{qword.Count}\n" +
+                                    $"Tag done\t{conn.ListLengthAsync(key_done).Result}\n" +
+                                    $"Tag remaining\t{conn.ListLengthAsync("words_list").Result}\n" +
+                                    $"{Program.key}\t{redisLength}\n" +
+                                    $"Total upload\t{totalimageupload}\n" +
+                                    $"Record\t\t{redisImagePush.record}\n" +
+                                    $"Record Glb:\t{conn.StringGet("record_push")}");
+                        }
                     }
                     catch (Exception e)
                     {

@@ -26,36 +26,25 @@ internal class redisImagePush
 
                 foreach (var item in Program.blackList)
                 {
-                    for(int i=0;i<list.Count;i++)
+                    for (int i = 0; i < list.Count; i++)
                     {
                         if (list[i].Contains(item))
                         {
                             list.Remove(list[i]);
                         }
-                            
+
                     }
                 }
 
                 RedisValue[] push = Array.ConvertAll(list.ToArray(), item => (RedisValue)item);
                 try
                 {
-                    int DBnum = 0;
-                    int tmp = 0;
                     Uri opts = new(args[0]);
                     List<RedisKey> redisList = redisConnection.GetServers.Keys(0, "*image_jobs*").ToList();
-                    List<string> sorted = redisList.Select(key => key.ToString()).ToList();
-                    sorted.Sort();
 
-                    for (int y = 0; y < redisList.Count; y++)
-                    {
-                        string[] lastList = redisList[y].ToString().Split("_");
-                        tmp = int.Parse(lastList.Last());
-                        if (DBnum < tmp)
-                        {
-                            DBnum = tmp;
-                            Program.key = redisList[y].ToString();
-                        }
-                    }
+                    var nextIndex = await conn.StringGetAsync("jobs_last_index");
+                    var parseKey = int.Parse(nextIndex.ToString());
+                    Program.key = $"image_jobs_{parseKey}";
 
                     if (conn.SetLength(Program.key) >= 1_000_000)
                     {
@@ -65,6 +54,7 @@ internal class redisImagePush
                         {
                             int parse = int.Parse(lastLists.Last());
                             Program.key = $"{lastLists[0]}_{lastLists[1]}_{int.Parse(lastLists[2]) + 1}";
+                            await conn.StringSetAsync("jobs_last_index", int.Parse(lastLists[2]) + 1);
                         }
                     }
 
@@ -137,7 +127,7 @@ internal class redisImagePush
                     totalpushactual = 0;
                 }
                 Console.ResetColor();
-                if(recordtmp > record)
+                if (recordtmp > record)
                 {
                     record = recordtmp;
                     Console.ForegroundColor = ConsoleColor.Cyan;

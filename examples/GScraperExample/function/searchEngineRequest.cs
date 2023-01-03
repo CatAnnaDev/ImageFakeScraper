@@ -30,7 +30,7 @@ public class searchEngineRequest
 
     private static readonly List<string> GettyResult = new();
     private static readonly GettyScraper Gettyy = new();
-    private static bool getty = true;
+    private static bool getty = false;
 
     private static readonly List<string> EveryResult = new();
     private static readonly PixelScraper pixell = new();
