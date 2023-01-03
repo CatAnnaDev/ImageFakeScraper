@@ -48,14 +48,7 @@ internal class redisImagePush
 
                     if (conn.SetLength(Program.key) >= 1_000_000)
                     {
-
-                        string[] lastLists = Program.key.ToString().Split("_");
-                        if (conn.SetLength(Program.key) >= 1_000_000)
-                        {
-                            int parse = int.Parse(lastLists.Last());
-                            Program.key = $"{lastLists[0]}_{lastLists[1]}_{int.Parse(lastLists[2]) + 1}";
-                            await conn.StringSetAsync("jobs_last_index", int.Parse(lastLists[2]) + 1);
-                        }
+                        await conn.StringSetAsync("jobs_last_index", parseKey + 1);
                     }
 
 
