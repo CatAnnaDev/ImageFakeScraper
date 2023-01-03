@@ -30,41 +30,46 @@ namespace GScraper.immerse
             try
             {
                 tmp.Clear();
-                GScraperGuards.NotNull(query, nameof(query));
-
-                var json = new JsonCreatePush
+                for (int i = 1; i < 2; i++)
                 {
-                    searchText = query
-                };
-
-                string jsonString = JsonSerializer.Serialize(json);
-                var doc = await httpRequest.PostJson(uri, jsonString);
-                Root jsonparsed = Newtonsoft.Json.JsonConvert.DeserializeObject<Root>(doc);
-
-                if (jsonparsed != null)
-                {
-                    if (jsonparsed.data != null)
+                    GScraperGuards.NotNull(query, nameof(query));
+                    var json = new JsonCreatePush
                     {
-                        if (jsonparsed.data.imageData != null)
+                        searchText = query,
+                        pageNum = i
+                    };
+
+                    string jsonString = JsonSerializer.Serialize(json);
+                    var doc = await httpRequest.PostJson(uri, jsonString);
+                    Root jsonparsed = Newtonsoft.Json.JsonConvert.DeserializeObject<Root>(doc);
+
+                    if (jsonparsed != null)
+                    {
+                        if (jsonparsed.data != null)
                         {
-                            for (int j = 0; j < jsonparsed.data.imageData.Count; j++)
+                            if (jsonparsed.data.imageData != null)
                             {
-                                if (RegexCheck.IsMatch(jsonparsed.data.imageData[j].sourceImageUrl))
+                                for (int j = 0; j < jsonparsed.data.imageData.Count; j++)
                                 {
-                                    if (jsonparsed.data.imageData[j].sourceImageUrl.Contains("images.unsplash.com"))
+                                    if (RegexCheck.IsMatch(jsonparsed.data.imageData[j].sourceImageUrl))
                                     {
-                                        string cleanUrl = Regex.Replace(jsonparsed.data.imageData[j].sourceImageUrl, @"[?&][^?&]+=[^?&]+", "");
-                                        tmp.Add(cleanUrl);
+                                        if (jsonparsed.data.imageData[j].sourceImageUrl.Contains("images.unsplash.com"))
+                                        {
+                                            string cleanUrl = Regex.Replace(jsonparsed.data.imageData[j].sourceImageUrl, @"[?&][^?&]+=[^?&]+", "");
+                                            tmp.Add(cleanUrl);
+                                        }
+                                        else
+                                            tmp.Add(jsonparsed.data.imageData[j].sourceImageUrl);
                                     }
-                                    else 
-                                        tmp.Add(jsonparsed.data.imageData[j].sourceImageUrl);
                                 }
                             }
                         }
                     }
+
+                    Console.WriteLine($"cycle {i} = {tmp.Count}");
                 }
             }
-            catch (Exception e) { Console.WriteLine(e); }
+            catch (Exception e) { }
             return tmp;
         }
     }

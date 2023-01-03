@@ -1,4 +1,8 @@
-﻿namespace GScraperExample;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
+using System.Collections.Generic;
+
+namespace GScraperExample;
 
 internal static class Program
 {
@@ -12,6 +16,8 @@ internal static class Program
     public static string key;
     public static long totalimageupload = 0;
     public static List<string> blackList = new List<string>();
+    private static MongoClient dbClient = new MongoClient("mongodb://localhost:27017/");
+    public static IMongoCollection<BsonDocument>? Collection;
     //Thread Pool
     public static Queue mySyncdQ;
     private static List<Task> tasks = new();
@@ -23,12 +29,16 @@ internal static class Program
     private static IDatabase conn;
     private static string[] passArgs;
     private static Random random;
-    private static readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+    private static readonly SemaphoreSlim _lock = new SemaphoreSlim(initialCount: 1, maxCount: 1);
     #endregion
 
     #region Start
     private static async Task Main(string[] args)
     {
+
+        var dbList = dbClient.GetDatabase("local");
+        Collection = dbList.GetCollection<BsonDocument>("cache");
+
         passArgs = args;
         random = new Random();
         qword = new();

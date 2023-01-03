@@ -34,7 +34,7 @@ namespace GScraper
         public static async Task<string> PostJson(string uri, string json)
         {
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var result = client.PostAsync(uri, content).Result;
+            var result = await client.PostAsync(uri, content);
             var data = await result.Content.ReadAsStringAsync();
             return data;
         }

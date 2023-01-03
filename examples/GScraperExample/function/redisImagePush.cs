@@ -1,4 +1,8 @@
-﻿namespace GScraperExample.function;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
+using System.Security.Cryptography;
+
+namespace GScraperExample.function;
 
 internal class redisImagePush
 {
@@ -7,8 +11,8 @@ internal class redisImagePush
     public static long recordtmp { get; private set; } = 0;
     public static long record { get; private set; } = 0;
 
-    private static int stopAfter { get; } = 5;
-    private static int restartAfter { get; set; } = 4;
+    private static int stopAfter { get; } = 11;
+    private static int restartAfter { get; set; } = 10;
     #endregion
 
     #region getAllImage
@@ -20,15 +24,27 @@ internal class redisImagePush
         {
             if (image.Value != null)
             {
+
                 List<string> list = new();
+                List<string> list2 = new();
 
                 foreach (string daata in image.Value)
                 {
-                    list.Add(daata);
+                    var filter = Builders<BsonDocument>.Filter.Eq("hash", CreateMD5(daata));
+
+                    var find = Program.Collection.Find(filter).ToList();
+                    if (find.Count == 0)
+                    {
+                        list.Add(daata);
+                        var document = new BsonDocument { { "hash", CreateMD5(daata) } };
+                        Program.Collection.InsertOne(document);
+                    }
                 }
 
                 foreach (string item in Program.blackList)
                 {
+
+
                     for (int i = 0; i < list.Count; i++)
                     {
                         if (list[i].Contains(item))
@@ -76,7 +92,21 @@ internal class redisImagePush
                         await conn.StringSetAsync("jobs_last_index", parseKey + 1);
                     }
 
-                    data = await conn.SetAddAsync(Program.key, push);
+                    if (image.Value.Count >= 1_000_000 - conn.SetLength(Program.key))
+                    {
+
+                        for (int i = 0; i < 1_000_000 - conn.SetLength(Program.key); i++)
+                        {
+                            list2.Add(list[i]);
+                            list.Remove(list[i]);
+                        }
+
+                        RedisValue[] push2 = Array.ConvertAll(list2.ToArray(), item => (RedisValue)item);
+
+                        data = await conn.SetAddAsync(Program.key, push2);
+                    }
+                    else
+                        data = await conn.SetAddAsync(Program.key, push);
 
                     Console.ForegroundColor = ConsoleColor.Green;
                     if (image.Key == "DuckDuckGo" || image.Key.Contains("Immerse"))
@@ -169,6 +199,17 @@ internal class redisImagePush
         return data;
     }
     #endregion
+
+    public static string CreateMD5(string input)
+    {
+        using (MD5 md5 = MD5.Create())
+        {
+            byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+            byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+            return Convert.ToHexString(hashBytes);
+        }
+    }
 
     private static List<RedisKey> GetAllTable() => redisConnection.GetServers.Keys(0, "*image_jobs*").ToList();
 }
