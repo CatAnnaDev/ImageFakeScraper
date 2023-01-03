@@ -22,12 +22,12 @@ internal class redisImagePush
             {
                 List<string> list = new();
 
-                foreach (var daata in image.Value)
+                foreach (string daata in image.Value)
                 {
                     list.Add(daata);
                 }
 
-                foreach (var item in Program.blackList)
+                foreach (string item in Program.blackList)
                 {
                     for (int i = 0; i < list.Count; i++)
                     {
@@ -42,14 +42,12 @@ internal class redisImagePush
                 RedisValue[] push = Array.ConvertAll(list.ToArray(), item => (RedisValue)item);
                 try
                 {
-
                     Uri opts = new(args[0]);
                     List<RedisKey> redisList = GetAllTable();
 
-                    var nextIndex = await conn.StringGetAsync("jobs_last_index");
-                    var parseKey = int.Parse(nextIndex.ToString());
+                    RedisValue nextIndex = await conn.StringGetAsync("jobs_last_index");
+                    int parseKey = int.Parse(nextIndex.ToString());
                     Program.key = $"image_jobs_{parseKey}";
-
 
                     if (conn.SetLength(Program.key) >= 1_000_000)
                     {
@@ -77,9 +75,6 @@ internal class redisImagePush
                         Program.key = $"image_jobs_{parseKey + 1}";
                         await conn.StringSetAsync("jobs_last_index", parseKey + 1);
                     }
-
-
-
 
                     data = await conn.SetAddAsync(Program.key, push);
 
