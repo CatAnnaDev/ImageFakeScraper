@@ -53,30 +53,32 @@ internal class redisImagePush
 
                     if (conn.SetLength(Program.key) >= 1_000_000)
                     {
+                        if (redisList.Count >= stopAfter)
+                        {
+                            while (true)
+                            {
+                                if (redisList.Count <= restartAfter)
+                                {
+                                    Console.WriteLine("");
+                                    break;
+                                }
+                                else
+                                {
+                                    for (int a = 120; a >= 0; a--)
+                                    {
+                                        Console.Write("{0} Queue in process, Retry after {1}\r", redisList.Count - restartAfter, TimeSpan.FromMinutes(a));
+                                        Thread.Sleep(1000);
+                                    }
+                                    GetAllTable();
+                                }
+                            }
+                        }
+
                         Program.key = $"image_jobs_{parseKey + 1}";
                         await conn.StringSetAsync("jobs_last_index", parseKey + 1);
                     }
 
-                    if (redisList.Count >= stopAfter)
-                    {
-                        while (true)
-                        {
-                            if (redisList.Count <= restartAfter)
-                            {
-                                Console.WriteLine("");
-                                break;
-                            }
-                            else
-                            {
-                                for (int a = 120; a >= 0; a--)
-                                {
-                                    Console.Write("{0} Queue in process, Retry after {1}\r", redisList.Count - restartAfter, TimeSpan.FromMinutes(a));
-                                    Thread.Sleep(1000);
-                                }
-                                GetAllTable();
-                            }
-                        }
-                    }
+
 
 
                     data = await conn.SetAddAsync(Program.key, push);
