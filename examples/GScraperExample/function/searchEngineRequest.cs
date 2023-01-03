@@ -34,7 +34,7 @@ public class searchEngineRequest
 
     private static readonly List<string> EveryResult = new();
     private static readonly PixelScraper pixell = new();
-    private static bool every = false;
+    private static bool every = true;
 
     private static readonly Dictionary<string, List<string>> returnLink = new();
 

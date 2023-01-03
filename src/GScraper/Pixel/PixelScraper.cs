@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace GScraper.Pixel
 
         private List<string> tmp = new();
         public int NbOfRequest = 0;
-        private const string uri = "https://www.everypixel.com/search?q={0}&page={1}";
+        private const string uri = "https://www.everypixel.com/search/search?q={0}&limit=9999&json=1&page={1}";
         private readonly Regex RegexCheck = new(@"^(http|https:\/\/):?([^\s([<,>\/]*)(\/)[^\s[,><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s[,><]*)?");
 
         /// <summary>
@@ -31,29 +32,33 @@ namespace GScraper.Pixel
                 tmp.Clear();
                 NbOfRequest = 0;
                 GScraperGuards.NotNull(query, nameof(query));
-                for (int i = 1; i < 100; i++)
+
+
+                for (int i = 1; i < 500; i++)
                 {
-                    
-                    object[] args = new object[] { query, i.ToString() };
-                    var doc = await httpRequest.Get(uri, args);
-                    IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !String.IsNullOrEmpty(s));
-
-                    if (urls.Count() == 0)
-                        break;
-
-                    //if (urls.First().Contains("INSERT_RANDOM_NUMBER_HERE"))
-                    //    break;
-
-                    foreach (string? data in urls)
+                    string[] args = new string[] { query, i.ToString() };
+                    var jsonGet = await httpRequest.GetJson(uri, args);
+                    Root jsonparsed = JsonConvert.DeserializeObject<Root>(jsonGet);
+                    if (jsonparsed != null)
                     {
-                        if (!data.Contains("adserver"))
+                        if (jsonparsed.images != null)
                         {
-                            if (RegexCheck.IsMatch(data))
+                            if (jsonparsed.images.images_0 != null)
                             {
-                                tmp.Add(data);
+                                for (int j = 0; j < jsonparsed.images.images_0.Count; j++)
+                                {
+                                    if (RegexCheck.IsMatch(jsonparsed.images.images_0[i].url))
+                                    {
+                                        tmp.Add(jsonparsed.images.images_0[j].url);
+                                    }
+                                }
                             }
                         }
+                        else
+                            break;
                     }
+                    else
+                        break;
                     NbOfRequest++;
                 }
             }

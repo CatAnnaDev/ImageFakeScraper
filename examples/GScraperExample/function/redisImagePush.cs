@@ -63,7 +63,7 @@ internal class redisImagePush
                         Console.WriteLine($"{image.Key}:\t\t{data} / {push.Length}");
 
                     totalpushactual += data;
-                    if (image.Key == "Getty")
+                    if (image.Key == "Pixel")
                     {
                         Console.WriteLine($"Total:\t\t{totalpushactual}");
                         recordtmp = totalpushactual;
@@ -116,7 +116,7 @@ internal class redisImagePush
 
                 Console.ForegroundColor = ConsoleColor.Green;
 
-                if (image.Key == "Getty")
+                if (image.Key == "Pixel")
                 {
                     Console.WriteLine($"Total:\t\t{totalpushactual}");
                     recordtmp = totalpushactual;
