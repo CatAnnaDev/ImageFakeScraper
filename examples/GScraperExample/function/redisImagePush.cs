@@ -8,7 +8,7 @@ internal class redisImagePush
     public static long record { get; private set; } = 0;
 
     private static int stopAfter { get; } = 5;
-    private static int restartAfter { get; set; } = 2;
+    private static int restartAfter { get; set; } = 4;
     #endregion
 
     #region getAllImage
@@ -79,7 +79,7 @@ internal class redisImagePush
                     data = await conn.SetAddAsync(Program.key, push);
 
                     Console.ForegroundColor = ConsoleColor.Green;
-                    if (image.Key == "DuckDuckGo")
+                    if (image.Key == "DuckDuckGo" || image.Key.Contains("Immerse"))
                         Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");
                     else
                         Console.WriteLine($"{image.Key}:\t\t{data} / {push.Length}");
@@ -130,7 +130,7 @@ internal class redisImagePush
             else
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                if (image.Key == "DuckDuckGo")
+                if (image.Key == "DuckDuckGo" || image.Key.Contains("Immerse"))
                     Console.WriteLine($"{image.Key}\tdown");
                 else
                     Console.WriteLine($"{image.Key}\t\tdown");

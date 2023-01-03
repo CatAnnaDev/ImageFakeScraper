@@ -4,6 +4,7 @@ global using GScraper.DuckDuckGo;
 global using GScraper.Google;
 global using GScraper.Yahoo;
 global using GScraper.Bing;
+global using GScraper.immerse;
 global using GScraper.Getty;
 global using GScraper.OpenVerse;
 global using GScraper.Pixel;

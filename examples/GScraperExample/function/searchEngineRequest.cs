@@ -36,6 +36,10 @@ public class searchEngineRequest
     private static readonly PixelScraper pixell = new();
     private static bool every = true;
 
+    private static readonly List<string> immerseResult = new();
+    private static readonly ImmerseScraper immerse = new();
+    private static bool imme = true;
+
     private static readonly Dictionary<string, List<string>> returnLink = new();
 
     public static int NbOfRequest = 0;
@@ -153,6 +157,19 @@ public class searchEngineRequest
             returnLink.Add("Getty", GettyResult);
         }
         #endregion
+        if (imme)
+        {
+            immerseResult.Clear();
+            try
+            {
+                var gettyResult = await immerse.GetImagesAsync(text);
+                if (gettyResult.Count > 0)
+                    gettyResult.ForEach(image => { immerseResult.Add(image); });
+            }
+            catch { }
+            NbOfRequest++;
+            returnLink.Add("Immerse", immerseResult);
+        }
         #region EveryPixel
         if (every)
         {

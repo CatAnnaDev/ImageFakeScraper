@@ -3,7 +3,9 @@ using System;
 using System.Drawing;
 using System.Net.Http;
 using System.Security.Policy;
+using System.Text;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace GScraper
 {
@@ -26,6 +28,14 @@ namespace GScraper
             var url = string.Format(uri, query);
             HttpResponseMessage resp = await client.GetAsync(url);
             var data = await resp.Content.ReadAsStringAsync();
+            return data;
+        }
+
+        public static async Task<string> PostJson(string uri, string json)
+        {
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var result = client.PostAsync(uri, content).Result;
+            var data = await result.Content.ReadAsStringAsync();
             return data;
         }
     }
