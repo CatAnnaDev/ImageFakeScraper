@@ -41,7 +41,7 @@ namespace GScraper.Yahoo
                     if (RegexCheck.IsMatch(data))
                     {
                         string cleanUrl = Regex.Replace(data, @"&pid=Api&P=0&w=300&h=300", "");
-                        if (!data.EndsWith("th"))
+                        if (!cleanUrl.EndsWith("th") && !data.Contains("th?id="))
                             tmp.Add(cleanUrl);
                     }
                 }

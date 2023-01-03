@@ -61,7 +61,7 @@ namespace GScraper.Bing
                     if (RegexCheck.IsMatch(data))
                     {
                         string cleanUrl = Regex.Replace(data, @"[?&][^?&]+=[^?&]+", "");
-                        if (!data.EndsWith("th"))
+                        if (!cleanUrl.EndsWith("th") && !data.Contains("th?id="))
                             tmp.Add(cleanUrl);
                     }
                 }           

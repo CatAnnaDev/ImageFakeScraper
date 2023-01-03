@@ -1,9 +1,4 @@
-﻿using System;
-using System.Drawing.Printing;
-using System.Threading;
-using static System.Net.Mime.MediaTypeNames;
-
-namespace GScraperExample;
+﻿namespace GScraperExample;
 
 internal static class Program
 {
