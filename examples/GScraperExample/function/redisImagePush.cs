@@ -61,7 +61,7 @@ internal class redisImagePush
                     {
                         while (true)
                         {
-                            if (redisList.Count == 2)
+                            if (redisList.Count <= 2)
                             {
                                 Console.WriteLine("");
                                 break;
@@ -70,8 +70,8 @@ internal class redisImagePush
                             {
                                 for (int a = 120; a >= 0; a--)
                                 {
-                                    Console.Write("Wait after Table {0}s \r", a);
-                                    System.Threading.Thread.Sleep(1000);
+                                    Console.Write("Wait after Table <= 2 actual {0}, {1}s \r", redisList.Count, a);
+                                    Thread.Sleep(1000);
                                 }
                                 GetAllTable();
                             }
