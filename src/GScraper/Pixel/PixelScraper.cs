@@ -17,7 +17,7 @@ namespace GScraper.Pixel
 
         private List<string> tmp = new();
         public int NbOfRequest = 0;
-        private const string uri = "https://www.everypixel.com/search/search?q={0}&limit=9999&json=1&page={1}";
+        private const string uri = "https://www.everypixel.com/search/search?q={0}&limit=20000&json=1&page={1}";
         private readonly Regex RegexCheck = new(@"^(http|https:\/\/):?([^\s([<,>\/]*)(\/)[^\s[,><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s[,><]*)?");
 
         /// <summary>

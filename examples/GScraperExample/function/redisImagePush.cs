@@ -41,7 +41,7 @@ internal class redisImagePush
                 {
 
                     Uri opts = new(args[0]);
-                    List<RedisKey> redisList = redisConnection.GetServers.Keys(0, "*image_jobs*").ToList();
+                    List<RedisKey> redisList = GetAllTable();
 
                     var nextIndex = await conn.StringGetAsync("jobs_last_index");
                     var parseKey = int.Parse(nextIndex.ToString());
@@ -56,6 +56,28 @@ internal class redisImagePush
 
 
                     data = await conn.SetAddAsync(Program.key, push);
+
+                    if (redisList.Count >= 5)
+                    {
+                        while (true)
+                        {
+                            if (redisList.Count == 2)
+                            {
+                                Console.WriteLine("");
+                                break;
+                            }
+                            else
+                            {
+                                for (int a = 120; a >= 0; a--)
+                                {
+                                    Console.Write("Wait after Table {0}s \r", a);
+                                    System.Threading.Thread.Sleep(1000);
+                                }
+                                GetAllTable();
+                            }
+                        }
+                    }
+
                     Console.ForegroundColor = ConsoleColor.Green;
                     if (image.Key == "DuckDuckGo")
                         Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");
@@ -148,5 +170,5 @@ internal class redisImagePush
     }
     #endregion
 
-
+    private static List<RedisKey> GetAllTable() => redisConnection.GetServers.Keys(0, "*image_jobs*").ToList();
 }
