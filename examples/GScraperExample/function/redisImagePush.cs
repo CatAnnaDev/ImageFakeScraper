@@ -6,6 +6,9 @@ internal class redisImagePush
     private static readonly bool printLog = false;
     public static long recordtmp { get; private set; } = 0;
     public static long record { get; private set; } = 0;
+
+    private static int stopAfter { get; } = 5;
+    private static int restartAfter { get; set; } = 2;
     #endregion
 
     #region getAllImage
@@ -57,11 +60,11 @@ internal class redisImagePush
 
                     data = await conn.SetAddAsync(Program.key, push);
 
-                    if (redisList.Count >= 5)
+                    if (redisList.Count >= stopAfter)
                     {
                         while (true)
                         {
-                            if (redisList.Count <= 2)
+                            if (redisList.Count <= restartAfter)
                             {
                                 Console.WriteLine("");
                                 break;
@@ -70,7 +73,7 @@ internal class redisImagePush
                             {
                                 for (int a = 120; a >= 0; a--)
                                 {
-                                    Console.Write("Wait after Table <= 2 actual {0}, {1}s \r", redisList.Count, a);
+                                    Console.Write("{0} Queue in process, Retry after {1}s \r", redisList.Count - restartAfter, TimeSpan.FromMinutes(a));
                                     Thread.Sleep(1000);
                                 }
                                 GetAllTable();
