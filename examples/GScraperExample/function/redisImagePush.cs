@@ -57,9 +57,6 @@ internal class redisImagePush
                         await conn.StringSetAsync("jobs_last_index", parseKey + 1);
                     }
 
-
-                    data = await conn.SetAddAsync(Program.key, push);
-
                     if (redisList.Count >= stopAfter)
                     {
                         while (true)
@@ -73,13 +70,16 @@ internal class redisImagePush
                             {
                                 for (int a = 120; a >= 0; a--)
                                 {
-                                    Console.Write("{0} Queue in process, Retry after {1}s \r", redisList.Count - restartAfter, TimeSpan.FromMinutes(a));
+                                    Console.Write("{0} Queue in process, Retry after {1}\r", redisList.Count - restartAfter, TimeSpan.FromMinutes(a));
                                     Thread.Sleep(1000);
                                 }
                                 GetAllTable();
                             }
                         }
                     }
+
+
+                    data = await conn.SetAddAsync(Program.key, push);
 
                     Console.ForegroundColor = ConsoleColor.Green;
                     if (image.Key == "DuckDuckGo")
