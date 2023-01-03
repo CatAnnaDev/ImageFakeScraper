@@ -51,7 +51,6 @@ internal class redisImagePush
                         await conn.StringSetAsync("jobs_last_index", parseKey + 1);
                     }
 
-
                     data = await conn.SetAddAsync(Program.key, push);
                     Console.ForegroundColor = ConsoleColor.Green;
                     if (image.Key == "DuckDuckGo")
