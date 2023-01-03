@@ -62,7 +62,7 @@ namespace GScraper.Pixel
                     NbOfRequest++;
                 }
             }
-            catch (Exception e) { Console.WriteLine(e); }
+            catch (Exception e) { }
             return tmp;
         }
     }
