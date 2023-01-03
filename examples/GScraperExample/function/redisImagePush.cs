@@ -39,6 +39,7 @@ internal class redisImagePush
                 RedisValue[] push = Array.ConvertAll(list.ToArray(), item => (RedisValue)item);
                 try
                 {
+
                     Uri opts = new(args[0]);
                     List<RedisKey> redisList = redisConnection.GetServers.Keys(0, "*image_jobs*").ToList();
 
@@ -46,10 +47,13 @@ internal class redisImagePush
                     var parseKey = int.Parse(nextIndex.ToString());
                     Program.key = $"image_jobs_{parseKey}";
 
+
                     if (conn.SetLength(Program.key) >= 1_000_000)
                     {
+                        Program.key = $"image_jobs_{parseKey + 1}";
                         await conn.StringSetAsync("jobs_last_index", parseKey + 1);
                     }
+
 
                     data = await conn.SetAddAsync(Program.key, push);
                     Console.ForegroundColor = ConsoleColor.Green;
