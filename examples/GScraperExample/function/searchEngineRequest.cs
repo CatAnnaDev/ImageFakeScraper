@@ -39,8 +39,6 @@ public class searchEngineRequest
     private static readonly Dictionary<string, List<string>> returnLink = new();
 
     public static int NbOfRequest = 0;
-
-     static Stopwatch timer = new Stopwatch();
     #endregion
 
     #region getAllDataFromsearchEngineAsync
@@ -50,15 +48,12 @@ public class searchEngineRequest
         #region Google
         if (GoogleScraper.gg)
         {
-            timer.Start();
             googleResult.Clear();
             try
             {
                 var google = await scraper.GetImagesAsync(text);
                 if (google.Count > 0)
                     google.ForEach(image => { googleResult.Add(image); });
-                timer.Stop();
-                Console.WriteLine("Google Done {0}s", TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds);
             }
             catch{}
             NbOfRequest++;
@@ -66,19 +61,15 @@ public class searchEngineRequest
             
         }
         #endregion
-        timer.Reset();
         #region DuckduckGO
         if (ddc)
         {
-            timer.Start();
             ducResult.Clear();
             try
             {
                 var duckduck = await duck.GetImagesAsync(text);
                 if (duckduck.Count > 0)
                     duckduck.ForEach(image => { ducResult.Add(image); });
-                timer.Stop();
-                Console.WriteLine("Duck Done {0}s", TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds);
             }
             catch { }
             NbOfRequest++;
@@ -86,57 +77,45 @@ public class searchEngineRequest
             
         }
         #endregion
-        timer.Reset();
         #region Brave
         if (brv)
         {
-            timer.Start();
             BraveResult.Clear();
             try
             {
                 var bravelist = await brave.GetImagesAsync(text);
                 if (bravelist.Count > 0)
                     bravelist.ForEach(image => { BraveResult.Add(image); });
-                timer.Stop();
-                Console.WriteLine("Brave Done {0}s", TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds);
             }
             catch { }
             NbOfRequest++;
             returnLink.Add("Brave", BraveResult);
         }
         #endregion
-        timer.Reset();
         #region OpenVerse
         if (ov)
         {
-            timer.Start();
             OpenResult.Clear();
             try
             {
                 var openresult = await open.GtImagesAsync(text);
                 if (openresult.Count > 0)
                     openresult.ForEach(image => { OpenResult.Add(image); });
-                timer.Stop();
-                Console.WriteLine("Open Done {0}s", TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds);
             }
             catch { }
             NbOfRequest += open.NbOfRequest;
             returnLink.Add("Open", OpenResult);
         }
         #endregion
-        timer.Reset();
         #region Bing
         if (bing)
         {
-            timer.Start();
             BingResult.Clear();
             try
             {
                 var bingResult = await bingg.GetImagesAsync(text);
                 if (bingResult.Count > 0)
                     bingResult.ForEach(image => { BingResult.Add(image); });
-                timer.Stop();
-                Console.WriteLine("Bing Done {0}s", TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds);
             }
             catch { }
             NbOfRequest++;
@@ -144,57 +123,45 @@ public class searchEngineRequest
 
         }
         #endregion
-        timer.Reset();
         #region Yahoo
         if (yahoo)
         {
-            timer.Start();
             YahooResult.Clear();
             try
             {
                 var yahooResult = await yahooo.GetImagesAsync(text);
                 if (yahooResult.Count > 0)
                     yahooResult.ForEach(image => { YahooResult.Add(image); });
-                timer.Stop();
-                Console.WriteLine("Yahoo Done {0}s", TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds);
             }
             catch { }
             NbOfRequest++;
             returnLink.Add("Yahoo", YahooResult);
         }
         #endregion
-        timer.Reset();
         #region GettyImage
         if (getty)
         {
-            timer.Start();
             GettyResult.Clear();
             try
             {
                 var gettyResult = await Gettyy.GetImagesAsync(text);
                 if (gettyResult.Count > 0)
                     gettyResult.ForEach(image => { GettyResult.Add(image); });
-                timer.Stop();
-                Console.WriteLine("Getty Done {0}s", TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds);
             }
             catch { }
             NbOfRequest += Gettyy.NbOfRequest;
             returnLink.Add("Getty", GettyResult);
         }
         #endregion
-        timer.Reset();
         #region EveryPixel
         if (every)
         {
-            timer.Start();
             EveryResult.Clear();
             try
             {
                 var pixelResult = await pixell.GetImagesAsync(text);
                 if (pixelResult.Count > 0)
                     pixelResult.ForEach(image => { EveryResult.Add(image); });
-                timer.Stop();
-                Console.WriteLine("Pixel Done {0}s", TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds);
             }
             catch { }
             NbOfRequest += pixell.NbOfRequest;
