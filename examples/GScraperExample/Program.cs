@@ -73,6 +73,7 @@ internal static class Program
             RedisValue getredisValue = await conn.ListGetByIndexAsync(key, random.Next(0, (int)rng - 1));
             text = getredisValue.ToString();
             mySyncdQ.Enqueue(text);
+            printData(text);
 
             while (qword.Count != 0)
             {
@@ -80,19 +81,13 @@ internal static class Program
                 long usedMemory = currentProcess.PrivateMemorySize64;
                 lock (mySyncdQ.SyncRoot)
                 {
-                    ShowThreadInformation(currentProcess.Id.ToString());
+                    //ShowThreadInformation(currentProcess.Id.ToString());
                     timer.Start();
                     uptime.Start();
                 }
 
-
-                await _lock.WaitAsync();
-                try
-                {
-                    site = await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
-                    await redisImagePush.GetAllImageAndPush(conn, site, passArgs);
-                }
-                finally { _lock.Release(); }
+                site = await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
+                await redisImagePush.GetAllImageAndPush(conn, site, passArgs);
 
                 //Queue<string> callQword = await searchEngineRequest.getAllNextTag(text, conn);
                 //
@@ -100,8 +95,6 @@ internal static class Program
                 //{
                 //    qword.Enqueue(callQword.Dequeue()); // euh
                 //}
-
-
 
                 lock (mySyncdQ.SyncRoot)
                 {
