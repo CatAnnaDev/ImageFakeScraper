@@ -39,6 +39,8 @@ internal static class Program
         var dbList = dbClient.GetDatabase("local");
         Collection = dbList.GetCollection<BsonDocument>("cache");
 
+        await EnsureIndexExists(dbList, "cache", "hash");
+
         passArgs = args;
         random = new Random();
         qword = new();
@@ -201,6 +203,18 @@ internal static class Program
         Console.WriteLine("Done");
     }
     #endregion
+
+    private static async Task EnsureIndexExists(this IMongoDatabase database, string collectionName, string indexName)
+    {
+        var collection = database.GetCollection<BsonDocument>(collectionName);
+        var index = new BsonDocument
+            {
+                {indexName, 1}
+            };
+
+        var indexModel = new CreateIndexModel<BsonDocument>(index, new CreateIndexOptions { Unique = true });
+        await collection.Indexes.CreateOneAsync(indexModel).ConfigureAwait(false);
+    }
 
     public static void Worker()
     {

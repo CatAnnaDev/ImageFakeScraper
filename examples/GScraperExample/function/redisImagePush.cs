@@ -4,6 +4,12 @@ using System.Security.Cryptography;
 
 namespace GScraperExample.function;
 
+public class cacheURL
+{
+    public object _id { get; set; }
+    public string hash { get; set; }
+}
+
 internal class redisImagePush
 {
     #region Var
