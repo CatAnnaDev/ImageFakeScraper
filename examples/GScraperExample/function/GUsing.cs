@@ -1,4 +1,5 @@
-﻿global using ImageFakeScraper;
+﻿global using HtmlAgilityPack;
+global using ImageFakeScraper;
 global using ImageFakeScraper.Bing;
 global using ImageFakeScraper.Brave;
 global using ImageFakeScraper.DuckDuckGo;
@@ -8,7 +9,6 @@ global using ImageFakeScraper.immerse;
 global using ImageFakeScraper.OpenVerse;
 global using ImageFakeScraper.Pixel;
 global using ImageFakeScraper.Yahoo;
-global using HtmlAgilityPack;
 global using MongoDB.Bson;
 global using MongoDB.Driver;
 global using Prometheus;
