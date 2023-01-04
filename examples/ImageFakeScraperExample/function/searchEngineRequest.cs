@@ -34,8 +34,8 @@ public class searchEngineRequest
 
     private static readonly Dictionary<string, List<string>> returnLink = new();
 
-    private static Queue<string> qword = new();
-    private static HtmlNodeCollection table;
+    private static readonly Queue<string> qword = new();
+    private static HtmlNodeCollection? table;
 
     public static int NbOfRequest = 0;
     #endregion

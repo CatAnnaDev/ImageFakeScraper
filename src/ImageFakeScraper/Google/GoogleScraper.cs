@@ -5,7 +5,7 @@ public class GoogleScraper
 
     public const string DefaultApiEndpoint = "https://www.google.com/search";
 
-    private string _defaultUserAgent = "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36";
+    private readonly string _defaultUserAgent = "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36";
 
     private static readonly Uri _defaultBaseAddress = new(DefaultApiEndpoint);
 
@@ -49,11 +49,11 @@ public class GoogleScraper
         }
     }
 
-    public async Task<List<string>> GetImagesAsync(string query)
+    public async Task<List<string>?> GetImagesAsync(string query)
     {
         ImageFakeScraperGuards.NotNull(query, nameof(query));
 
-        Uri uri = new Uri(BuildImageQuery(query), UriKind.Relative);
+        Uri uri = new(BuildImageQuery(query), UriKind.Relative);
         completUrl += uri;
 
         HttpResponseMessage resp = await _httpClient.GetAsync(uri);

@@ -23,5 +23,8 @@ public class DuckDuckGoImageResult : IImageResult
     [JsonPropertyName("image")]
     public string Url { get; }
 
-    public override string ToString() => Url;
+    public override string ToString()
+    {
+        return Url;
+    }
 }

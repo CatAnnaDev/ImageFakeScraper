@@ -6,7 +6,7 @@ public class GettyScraper
     {
     }
 
-    private List<string> tmp = new();
+    private readonly List<string> tmp = new();
     private const string uri = "https://www.gettyimages.fr/photos/{0}?assettype=image&excludenudity=false&license=rf&family=creative&phrase={1}&sort=mostpopular&page={2}";
     public int NbOfRequest = 0;
     private readonly Regex RegexCheck = new(@"^(https:\/\/)?s?:?([^\s([""<,>\/]*)(\/)[^\s["",><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s["",><]*)?");
@@ -27,10 +27,12 @@ public class GettyScraper
             {
                 object[] args = new object[] { query, query, i.ToString() };
                 HtmlDocument doc = await httpRequest.Get(uri, args);
-                IEnumerable<string> urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !String.IsNullOrEmpty(s));
+                IEnumerable<string> urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !string.IsNullOrEmpty(s));
 
                 if (urls.Count() == 0)
+                {
                     break;
+                }
 
                 foreach (string? data in urls)
                 {

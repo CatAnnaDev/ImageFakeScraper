@@ -1,4 +1,6 @@
-﻿namespace ImageFakeScraper.immerse;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace ImageFakeScraper.immerse;
 
 
 public class ImmerseScraper
@@ -9,9 +11,11 @@ public class ImmerseScraper
 
     }
 
-    private List<string> tmp = new();
+    private readonly List<string> tmp = new();
     private const string uri = "https://www.immerse.zone/api/immerse/search";
     private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
+
+    [RequiresUnreferencedCode("euh")]
     public async Task<List<string>> GetImagesAsync(string query)
     {
         try
@@ -20,7 +24,7 @@ public class ImmerseScraper
             for (int i = 1; i < Settings.ImmerseMaxPage + 1; i++)
             {
                 ImageFakeScraperGuards.NotNull(query, nameof(query));
-                JsonCreatePush json = new JsonCreatePush
+                JsonCreatePush json = new()
                 {
                     searchText = query,
                     pageNum = i
@@ -46,7 +50,9 @@ public class ImmerseScraper
                                         tmp.Add(cleanUrl);
                                     }
                                     else
+                                    {
                                         tmp.Add(jsonparsed.data.imageData[j].sourceImageUrl);
+                                    }
                                 }
                             }
                         }
@@ -54,14 +60,14 @@ public class ImmerseScraper
                 }
             }
         }
-        catch (Exception e) { }
+        catch (Exception) { }
         return tmp;
     }
 }
 
 public class JsonCreatePush
 {
-    public string searchText { get; set; }
+    public string? searchText { get; set; }
     public string imageUrl { get; set; } = "";
     public int? pageNum { get; set; } = 1;
     public int? pageSize { get; set; } = Settings.ImmersePageSize;

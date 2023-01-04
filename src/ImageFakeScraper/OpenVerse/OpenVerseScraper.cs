@@ -5,7 +5,7 @@ public class OpenVerseScraper
 {
     public OpenVerseScraper() { }
 
-    private List<string> tmp = new();
+    private readonly List<string> tmp = new();
 
     private const string uri = "https://api.openverse.engineering/v1/images/?format=json&q={0}&page={1}&mature=true";
     private readonly Regex RegexCheck = new(@"^(http|https://):?([^\s([<,>/]*)(\/)[^\s[,><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s[,><]*)?");

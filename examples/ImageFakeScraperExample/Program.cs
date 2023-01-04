@@ -6,17 +6,17 @@ internal static class Program
 {
     #region Var
     private static readonly object ConsoleWriterLock = new();
-    public static ConnectionMultiplexer redis;
+    public static ConnectionMultiplexer? redis;
     public static redisConnection? redisConnector;
-    public static Queue<string> qword;
-    private static Dictionary<string, List<string>> site;
+    public static Queue<string>? qword;
+    private static Dictionary<string, List<string>>? site;
     private static readonly KestrelMetricServer server = new(port: 4444);
-    public static string key;
+    public static string? key;
     public static long totalimageupload = 0;
-    public static List<string> blackList = new List<string>();
-    private static MongoClient dbClient = new MongoClient("mongodb://localhost:27017/");
+    public static List<string> blackList = new();
+    private static readonly MongoClient dbClient = new("mongodb://localhost:27017/");
     public static IMongoCollection<BsonDocument>? Collection;
-    public static buildJsonFile ConfigFile;
+    public static buildJsonFile? ConfigFile;
 
     // Config File
     public static string Credential = "";
@@ -25,22 +25,22 @@ internal static class Program
 
     //Thread Pool
     //public static Queue mySyncdQ;
-    private static List<Task> tasks = new();
-    private static object lockObj = new();
-    private static Stopwatch timer = new();
-    private static Stopwatch uptime = new();
+    private static readonly List<Task> tasks = new();
+    private static readonly object lockObj = new();
+    private static readonly Stopwatch timer = new();
+    private static readonly Stopwatch uptime = new();
     private static string text = "";
 
-    private static IDatabase conn;
-    private static Random random;
-    private static readonly SemaphoreSlim _lock = new SemaphoreSlim(initialCount: 1, maxCount: 1);
+    private static IDatabase? conn;
+    private static Random? random;
+    private static readonly SemaphoreSlim _lock = new(initialCount: 1, maxCount: 1);
     #endregion
     #region Start
+    [Obsolete]
     private static async Task Main(string[] args)
     {
         ConfigFile = new();
         await InitializeGlobalDataAsync();
-
         Credential = ConfigFile.Config.Credential;
         waittime = ConfigFile.Config.Sleep;
         Pseudo = ConfigFile.Config.Pseudo;
@@ -51,16 +51,16 @@ internal static class Program
             return;
         }
 
-        IMongoDatabase dbList = dbClient.GetDatabase("local");
-        Collection = dbList.GetCollection<BsonDocument>("cache");
+        if (Settings.useMongoDB)
+        {
+            IMongoDatabase dbList = dbClient.GetDatabase("local");
+            Collection = dbList.GetCollection<BsonDocument>("cache");
 
-        await dbList.EnsureIndexExists("cache", "hash");
+            await dbList.EnsureIndexExists("cache", "hash");
+        }
 
         random = new Random();
         qword = new();
-
-        AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
-
 
         redisConnector = new(Credential, 5000);
         redis = redisConnection.redisConnect();
@@ -71,8 +71,6 @@ internal static class Program
         {
             blackList.Add(item.ToString());
         }
-
-
 
         if (redis.IsConnected)
         {
@@ -100,7 +98,7 @@ internal static class Program
                 uptime.Start();
 
                 site = await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
-                await redisImagePush.GetAllImageAndPush(conn, site);
+                _ = await redisImagePush.GetAllImageAndPush(conn, site);
 
                 if (Settings.GetNewTagGoogle)
                 {
@@ -186,13 +184,13 @@ internal static class Program
     private static async Task EnsureIndexExists(this IMongoDatabase database, string collectionName, string indexName)
     {
         IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>(collectionName);
-        BsonDocument index = new BsonDocument
-            {
+        BsonDocument index = new()
+        {
                 {indexName, 1}
             };
 
-        CreateIndexModel<BsonDocument> indexModel = new CreateIndexModel<BsonDocument>(index, new CreateIndexOptions { Unique = true });
-        await collection.Indexes.CreateOneAsync(indexModel).ConfigureAwait(false);
+        CreateIndexModel<BsonDocument> indexModel = new(index, new CreateIndexOptions { Unique = true });
+        _ = await collection.Indexes.CreateOneAsync(indexModel).ConfigureAwait(false);
     }
     #endregion
     #region printData
@@ -224,16 +222,9 @@ internal static class Program
         {
             RedisValue value = new(text);
             RedisKey key = new(ConfigFile.Config.words_done);
-            await redis.ListLeftPushAsync(key, value);
+            _ = await redis.ListLeftPushAsync(key, value);
         }
         catch { }
-    }
-    #endregion
-    #region OnProcessExit
-    static void OnProcessExit(object sender, EventArgs e)
-    {
-        Console.WriteLine("redisDisconnet");
-        //redisConnection.redisDisconnet();
     }
     #endregion
     #region SizeSuffix
@@ -244,7 +235,7 @@ internal static class Program
         if (value < 0) { return "-" + SizeSuffix(-value, decimalPlaces); }
         if (value == 0) { return string.Format("{0:n" + decimalPlaces + "} bytes", 0); }
         int mag = (int)Math.Log(value, 1024);
-        decimal adjustedSize = (decimal)value / (1L << mag * 10);
+        decimal adjustedSize = (decimal)value / (1L << (mag * 10));
         if (Math.Round(adjustedSize, decimalPlaces) >= 1000)
         { mag += 1; adjustedSize /= 1024; }
         return string.Format("{0:n" + decimalPlaces + "} {1}",
@@ -259,9 +250,7 @@ internal static class Program
         while (n > 1)
         {
             int k = rng.Next(n--);
-            T temp = array[n];
-            array[n] = array[k];
-            array[k] = temp;
+            (array[k], array[n]) = (array[n], array[k]);
         }
     }
     #endregion

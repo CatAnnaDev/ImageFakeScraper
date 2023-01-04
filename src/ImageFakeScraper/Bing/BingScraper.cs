@@ -9,7 +9,7 @@ public class BinImageFakeScraper
 
     }
 
-    private List<string> tmp = new();
+    private readonly List<string> tmp = new();
     private const string uri = "https://www.bing.com/images/search?q={0}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&adlt=off";
     private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
 
@@ -26,7 +26,7 @@ public class BinImageFakeScraper
             ImageFakeScraperGuards.NotNull(query, nameof(query));
             string[] args = new string[] { query };
             HtmlDocument doc = await httpRequest.Get(uri, args);
-            IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !String.IsNullOrEmpty(s));
+            IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !string.IsNullOrEmpty(s));
 
             //HtmlNodeCollection tag = doc.DocumentNode.SelectNodes("//div[@class='suggestion-title-wrapper']");
 
@@ -51,7 +51,9 @@ public class BinImageFakeScraper
                 {
                     string cleanUrl = Regex.Replace(data, @"[?&][^?&]+=[^?&]+", "");
                     if (!cleanUrl.EndsWith("th") && !data.Contains("th?id="))
+                    {
                         tmp.Add(cleanUrl);
+                    }
                 }
             }
         }

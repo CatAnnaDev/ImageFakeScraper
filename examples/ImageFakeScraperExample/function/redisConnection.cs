@@ -3,11 +3,12 @@
 internal class redisConnection
 {
     #region Var
-    static string credential = "";
-    static int exponentialRetry = 0;
-    static ConnectionMultiplexer Connection { get; set; }
-    public static IServer GetServers { get; set; }
-    public static IDatabase GetDatabase { get; set; }
+    private static string credential = "";
+    private static int exponentialRetry = 0;
+
+    private static ConnectionMultiplexer? Connection { get; set; }
+    public static IServer? GetServers { get; set; }
+    public static IDatabase? GetDatabase { get; set; }
     public static bool Connected { get; private set; } = false;
     #endregion
     #region Constuctor
@@ -18,6 +19,7 @@ internal class redisConnection
     }
     #endregion
     #region Login
+    [Obsolete]
     public static ConnectionMultiplexer redisConnect()
     {
         Uri opts = new(credential);

@@ -2,8 +2,8 @@
 
 public class httpRequest
 {
-    private static HttpClient client = new();
-    private static HtmlDocument doc = new();
+    private static readonly HttpClient client = new();
+    private static readonly HtmlDocument doc = new();
 
     public static async Task<HtmlDocument> Get(string uri, params object[] query)
     {
@@ -24,7 +24,7 @@ public class httpRequest
 
     public static async Task<string> PostJson(string uri, string json)
     {
-        StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+        StringContent content = new(json, Encoding.UTF8, "application/json");
         HttpResponseMessage result = await client.PostAsync(uri, content);
         string data = await result.Content.ReadAsStringAsync();
         return data;

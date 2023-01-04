@@ -6,8 +6,8 @@ internal class redisImagePush
     public static long recordtmp { get; private set; } = 0;
     public static long record { get; private set; } = 0;
 
-    private static List<string> list = new();
-    private static List<string> list2 = new();
+    private static readonly List<string> list = new();
+    private static readonly List<string> list2 = new();
     #endregion
     #region getAllImage
     public static async Task<long> GetAllImageAndPush(IDatabase conn, Dictionary<string, List<string>> site)
@@ -21,17 +21,24 @@ internal class redisImagePush
                 list.Clear();
                 list2.Clear();
 
-                foreach (string daata in image.Value)
+                if (Settings.useMongoDB)
                 {
-                    FilterDefinition<BsonDocument> filter = Builders<BsonDocument>.Filter.Eq("hash", CreateMD5(daata));
-
-                    List<BsonDocument> find = Program.Collection.Find(filter).ToList();
-                    if (find.Count == 0)
+                    foreach (string daata in image.Value)
                     {
-                        list.Add(daata);
-                        BsonDocument document = new BsonDocument { { "hash", CreateMD5(daata) } };
-                        Program.Collection.InsertOne(document);
+                        FilterDefinition<BsonDocument> filter = Builders<BsonDocument>.Filter.Eq("hash", CreateMD5(daata));
+
+                        List<BsonDocument> find = Program.Collection.Find(filter).ToList();
+                        if (find.Count == 0)
+                        {
+                            list.Add(daata);
+                            BsonDocument document = new() { { "hash", CreateMD5(daata) } };
+                            Program.Collection.InsertOne(document);
+                        }
                     }
+                }
+                else
+                {
+                    image.Value.ForEach(data => list.Add(data));
                 }
 
                 foreach (string item in Program.blackList)
@@ -40,7 +47,7 @@ internal class redisImagePush
                     {
                         if (list[i].Contains(item))
                         {
-                            list.Remove(list[i]);
+                            _ = list.Remove(list[i]);
                         }
                     }
                 }
@@ -73,14 +80,14 @@ internal class redisImagePush
                                         Console.Write("{0} Queue in process, Retry after {1}\r", redisList.Count - Settings.restartAfter, TimeSpan.FromMinutes(a));
                                         Thread.Sleep(1000);
                                     }
-                                    GetAllTable();
+                                    _ = GetAllTable();
                                 }
                             }
                         }
                         else
                         {
                             Program.key = $"image_jobs_{parseKey + 1}";
-                            await conn.StringSetAsync(Program.ConfigFile.Config.jobs_last_index, parseKey + 1);
+                            _ = await conn.StringSetAsync(Program.ConfigFile.Config.jobs_last_index, parseKey + 1);
                         }
                     }
 
@@ -90,7 +97,7 @@ internal class redisImagePush
                         for (int i = 0; i < 1_000_000 - conn.SetLength(Program.key); i++)
                         {
                             list2.Add(list[i]);
-                            list.Remove(list[i]);
+                            _ = list.Remove(list[i]);
                         }
 
                         RedisValue[] push2 = Array.ConvertAll(list2.ToArray(), item => (RedisValue)item);
@@ -98,15 +105,21 @@ internal class redisImagePush
                         data = await conn.SetAddAsync(Program.key, push2);
                     }
                     else
+                    {
                         data = await conn.SetAddAsync(Program.key, push);
+                    }
 
                     if (Settings.PrintLog)
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
                         if (image.Key == "DuckDuckGo" || image.Key.Contains("Immerse"))
+                        {
                             Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");
+                        }
                         else
+                        {
                             Console.WriteLine($"{image.Key}:\t\t{data} / {push.Length}");
+                        }
                     }
 
                     totalpushactual += data;
@@ -131,7 +144,7 @@ internal class redisImagePush
                             record = recordtmp;
                             Console.ForegroundColor = ConsoleColor.Cyan;
                             Console.WriteLine($"RECORD:\t\t{record}");
-                            await conn.StringSetAsync(Program.ConfigFile.Config.record_push, $"{Program.Pseudo} {record}");
+                            _ = await conn.StringSetAsync(Program.ConfigFile.Config.record_push, $"{Program.Pseudo} {record}");
                             Console.ResetColor();
                         }
                     }
@@ -153,9 +166,14 @@ internal class redisImagePush
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     if (image.Key == "DuckDuckGo" || image.Key.Contains("Immerse"))
+                    {
                         Console.WriteLine($"{image.Key}\tdown");
+                    }
                     else
+                    {
                         Console.WriteLine($"{image.Key}\t\tdown");
+                    }
+
                     Console.ResetColor();
                     Console.ForegroundColor = ConsoleColor.Green;
                     if (image.Key == image.Key.Last().ToString())
@@ -181,7 +199,7 @@ internal class redisImagePush
                         record = recordtmp;
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine($"RECORD:\t\t{record}");
-                        await conn.StringSetAsync(Program.ConfigFile.Config.record_push, $"{Program.Pseudo} {record}");
+                        _ = await conn.StringSetAsync(Program.ConfigFile.Config.record_push, $"{Program.Pseudo} {record}");
                         Console.ResetColor();
                     }
                 }
@@ -194,16 +212,17 @@ internal class redisImagePush
     #region CreateMD5
     public static string CreateMD5(string input)
     {
-        using (MD5 md5 = MD5.Create())
-        {
-            byte[] inputBytes = Encoding.ASCII.GetBytes(input);
-            byte[] hashBytes = md5.ComputeHash(inputBytes);
+        using MD5 md5 = MD5.Create();
+        byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+        byte[] hashBytes = md5.ComputeHash(inputBytes);
 
-            return Convert.ToHexString(hashBytes);
-        }
+        return Convert.ToHexString(hashBytes);
     }
     #endregion
     #region GetAllTable
-    private static List<RedisKey> GetAllTable() => redisConnection.GetServers.Keys(0, "*image_jobs*").ToList();
+    private static List<RedisKey> GetAllTable()
+    {
+        return redisConnection.GetServers.Keys(0, "*image_jobs*").ToList();
+    }
     #endregion
 }

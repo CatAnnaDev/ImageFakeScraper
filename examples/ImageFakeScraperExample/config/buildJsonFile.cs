@@ -5,12 +5,11 @@ namespace ImageFakeScraperExample.config
     internal class buildJsonFile
     {
         public string ConfigPath { get; set; } = "Config.json";
-        public jsonConfigFile Config { get; set; }
+        public jsonConfigFile? Config { get; set; }
 
         public async Task InitializeAsync()
         {
-            string json = string.Empty;
-
+            string json;
             if (!File.Exists(ConfigPath))
             {
                 json = JsonConvert.SerializeObject(GenerateNewConfig(), Formatting.Indented);
@@ -23,17 +22,20 @@ namespace ImageFakeScraperExample.config
             Config = JsonConvert.DeserializeObject<jsonConfigFile>(json);
         }
 
-        private jsonConfigFile GenerateNewConfig() => new jsonConfigFile
+        private jsonConfigFile GenerateNewConfig()
         {
-            Credential = "Redis Login",
-            Sleep = 0,
-            Pseudo = "Pseudo",
-            domain_blacklist = "domain_blacklist",
-            words_list = "words_list",
-            words_done = "words_done",
-            record_push = "record_push",
-            jobs_last_index = "jobs_last_index",
-            image_jobsPattern = "*image_jobs_*"
-        };
+            return new jsonConfigFile
+            {
+                Credential = "Redis Login",
+                Sleep = 0,
+                Pseudo = "Pseudo",
+                domain_blacklist = "domain_blacklist",
+                words_list = "words_list",
+                words_done = "words_done",
+                record_push = "record_push",
+                jobs_last_index = "jobs_last_index",
+                image_jobsPattern = "*image_jobs_*"
+            };
+        }
     }
 }

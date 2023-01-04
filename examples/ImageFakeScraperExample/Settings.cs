@@ -32,6 +32,7 @@ internal class Settings
     // Redis image push
     public static int stopAfter { get; } = 10;
     public static int restartAfter { get; set; } = 9;
+    public static bool useMongoDB { get; set; } = true;
     public static bool PrintLog { get; set; } = true;
 
     // Main 

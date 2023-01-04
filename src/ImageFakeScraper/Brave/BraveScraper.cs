@@ -5,7 +5,7 @@ public class BraveScraper
 {
     public const string DefaultApiEndpoint = "https://search.brave.com/api/";
 
-    private string _defaultUserAgent = "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36";
+    private readonly string _defaultUserAgent = "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36";
     private static readonly Uri _defaultBaseAddress = new(DefaultApiEndpoint);
 
     private readonly HttpClient _httpClient;
@@ -40,7 +40,7 @@ public class BraveScraper
     }
 
 
-    public async Task<List<string>> GetImagesAsync(string query)
+    public async Task<List<string>?> GetImagesAsync(string query)
     {
         ImageFakeScraperGuards.NotNull(query, nameof(query));
 
