@@ -70,6 +70,7 @@ internal static class Program
         {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Powered by Image Fake Scraper");
             Console.WriteLine("Redis Connected");
             Console.ResetColor();
 
@@ -106,15 +107,9 @@ internal static class Program
 
                 if (qword.Count <= 2)
                 {
-                    RedisValue newword;
-                    await _lock.WaitAsync();
-                    try
-                    {
-                        newword = await redisGetNewTag(conn);
-                    }
-                    finally { _lock.Release(); }
+                    RedisValue newword = await redisGetNewTag(conn);
 
-                    if (!newword.IsNull)
+                    if (!newword.IsNull && Settings.PrintLogMain)
                     {
 
                         qword.Enqueue(newword.ToString());
@@ -137,7 +132,7 @@ internal static class Program
 
                 try
                 {
-                    if (Program.key != null)
+                    if (Program.key != null && Settings.PrintLogMain)
                     {
                         string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
                         long redisDBLength = conn.SetLength(Program.key);

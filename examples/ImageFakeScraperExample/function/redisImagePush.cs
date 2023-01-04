@@ -100,11 +100,14 @@ internal class redisImagePush
                     else
                         data = await conn.SetAddAsync(Program.key, push);
 
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    if (image.Key == "DuckDuckGo" || image.Key.Contains("Immerse"))
-                        Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");
-                    else
-                        Console.WriteLine($"{image.Key}:\t\t{data} / {push.Length}");
+                    if (Settings.PrintLog)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        if (image.Key == "DuckDuckGo" || image.Key.Contains("Immerse"))
+                            Console.WriteLine($"{image.Key}:\t{data} / {push.Length}");
+                        else
+                            Console.WriteLine($"{image.Key}:\t\t{data} / {push.Length}");
+                    }
 
                     totalpushactual += data;
                     if (image.Key == "Pixel")
@@ -151,22 +154,24 @@ internal class redisImagePush
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                if (image.Key == "DuckDuckGo" || image.Key.Contains("Immerse"))
-                    Console.WriteLine($"{image.Key}\tdown");
-                else
-                    Console.WriteLine($"{image.Key}\t\tdown");
-                Console.ResetColor();
-
-                Console.ForegroundColor = ConsoleColor.Green;
-
-                if (image.Key == "Pixel")
+                if (Settings.PrintLog)
                 {
-                    Console.WriteLine($"Total:\t\t{totalpushactual}");
-                    recordtmp = totalpushactual;
-                    totalpushactual = 0;
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    if (image.Key == "DuckDuckGo" || image.Key.Contains("Immerse"))
+                        Console.WriteLine($"{image.Key}\tdown");
+                    else
+                        Console.WriteLine($"{image.Key}\t\tdown");
+                    Console.ResetColor();
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    if (image.Key == "Pixel")
+                    {
+                        Console.WriteLine($"Total:\t\t{totalpushactual}");
+                        recordtmp = totalpushactual;
+                        totalpushactual = 0;
+                    }
+                    Console.ResetColor();
                 }
-                Console.ResetColor();
+                
                 if (recordtmp > record)
                 {
                     record = recordtmp;
