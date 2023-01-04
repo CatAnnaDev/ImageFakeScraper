@@ -14,7 +14,7 @@ public class GoogleScraper
 
     public static string completUrl = DefaultApiEndpoint;
 
-    public static bool gg { get; set; } = true;
+    public static bool Gg { get; set; } = true;
 
     private GoogleImageResultModel[] images;
 
@@ -61,7 +61,7 @@ public class GoogleScraper
         {
             Console.ForegroundColor = ConsoleColor.Red;
             await Console.Out.WriteLineAsync("Google stopped: TooManyRequests (429)");
-            gg = false;
+            Gg = false;
             Console.ResetColor();
         }
 

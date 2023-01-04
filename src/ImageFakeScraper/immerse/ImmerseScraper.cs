@@ -15,7 +15,6 @@ public class ImmerseScraper
     private const string uri = "https://www.immerse.zone/api/immerse/search";
     private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
 
-    [RequiresUnreferencedCode("euh")]
     public async Task<List<string>> GetImagesAsync(string query)
     {
         try
@@ -44,14 +43,14 @@ public class ImmerseScraper
                             {
                                 if (RegexCheck.IsMatch(jsonparsed.data.imageData[j].sourceImageUrl))
                                 {
-                                    if (jsonparsed.data.imageData[j].sourceImageUrl.Contains("images.unsplash.com"))
+                                    if (!jsonparsed.data.imageData[j].sourceImageUrl.Contains("images.unsplash.com"))
                                     {
-                                        string cleanUrl = Regex.Replace(jsonparsed.data.imageData[j].sourceImageUrl, @"[?&][^?&]+=[^?&]+", "");
-                                        tmp.Add(cleanUrl);
+                                        tmp.Add(jsonparsed.data.imageData[j].sourceImageUrl);
                                     }
                                     else
                                     {
-                                        tmp.Add(jsonparsed.data.imageData[j].sourceImageUrl);
+                                        string cleanUrl = Regex.Replace(jsonparsed.data.imageData[j].sourceImageUrl, @"[?&][^?&]+=[^?&]+", "");
+                                        tmp.Add(cleanUrl);
                                     }
                                 }
                             }

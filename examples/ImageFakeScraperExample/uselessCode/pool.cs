@@ -1,6 +1,6 @@
 ﻿namespace ImageFakeScraperExample.uselessCode;
 
-internal class pool
+internal class Pool
 {
     public static void start(int nbThread = 1)
     {
