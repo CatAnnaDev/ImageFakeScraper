@@ -17,7 +17,7 @@ public class OpenVerseScraper
         {
             tmp.Clear();
             NbOfRequest = 0;
-            int page = ImageFakeScraperSettings.OpenVerseMaxPage+1;
+            int page = Settings.OpenVerseMaxPage+1;
             ImageFakeScraperGuards.NotNull(query, nameof(query));
             for (int i = 1; i < page; i++)
             {

@@ -1,6 +1,6 @@
 ﻿namespace ImageFakeScraper;
 
-internal class ImageFakeScraperSettings
+internal class Settings
 {
     // Getty
     public static int GettyMaxPage = 500;
