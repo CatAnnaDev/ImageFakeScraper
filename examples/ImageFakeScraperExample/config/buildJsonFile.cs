@@ -16,7 +16,7 @@ namespace ImageFakeScraperExample.config
                 json = JsonConvert.SerializeObject(GenerateNewConfig(), Formatting.Indented);
                 File.WriteAllText("Config.json", json, new UTF8Encoding(false));
                 Console.WriteLine($"Update config file \n{Directory.GetCurrentDirectory()}\\Config.json");
-                return;
+                await Task.Delay(-1);
             }
 
             json = File.ReadAllText(ConfigPath, new UTF8Encoding(false));

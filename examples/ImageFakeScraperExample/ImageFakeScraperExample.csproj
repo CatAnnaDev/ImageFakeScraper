@@ -21,10 +21,4 @@
     <ProjectReference Include="..\..\src\ImageFakeScraper\ImageFakeScraper.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="words.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
