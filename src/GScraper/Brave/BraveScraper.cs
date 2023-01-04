@@ -1,5 +1,5 @@
 ﻿
-namespace GScraper.Brave;
+namespace ImageFakeScraper.Brave;
 
 public class BraveScraper : IDisposable
 {
@@ -32,8 +32,8 @@ public class BraveScraper : IDisposable
 
     private void Init(HttpClient client, Uri apiEndpoint)
     {
-        GScraperGuards.NotNull(client, nameof(client));
-        GScraperGuards.NotNull(apiEndpoint, nameof(apiEndpoint));
+        ImageFakeScraperGuards.NotNull(client, nameof(client));
+        ImageFakeScraperGuards.NotNull(apiEndpoint, nameof(apiEndpoint));
 
         _httpClient.BaseAddress = apiEndpoint;
 
@@ -43,18 +43,18 @@ public class BraveScraper : IDisposable
 
     public async Task<List<string>> GetImagesAsync(string query)
     {
-        GScraperGuards.NotNull(query, nameof(query));
+        ImageFakeScraperGuards.NotNull(query, nameof(query));
 
         Uri uri = new(BuildImageQuery(query), UriKind.Relative);
 
-        System.IO.Stream stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
+        Stream stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
         try
         {
             tmp.Clear();
-            response = (await System.Text.Json.JsonSerializer.DeserializeAsync(stream, BraveImageSearchResponseContext.Default.BraveImageSearchResponse).ConfigureAwait(false))!;
+            response = (await JsonSerializer.DeserializeAsync(stream, BraveImageSearchResponseContext.Default.BraveImageSearchResponse).ConfigureAwait(false))!;
             if (response != null)
             {
-                foreach (var data in response.Results)
+                foreach (BraveImageResultModel data in response.Results)
                 {
                     tmp.Add(data.Url);
                 }

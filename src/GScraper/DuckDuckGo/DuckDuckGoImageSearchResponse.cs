@@ -1,4 +1,4 @@
-﻿namespace GScraper.DuckDuckGo;
+﻿namespace ImageFakeScraper.DuckDuckGo;
 
 internal class DuckDuckGoImageSearchResponse
 {
@@ -12,4 +12,16 @@ internal sealed class DuckDuckGoImageResultModel : DuckDuckGoImageResult
     public DuckDuckGoImageResultModel(string url) : base(url)
     {
     }
+}
+
+public class DuckDuckGoImageResult : IImageResult
+{
+    internal DuckDuckGoImageResult(string url)
+    {
+        Url = url;
+    }
+    [JsonPropertyName("image")]
+    public string Url { get; }
+
+    public override string ToString() => Url;
 }

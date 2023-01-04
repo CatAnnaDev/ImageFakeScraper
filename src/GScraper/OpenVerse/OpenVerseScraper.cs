@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-namespace GScraper.OpenVerse;
+namespace ImageFakeScraper.OpenVerse;
 
 public class OpenVerseScraper
 {
@@ -18,11 +18,11 @@ public class OpenVerseScraper
             tmp.Clear();
             NbOfRequest = 0;
             int page = 2;
-            GScraperGuards.NotNull(query, nameof(query));
-            for (int i =1; i< page; i++)
+            ImageFakeScraperGuards.NotNull(query, nameof(query));
+            for (int i = 1; i < page; i++)
             {
                 string[] args = new string[] { query, i.ToString() };
-                var jsonGet = await httpRequest.GetJson(uri, args);
+                string jsonGet = await httpRequest.GetJson(uri, args);
                 Root jsonparsed = JsonConvert.DeserializeObject<Root>(jsonGet);
                 if (jsonparsed != null)
                 {
@@ -41,7 +41,7 @@ public class OpenVerseScraper
                 NbOfRequest++;
             }
 
-      }
+        }
         catch { }
         return tmp;
     }

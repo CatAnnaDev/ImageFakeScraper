@@ -1,4 +1,4 @@
-﻿namespace GScraper.immerse;
+﻿namespace ImageFakeScraper.immerse;
 
 public class Data
 {

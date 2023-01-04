@@ -1,10 +1,10 @@
-﻿namespace GScraper.Bing;
+﻿namespace ImageFakeScraper.Bing;
 
 
-public class BingScraper
+public class BinImageFakeScraper
 {
 
-    public BingScraper()
+    public BinImageFakeScraper()
     {
 
     }
@@ -28,9 +28,9 @@ public class BingScraper
         try
         {
             tmp.Clear();
-            GScraperGuards.NotNull(query, nameof(query));
-            string[] args = new string[] { query};
-            var doc = await httpRequest.Get(uri, args);
+            ImageFakeScraperGuards.NotNull(query, nameof(query));
+            string[] args = new string[] { query };
+            HtmlDocument doc = await httpRequest.Get(uri, args);
             IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !String.IsNullOrEmpty(s));
 
             //HtmlNodeCollection tag = doc.DocumentNode.SelectNodes("//div[@class='suggestion-title-wrapper']");
@@ -58,7 +58,7 @@ public class BingScraper
                     if (!cleanUrl.EndsWith("th") && !data.Contains("th?id="))
                         tmp.Add(cleanUrl);
                 }
-            }           
+            }
         }
         catch (Exception e) { Console.WriteLine(e); }
         return tmp;

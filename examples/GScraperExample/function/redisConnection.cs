@@ -1,5 +1,4 @@
-﻿
-namespace GScraperExample.function;
+﻿namespace ImageFakeScraperExample.function;
 
 internal class redisConnection
 {

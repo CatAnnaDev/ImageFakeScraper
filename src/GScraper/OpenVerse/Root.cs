@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace GScraper.OpenVerse;
+﻿namespace ImageFakeScraper.OpenVerse;
 
 public class Result
 {

@@ -1,6 +1,6 @@
-﻿namespace GScraper;
+﻿namespace ImageFakeScraper;
 
-internal static class GScraperGuards
+internal static class ImageFakeScraperGuards
 {
     public static void NotNull<T>(T? obj, string parameterName) where T : class
     {

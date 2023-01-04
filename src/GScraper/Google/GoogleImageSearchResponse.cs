@@ -1,4 +1,4 @@
-﻿namespace GScraper.Google;
+﻿namespace ImageFakeScraper.Google;
 
 internal class GoogleImageSearchResponse
 {
@@ -33,4 +33,15 @@ internal class GoogleOriginalImage
 
     [JsonPropertyName("url")]
     public string Url { get; set; } = null!;
+}
+
+public class GoogleImageResult : IImageResult
+{
+    internal GoogleImageResult(GoogleOriginalImage originalImage)
+    {
+        Url = originalImage.Url;
+    }
+
+    public string Url { get; }
+    public override string ToString() => Url;
 }

@@ -1,4 +1,4 @@
-﻿namespace GScraperExample.uselessCode
+﻿namespace ImageFakeScraperExample.uselessCode
 {
     internal class pool
     {
@@ -35,7 +35,7 @@
             }));
         }
 
-        
+
 
         private static void ShowThreadInformation(string taskName)
         {

@@ -1,4 +1,4 @@
-﻿namespace GScraper;
+﻿namespace ImageFakeScraper;
 
 public interface IImageResult
 {

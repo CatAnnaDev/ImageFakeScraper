@@ -1,4 +1,4 @@
-﻿namespace GScraperExample.function;
+﻿namespace ImageFakeScraperExample.function;
 
 public class cacheURL
 {
@@ -33,13 +33,13 @@ internal class redisImagePush
 
                 foreach (string daata in image.Value)
                 {
-                    var filter = Builders<BsonDocument>.Filter.Eq("hash", CreateMD5(daata));
+                    FilterDefinition<BsonDocument> filter = Builders<BsonDocument>.Filter.Eq("hash", CreateMD5(daata));
 
-                    var find = Program.Collection.Find(filter).ToList();
+                    List<BsonDocument> find = Program.Collection.Find(filter).ToList();
                     if (find.Count == 0)
                     {
                         list.Add(daata);
-                        var document = new BsonDocument { { "hash", CreateMD5(daata) } };
+                        BsonDocument document = new BsonDocument { { "hash", CreateMD5(daata) } };
                         Program.Collection.InsertOne(document);
                     }
                 }

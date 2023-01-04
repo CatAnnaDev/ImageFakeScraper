@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace GScraper.Pixel;
+namespace ImageFakeScraper.Pixel;
 
 public class AdditionalData
 {

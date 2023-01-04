@@ -5,18 +5,18 @@
     <Version>1.1.0</Version>
     <LangVersion>10</LangVersion>
     <Nullable>enable</Nullable>
-    <Authors>d4n3436</Authors>
+    <Authors>PsykoDev</Authors>
     <NeutralLanguage>en</NeutralLanguage>
-    <RepositoryUrl>https://github.com/d4n3436/GScraper</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/d4n3436/GScraper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/PsykoDev/GScraper</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/PsykoDev/GScraper</PackageProjectUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	<IsTrimmable>true</IsTrimmable>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <PackageTags>gscraper;scraping;web-scraping;google;google-images;duckduckgo;brave</PackageTags>
     <Description>A collection of search engine image scrapers (Google Images, DuckDuckGo and Brave).</Description>
-    <PackageReleaseNotes>https://github.com/d4n3436/GScraper/releases</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/PsykoDev/GScraper/releases</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net7.0'">

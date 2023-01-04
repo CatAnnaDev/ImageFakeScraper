@@ -1,5 +1,5 @@
 ﻿
-namespace GScraper.DuckDuckGo;
+namespace ImageFakeScraper.DuckDuckGo;
 
 // fix duckduck ? ( en vrai balek ) 
 public class DuckDuckGoScraper : IDisposable
@@ -40,8 +40,8 @@ public class DuckDuckGoScraper : IDisposable
 
     private void Init(HttpClient client, Uri apiEndpoint)
     {
-        GScraperGuards.NotNull(client, nameof(client));
-        GScraperGuards.NotNull(apiEndpoint, nameof(apiEndpoint));
+        ImageFakeScraperGuards.NotNull(client, nameof(client));
+        ImageFakeScraperGuards.NotNull(apiEndpoint, nameof(apiEndpoint));
 
         _httpClient.BaseAddress = apiEndpoint;
 
@@ -52,8 +52,8 @@ public class DuckDuckGoScraper : IDisposable
 
     public async Task<List<string>?> GetImagesAsync(string query)
     {
-        GScraperGuards.NotNull(query, nameof(query));
-        GScraperGuards.ArgumentInRange(query.Length, MaxQueryLength, nameof(query), $"The query cannot be larger than {MaxQueryLength}.");
+        ImageFakeScraperGuards.NotNull(query, nameof(query));
+        ImageFakeScraperGuards.ArgumentInRange(query.Length, MaxQueryLength, nameof(query), $"The query cannot be larger than {MaxQueryLength}.");
 
         string token = await GetTokenAsync(query).ConfigureAwait(false);
         Uri uri = new(BuildImageQuery(token, query), UriKind.Relative);
@@ -65,7 +65,7 @@ public class DuckDuckGoScraper : IDisposable
             response = (await System.Text.Json.JsonSerializer.DeserializeAsync(stream, DuckDuckGoImageSearchResponseContext.Default.DuckDuckGoImageSearchResponse).ConfigureAwait(false))!;
             if (response != null)
             {
-                foreach (var data in response.Results)
+                foreach (DuckDuckGoImageResultModel data in response.Results)
                 {
                     tmp.Add(data.Url);
                 }
@@ -97,14 +97,14 @@ public class DuckDuckGoScraper : IDisposable
 
         if (startIndex == -1)
         {
-            throw new GScraperException("Failed to get the DuckDuckGo token.", "DuckDuckGo");
+            throw new ImageFakeScraperException("Failed to get the DuckDuckGo token.", "DuckDuckGo");
         }
 
         ReadOnlySpan<byte> sliced = rawHtml[(startIndex + TokenStart.Length)..];
         int endIndex = sliced.IndexOf((byte)'\'');
 
         return endIndex == -1
-            ? throw new GScraperException("Failed to get the DuckDuckGo token.", "DuckDuckGo")
+            ? throw new ImageFakeScraperException("Failed to get the DuckDuckGo token.", "DuckDuckGo")
             : Encoding.UTF8.GetString(sliced[..endIndex].ToArray());
     }
 

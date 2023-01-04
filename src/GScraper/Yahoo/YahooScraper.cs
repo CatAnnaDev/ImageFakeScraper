@@ -1,4 +1,4 @@
-﻿namespace GScraper.Yahoo;
+﻿namespace ImageFakeScraper.Yahoo;
 public class YahooScraper
 {
 
@@ -16,9 +16,9 @@ public class YahooScraper
         try
         {
             tmp.Clear();
-            GScraperGuards.NotNull(query, nameof(query));
+            ImageFakeScraperGuards.NotNull(query, nameof(query));
             string[] args = new string[] { query };
-            var doc = await httpRequest.Get(uri, args);
+            HtmlDocument doc = await httpRequest.Get(uri, args);
             IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("data-src", null)).Where(s => !String.IsNullOrEmpty(s));
 
             foreach (string? data in urls)

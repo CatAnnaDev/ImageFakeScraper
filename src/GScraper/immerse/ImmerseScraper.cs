@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-namespace GScraper.immerse;
+﻿namespace ImageFakeScraper.immerse;
 
 
 public class ImmerseScraper
@@ -20,15 +19,15 @@ public class ImmerseScraper
             tmp.Clear();
             for (int i = 1; i < 2; i++)
             {
-                GScraperGuards.NotNull(query, nameof(query));
-                var json = new JsonCreatePush
+                ImageFakeScraperGuards.NotNull(query, nameof(query));
+                JsonCreatePush json = new JsonCreatePush
                 {
                     searchText = query,
                     pageNum = i
                 };
 
                 string jsonString = System.Text.Json.JsonSerializer.Serialize(json);
-                var doc = await httpRequest.PostJson(uri, jsonString);
+                string doc = await httpRequest.PostJson(uri, jsonString);
                 Root jsonparsed = Newtonsoft.Json.JsonConvert.DeserializeObject<Root>(doc);
 
                 if (jsonparsed != null)

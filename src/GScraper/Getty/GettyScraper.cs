@@ -1,4 +1,4 @@
-﻿namespace GScraper.Getty;
+﻿namespace ImageFakeScraper.Getty;
 
 public class GettyScraper
 {
@@ -22,11 +22,11 @@ public class GettyScraper
         {
             tmp.Clear();
             NbOfRequest = 0;
-            GScraperGuards.NotNull(query, nameof(query));
+            ImageFakeScraperGuards.NotNull(query, nameof(query));
             for (int i = 1; i < 500; i++)
             {
-                object[] args = new object[] {query, query, i.ToString()};
-                var doc = await httpRequest.Get(uri, args);
+                object[] args = new object[] { query, query, i.ToString() };
+                HtmlDocument doc = await httpRequest.Get(uri, args);
                 IEnumerable<string> urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !String.IsNullOrEmpty(s));
 
                 if (urls.Count() == 0)
@@ -42,7 +42,7 @@ public class GettyScraper
                 NbOfRequest++;
             }
         }
-        catch (Exception e) { Console.WriteLine(e);}
+        catch (Exception e) { Console.WriteLine(e); }
         return tmp;
     }
 }

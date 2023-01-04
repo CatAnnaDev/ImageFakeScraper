@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-namespace GScraper.Pixel;
+namespace ImageFakeScraper.Pixel;
 
 public class PixelScraper
 {
@@ -18,13 +18,13 @@ public class PixelScraper
         {
             tmp.Clear();
             NbOfRequest = 0;
-            GScraperGuards.NotNull(query, nameof(query));
+            ImageFakeScraperGuards.NotNull(query, nameof(query));
 
 
             for (int i = 1; i < 500; i++)
             {
                 string[] args = new string[] { query, i.ToString() };
-                var jsonGet = await httpRequest.GetJson(uri, args);
+                string jsonGet = await httpRequest.GetJson(uri, args);
                 Root jsonparsed = JsonConvert.DeserializeObject<Root>(jsonGet);
                 if (jsonparsed != null)
                 {

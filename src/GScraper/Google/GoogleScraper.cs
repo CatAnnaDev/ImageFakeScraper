@@ -1,4 +1,4 @@
-﻿namespace GScraper.Google;
+﻿namespace ImageFakeScraper.Google;
 
 public class GoogleScraper : IDisposable
 {
@@ -39,8 +39,8 @@ public class GoogleScraper : IDisposable
 
     private void Init(HttpClient client, Uri apiEndpoint)
     {
-        GScraperGuards.NotNull(client, nameof(client));
-        GScraperGuards.NotNull(apiEndpoint, nameof(apiEndpoint));
+        ImageFakeScraperGuards.NotNull(client, nameof(client));
+        ImageFakeScraperGuards.NotNull(apiEndpoint, nameof(apiEndpoint));
 
         _httpClient.BaseAddress = apiEndpoint;
 
@@ -52,9 +52,9 @@ public class GoogleScraper : IDisposable
 
     public async Task<List<string>> GetImagesAsync(string query)
     {
-        GScraperGuards.NotNull(query, nameof(query));
+        ImageFakeScraperGuards.NotNull(query, nameof(query));
 
-        var uri = new Uri(BuildImageQuery(query), UriKind.Relative);
+        Uri uri = new Uri(BuildImageQuery(query), UriKind.Relative);
         completUrl += uri;
 
         HttpResponseMessage resp = await _httpClient.GetAsync(uri);
@@ -74,7 +74,7 @@ public class GoogleScraper : IDisposable
             images = JsonSerializer.Deserialize(bytes.AsSpan(5, bytes.Length - 5), GoogleImageSearchResponseContext.Default.GoogleImageSearchResponse)!.Ischj.Metadata;
             if (images != null)
             {
-                foreach (var data in images)
+                foreach (GoogleImageResultModel data in images)
                 {
                     tmp.Add(data.Url);
                 }
@@ -106,4 +106,9 @@ public class GoogleScraper : IDisposable
 
         _disposed = true;
     }
+}
+
+[JsonSerializable(typeof(GoogleImageSearchResponse))]
+internal partial class GoogleImageSearchResponseContext : JsonSerializerContext
+{
 }

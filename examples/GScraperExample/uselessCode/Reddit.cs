@@ -1,4 +1,4 @@
-﻿namespace GScraperExample.uselessCode;
+﻿namespace ImageFakeScraperExample.uselessCode;
 
 internal static class Reddit
 {

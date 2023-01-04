@@ -1,6 +1,6 @@
-﻿namespace GScraper;
+﻿namespace ImageFakeScraper;
 
-internal static class GScraperExtensions
+internal static class ImageFakeScraperExtensions
 {
     public static JsonElement Last(in this JsonElement element)
     {

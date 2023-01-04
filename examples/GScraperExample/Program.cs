@@ -1,4 +1,6 @@
-﻿namespace GScraperExample;
+﻿using ImageFakeScraperExample.function;
+
+namespace ImageFakeScraperExample;
 
 internal static class Program
 {
@@ -32,10 +34,10 @@ internal static class Program
     private static async Task Main(string[] args)
     {
 
-        var dbList = dbClient.GetDatabase("local");
+        IMongoDatabase dbList = dbClient.GetDatabase("local");
         Collection = dbList.GetCollection<BsonDocument>("cache");
 
-        await EnsureIndexExists(dbList, "cache", "hash");
+        await dbList.EnsureIndexExists("cache", "hash");
 
         passArgs = args;
         random = new Random();
@@ -59,8 +61,8 @@ internal static class Program
         conn = redis.GetDatabase();
         //write("mot random en cas de besoin", redis);
 
-        var bl = await conn.ListRangeAsync("domain_blacklist");
-        foreach (var item in bl)
+        RedisValue[] bl = await conn.ListRangeAsync("domain_blacklist");
+        foreach (RedisValue item in bl)
         {
             blackList.Add(item.ToString());
         }
@@ -202,13 +204,13 @@ internal static class Program
 
     private static async Task EnsureIndexExists(this IMongoDatabase database, string collectionName, string indexName)
     {
-        var collection = database.GetCollection<BsonDocument>(collectionName);
-        var index = new BsonDocument
+        IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>(collectionName);
+        BsonDocument index = new BsonDocument
             {
                 {indexName, 1}
             };
 
-        var indexModel = new CreateIndexModel<BsonDocument>(index, new CreateIndexOptions { Unique = true });
+        CreateIndexModel<BsonDocument> indexModel = new CreateIndexModel<BsonDocument>(index, new CreateIndexOptions { Unique = true });
         await collection.Indexes.CreateOneAsync(indexModel).ConfigureAwait(false);
     }
 
@@ -240,7 +242,7 @@ internal static class Program
     {
         lock (ConsoleWriterLock)
         {
-            var line = string.Concat(Enumerable.Repeat("=", Console.WindowWidth));
+            string line = string.Concat(Enumerable.Repeat("=", Console.WindowWidth));
             Console.WriteLine(line);
             Console.WriteLine(text);
             Console.WriteLine(line);
@@ -285,7 +287,7 @@ internal static class Program
         if (value < 0) { return "-" + SizeSuffix(-value, decimalPlaces); }
         if (value == 0) { return string.Format("{0:n" + decimalPlaces + "} bytes", 0); }
         int mag = (int)Math.Log(value, 1024);
-        decimal adjustedSize = (decimal)value / (1L << (mag * 10));
+        decimal adjustedSize = (decimal)value / (1L << mag * 10);
         if (Math.Round(adjustedSize, decimalPlaces) >= 1000)
         { mag += 1; adjustedSize /= 1024; }
         return string.Format("{0:n" + decimalPlaces + "} {1}",

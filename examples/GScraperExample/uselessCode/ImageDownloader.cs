@@ -1,5 +1,4 @@
-﻿
-namespace GScraperExample.uselessCode
+﻿namespace ImageFakeScraperExample.uselessCode
 {
     public class ImageDownloader
     {
