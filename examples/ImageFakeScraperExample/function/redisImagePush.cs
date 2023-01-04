@@ -10,7 +10,7 @@ internal class redisImagePush
     private static List<string> list2 = new();
     #endregion
     #region getAllImage
-    public static async Task<long> GetAllImageAndPush(IDatabase conn, Dictionary<string, List<string>> site, string[] args)
+    public static async Task<long> GetAllImageAndPush(IDatabase conn, Dictionary<string, List<string>> site)
     {
         long data = 0;
         long totalpushactual = 0;
@@ -48,10 +48,10 @@ internal class redisImagePush
                 RedisValue[] push = Array.ConvertAll(list.ToArray(), item => (RedisValue)item);
                 try
                 {
-                    Uri opts = new(args[0]);
+                    Uri opts = new(Program.Credential);
                     List<RedisKey> redisList = GetAllTable();
 
-                    RedisValue nextIndex = await conn.StringGetAsync("jobs_last_index");
+                    RedisValue nextIndex = await conn.StringGetAsync(Program.ConfigFile.Config.jobs_last_index);
                     int parseKey = int.Parse(nextIndex.ToString());
                     Program.key = $"image_jobs_{parseKey}";
 
@@ -80,7 +80,7 @@ internal class redisImagePush
                         else
                         {
                             Program.key = $"image_jobs_{parseKey + 1}";
-                            await conn.StringSetAsync("jobs_last_index", parseKey + 1);
+                            await conn.StringSetAsync(Program.ConfigFile.Config.jobs_last_index, parseKey + 1);
                         }
                     }
 
@@ -110,7 +110,7 @@ internal class redisImagePush
                     }
 
                     totalpushactual += data;
-                    if (image.Key == "Pixel")
+                    if (image.Key == image.Key.Last().ToString())
                     {
                         Console.WriteLine($"Total:\t\t{totalpushactual}");
                         recordtmp = totalpushactual;
@@ -126,12 +126,12 @@ internal class redisImagePush
                     }
                     try
                     {
-                        if (recordtmp > int.Parse(conn.StringGet("record_push").ToString().Split(" ").Last()))
+                        if (recordtmp > int.Parse(conn.StringGet(Program.ConfigFile.Config.record_push).ToString().Split(" ").Last()))
                         {
                             record = recordtmp;
                             Console.ForegroundColor = ConsoleColor.Cyan;
                             Console.WriteLine($"RECORD:\t\t{record}");
-                            await conn.StringSetAsync("record_push", $"{args[2]} {record}");
+                            await conn.StringSetAsync(Program.ConfigFile.Config.record_push, $"{Program.Pseudo} {record}");
                             Console.ResetColor();
                         }
                     }
@@ -158,7 +158,7 @@ internal class redisImagePush
                         Console.WriteLine($"{image.Key}\t\tdown");
                     Console.ResetColor();
                     Console.ForegroundColor = ConsoleColor.Green;
-                    if (image.Key == "Pixel")
+                    if (image.Key == image.Key.Last().ToString())
                     {
                         Console.WriteLine($"Total:\t\t{totalpushactual}");
                         recordtmp = totalpushactual;
@@ -176,12 +176,12 @@ internal class redisImagePush
                 }
                 try
                 {
-                    if (recordtmp > int.Parse(conn.StringGet("record_push").ToString().Split(" ").Last()))
+                    if (recordtmp > int.Parse(conn.StringGet(Program.ConfigFile.Config.record_push).ToString().Split(" ").Last()))
                     {
                         record = recordtmp;
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine($"RECORD:\t\t{record}");
-                        await conn.StringSetAsync("record_push", $"{args[2]} {record}");
+                        await conn.StringSetAsync(Program.ConfigFile.Config.record_push, $"{Program.Pseudo} {record}");
                         Console.ResetColor();
                     }
                 }

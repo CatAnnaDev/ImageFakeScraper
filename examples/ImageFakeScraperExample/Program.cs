@@ -1,4 +1,6 @@
-﻿namespace ImageFakeScraperExample;
+﻿using ImageFakeScraperExample.config;
+
+namespace ImageFakeScraperExample;
 
 internal static class Program
 {
@@ -14,6 +16,13 @@ internal static class Program
     public static List<string> blackList = new List<string>();
     private static MongoClient dbClient = new MongoClient("mongodb://localhost:27017/");
     public static IMongoCollection<BsonDocument>? Collection;
+    public static buildJsonFile ConfigFile;
+
+    // Config File
+    public static string Credential = "";
+    private static double waittime = 0;
+    public static string Pseudo = "";
+
     //Thread Pool
     //public static Queue mySyncdQ;
     private static List<Task> tasks = new();
@@ -21,39 +30,49 @@ internal static class Program
     private static Stopwatch timer = new();
     private static Stopwatch uptime = new();
     private static string text = "";
-    private static double waittime = 0;
+    
     private static IDatabase conn;
-    private static string[] passArgs;
     private static Random random;
     private static readonly SemaphoreSlim _lock = new SemaphoreSlim(initialCount: 1, maxCount: 1);
     #endregion
     #region Start
     private static async Task Main(string[] args)
     {
+        ConfigFile = new();
+        await InitializeGlobalDataAsync();
+
+        Credential = ConfigFile.Config.Credential;
+        waittime = ConfigFile.Config.Sleep;
+        Pseudo = ConfigFile.Config.Pseudo;
+
+        if(Credential == "Redis Login")
+        {
+            Console.WriteLine($"Update config file \n{Directory.GetCurrentDirectory()}\\Config.json");
+            return;
+        }
 
         IMongoDatabase dbList = dbClient.GetDatabase("local");
         Collection = dbList.GetCollection<BsonDocument>("cache");
 
         await dbList.EnsureIndexExists("cache", "hash");
 
-        passArgs = args;
         random = new Random();
         qword = new();
 
         AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
 
-        string credential = args[0];
-        redisConnector = new(credential, 5000);
+        
+        redisConnector = new(Credential, 5000);
         redis = redisConnection.redisConnect();
         conn = redis.GetDatabase();
 
-        RedisValue[] bl = await conn.ListRangeAsync("domain_blacklist");
+        RedisValue[] bl = await conn.ListRangeAsync(ConfigFile.Config.domain_blacklist);
         foreach (RedisValue item in bl)
         {
             blackList.Add(item.ToString());
         }
 
-        waittime = args.Length > 0.1 ? double.Parse(args[1]) : 0;
+        
 
         if (redis.IsConnected)
         {
@@ -64,7 +83,7 @@ internal static class Program
             Console.ResetColor();
 
 
-            RedisKey key = new("words_list");
+            RedisKey key = new(ConfigFile.Config.words_list);
             long rng = await conn.ListLengthAsync(key);
             random = new Random();
             RedisValue getredisValue = await conn.ListGetByIndexAsync(key, random.Next(0, (int)rng - 1));
@@ -81,7 +100,7 @@ internal static class Program
                 uptime.Start();
 
                 site = await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
-                await redisImagePush.GetAllImageAndPush(conn, site, passArgs);
+                await redisImagePush.GetAllImageAndPush(conn, site);
 
                 if (Settings.GetNewTagGoogle)
                 {
@@ -128,7 +147,7 @@ internal static class Program
                         long redisDBLength = conn.SetLength(Program.key);
                         string redisLength = $"{redisDBLength} / {1_000_000} ({100.0 * redisDBLength / 1_000_000:0.00}%)";
                         double elapsed = TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds;
-                        RedisKey key_done = new("words_done");
+
 
                         printData(
                                 $"Uptime\t\t{uptimeFormated}\n" +
@@ -137,14 +156,14 @@ internal static class Program
                                 $"Memory\t\t{SizeSuffix(usedMemory)}\n" +
                                 $"Previous\t{text}\n" +
                                 $"NbRequest\t{searchEngineRequest.NbOfRequest}\n" +
-                                $"BlackLisst\t{blackList.Count}\n" +
+                                $"BlackList\t{blackList.Count}\n" +
                                 $"Tags\t\t{qword.Count}\n" +
-                                $"Tag done\t{conn.ListLengthAsync(key_done).Result}\n" +
-                                $"Tag remaining\t{conn.ListLengthAsync("words_list").Result}\n" +
+                                $"Tag done\t{conn.ListLengthAsync(ConfigFile.Config.words_done).Result}\n" +
+                                $"Tag remaining\t{conn.ListLengthAsync(ConfigFile.Config.words_list).Result}\n" +
                                 $"{Program.key}\t{redisLength}\n" +
                                 $"Total upload\t{totalimageupload}\n" +
                                 $"Record\t\t{redisImagePush.record}\n" +
-                                $"Record Glb:\t{conn.StringGet("record_push")}");
+                                $"Record Glb:\t{conn.StringGet(ConfigFile.Config.record_push)}");
                     }
                 }
                 catch (Exception e)
@@ -193,7 +212,7 @@ internal static class Program
     {
         try
         {
-            return await redis.ListLeftPopAsync("words_list");
+            return await redis.ListLeftPopAsync(ConfigFile.Config.words_list);
         }
         catch { return RedisValue.Null; }
     }
@@ -204,7 +223,7 @@ internal static class Program
         try
         {
             RedisValue value = new(text);
-            RedisKey key = new("words_done");
+            RedisKey key = new(ConfigFile.Config.words_done);
             await redis.ListLeftPushAsync(key, value);
         }
         catch { }
@@ -246,4 +265,9 @@ internal static class Program
         }
     }
     #endregion
+
+    private static async Task InitializeGlobalDataAsync()
+    {
+        await ConfigFile.InitializeAsync();
+    }
 }
