@@ -2,7 +2,7 @@
 namespace ImageFakeScraper.DuckDuckGo;
 
 // fix duckduck ? ( en vrai balek ) 
-public class DuckDuckGoScraper : IDisposable
+public class DuckDuckGoScraper
 {
     public const string DefaultApiEndpoint = "https://duckduckgo.com";
 
@@ -16,8 +16,6 @@ public class DuckDuckGoScraper : IDisposable
 
     private readonly HttpClient _httpClient;
     private readonly List<string> tmp = new();
-
-    private bool _disposed;
 
     private DuckDuckGoImageSearchResponse response;
 
@@ -106,27 +104,6 @@ public class DuckDuckGoScraper : IDisposable
         return endIndex == -1
             ? throw new ImageFakeScraperException("Failed to get the DuckDuckGo token.", "DuckDuckGo")
             : Encoding.UTF8.GetString(sliced[..endIndex].ToArray());
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        if (disposing)
-        {
-            _httpClient.Dispose();
-        }
-
-        _disposed = true;
     }
 }
 

@@ -30,7 +30,7 @@ internal static class Program
     private static Stopwatch timer = new();
     private static Stopwatch uptime = new();
     private static string text = "";
-    
+
     private static IDatabase conn;
     private static Random random;
     private static readonly SemaphoreSlim _lock = new SemaphoreSlim(initialCount: 1, maxCount: 1);
@@ -45,7 +45,7 @@ internal static class Program
         waittime = ConfigFile.Config.Sleep;
         Pseudo = ConfigFile.Config.Pseudo;
 
-        if(Credential == "Redis Login")
+        if (Credential == "Redis Login")
         {
             Console.WriteLine($"Update config file \n{Directory.GetCurrentDirectory()}\\Config.json");
             return;
@@ -61,7 +61,7 @@ internal static class Program
 
         AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
 
-        
+
         redisConnector = new(Credential, 5000);
         redis = redisConnection.redisConnect();
         conn = redis.GetDatabase();
@@ -72,7 +72,7 @@ internal static class Program
             blackList.Add(item.ToString());
         }
 
-        
+
 
         if (redis.IsConnected)
         {

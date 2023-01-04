@@ -9,7 +9,7 @@ namespace ImageFakeScraperExample.config
 
         public async Task InitializeAsync()
         {
-            var json = string.Empty;
+            string json = string.Empty;
 
             if (!File.Exists(ConfigPath))
             {

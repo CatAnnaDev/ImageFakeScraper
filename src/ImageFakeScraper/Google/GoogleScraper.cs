@@ -1,6 +1,6 @@
 ﻿namespace ImageFakeScraper.Google;
 
-public class GoogleScraper : IDisposable
+public class GoogleScraper
 {
 
     public const string DefaultApiEndpoint = "https://www.google.com/search";
@@ -11,7 +11,6 @@ public class GoogleScraper : IDisposable
 
     private readonly HttpClient _httpClient;
     private readonly List<string> tmp = new();
-    private bool _disposed;
 
     public static string completUrl = DefaultApiEndpoint;
 
@@ -90,21 +89,6 @@ public class GoogleScraper : IDisposable
         string url = $"?q={Uri.EscapeDataString(query)}&tbm=isch&asearch=isch&async=_fmt:json,p:2&tbs=&safe=off";
 
         return url;
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (_disposed) return;
-        if (disposing)
-            _httpClient.Dispose();
-
-        _disposed = true;
     }
 }
 

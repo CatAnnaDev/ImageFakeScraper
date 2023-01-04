@@ -1,7 +1,7 @@
 ﻿
 namespace ImageFakeScraper.Brave;
 
-public class BraveScraper : IDisposable
+public class BraveScraper
 {
     public const string DefaultApiEndpoint = "https://search.brave.com/api/";
 
@@ -10,7 +10,6 @@ public class BraveScraper : IDisposable
 
     private readonly HttpClient _httpClient;
     private readonly List<string> tmp = new();
-    private bool _disposed;
 
     private BraveImageSearchResponse response;
 
@@ -69,27 +68,6 @@ public class BraveScraper : IDisposable
     {
         string url = $"images?q={Uri.EscapeDataString(query)}&safesearch=Off&size=All&_type=All&layout=All&color=All&license=All&source=web";
         return url;
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        if (disposing)
-        {
-            _httpClient.Dispose();
-        }
-
-        _disposed = true;
     }
 }
 
