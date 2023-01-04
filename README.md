@@ -1,4 +1,4 @@
-# GScraper
+# ImageFakeScraper
 
 A collection of search engine image scrapers (Google Images, DuckDuckGo and Brave) in C#.
 
