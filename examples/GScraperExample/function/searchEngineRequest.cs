@@ -1,6 +1,4 @@
-﻿using GScraper.OpenVerse;
-
-namespace GScraperExample.function;
+﻿namespace GScraperExample.function;
 
 public class searchEngineRequest
 {

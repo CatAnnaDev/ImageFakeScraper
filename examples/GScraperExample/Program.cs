@@ -1,8 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
-using System.Collections.Generic;
-
-namespace GScraperExample;
+﻿namespace GScraperExample;
 
 internal static class Program
 {

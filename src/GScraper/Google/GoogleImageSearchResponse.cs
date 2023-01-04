@@ -1,8 +1,4 @@
-﻿using System.Diagnostics;
-using System.Drawing;
-using System.Text.Json.Serialization;
-
-namespace GScraper.Google;
+﻿namespace GScraper.Google;
 
 internal class GoogleImageSearchResponse
 {

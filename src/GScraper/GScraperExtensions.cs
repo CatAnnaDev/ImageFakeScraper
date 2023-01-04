@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace GScraper;
+﻿namespace GScraper;
 
 internal static class GScraperExtensions
 {

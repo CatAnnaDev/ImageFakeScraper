@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GScraper;
+﻿namespace GScraper;
 
 internal static class GScraperGuards
 {

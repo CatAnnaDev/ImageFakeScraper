@@ -1,85 +1,72 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
-using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using Newtonsoft.Json;
+namespace GScraper.immerse;
 
-namespace GScraper.immerse
+
+public class ImmerseScraper
 {
 
-    public class ImmerseScraper
+    public ImmerseScraper()
     {
 
-        public ImmerseScraper()
+    }
+
+    private List<string> tmp = new();
+    private const string uri = "https://www.immerse.zone/api/immerse/search";
+    private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
+    public async Task<List<string>> GetImagesAsync(string query)
+    {
+        try
         {
-
-        }
-
-        private List<string> tmp = new();
-        private const string uri = "https://www.immerse.zone/api/immerse/search";
-        private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
-
-        /// <summary>
-        /// GetImagesAsync for Yahoo
-        /// </summary>
-        /// <param name="query">string param</param>
-        /// <returns></returns>
-        public async Task<List<string>> GetImagesAsync(string query)
-        {
-            try
+            tmp.Clear();
+            for (int i = 1; i < 2; i++)
             {
-                tmp.Clear();
-                for (int i = 1; i < 2; i++)
+                GScraperGuards.NotNull(query, nameof(query));
+                var json = new JsonCreatePush
                 {
-                    GScraperGuards.NotNull(query, nameof(query));
-                    var json = new JsonCreatePush
-                    {
-                        searchText = query,
-                        pageNum = i
-                    };
+                    searchText = query,
+                    pageNum = i
+                };
 
-                    string jsonString = JsonSerializer.Serialize(json);
-                    var doc = await httpRequest.PostJson(uri, jsonString);
-                    Root jsonparsed = Newtonsoft.Json.JsonConvert.DeserializeObject<Root>(doc);
+                string jsonString = System.Text.Json.JsonSerializer.Serialize(json);
+                var doc = await httpRequest.PostJson(uri, jsonString);
+                Root jsonparsed = Newtonsoft.Json.JsonConvert.DeserializeObject<Root>(doc);
 
-                    if (jsonparsed != null)
+                if (jsonparsed != null)
+                {
+                    if (jsonparsed.data != null)
                     {
-                        if (jsonparsed.data != null)
+                        if (jsonparsed.data.imageData != null)
                         {
-                            if (jsonparsed.data.imageData != null)
+                            for (int j = 0; j < jsonparsed.data.imageData.Count; j++)
                             {
-                                for (int j = 0; j < jsonparsed.data.imageData.Count; j++)
+                                if (RegexCheck.IsMatch(jsonparsed.data.imageData[j].sourceImageUrl))
                                 {
-                                    if (RegexCheck.IsMatch(jsonparsed.data.imageData[j].sourceImageUrl))
+                                    if (jsonparsed.data.imageData[j].sourceImageUrl.Contains("images.unsplash.com"))
                                     {
-                                        if (jsonparsed.data.imageData[j].sourceImageUrl.Contains("images.unsplash.com"))
-                                        {
-                                            string cleanUrl = Regex.Replace(jsonparsed.data.imageData[j].sourceImageUrl, @"[?&][^?&]+=[^?&]+", "");
-                                            tmp.Add(cleanUrl);
-                                        }
-                                        else
-                                            tmp.Add(jsonparsed.data.imageData[j].sourceImageUrl);
+                                        string cleanUrl = Regex.Replace(jsonparsed.data.imageData[j].sourceImageUrl, @"[?&][^?&]+=[^?&]+", "");
+                                        tmp.Add(cleanUrl);
                                     }
+                                    else
+                                        tmp.Add(jsonparsed.data.imageData[j].sourceImageUrl);
                                 }
                             }
                         }
                     }
-
-                    Console.WriteLine($"cycle {i} = {tmp.Count}");
                 }
-            }
-            catch (Exception e) { }
-            return tmp;
-        }
-    }
 
-    public class JsonCreatePush
-    {
-        public string searchText { get; set; }
-        public string imageUrl { get; set; } = "";
-        public int? pageNum { get; set; } = 1;
-        public int? pageSize { get; set; } = 1000;
-        public string searchType { get; set; } = "image";
+                Console.WriteLine($"cycle {i} = {tmp.Count}");
+            }
+        }
+        catch (Exception e) { }
+        return tmp;
     }
+}
+
+public class JsonCreatePush
+{
+    public string searchText { get; set; }
+    public string imageUrl { get; set; } = "";
+    public int? pageNum { get; set; } = 1;
+    public int? pageSize { get; set; } = 1000;
+    public string searchType { get; set; } = "image";
 }

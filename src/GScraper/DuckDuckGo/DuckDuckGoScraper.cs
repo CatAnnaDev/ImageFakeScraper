@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-
+﻿
 namespace GScraper.DuckDuckGo;
 
 // fix duckduck ? ( en vrai balek ) 
@@ -18,7 +10,7 @@ public class DuckDuckGoScraper : IDisposable
 
     private static ReadOnlySpan<byte> TokenStart => new[] { (byte)'v', (byte)'q', (byte)'d', (byte)'=', (byte)'\'' };
 
-    private readonly string _defaultUserAgent = GScraperRandomUa.RandomUserAgent;
+    private string _defaultUserAgent = "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36";
 
     private static readonly Uri _defaultBaseAddress = new(DefaultApiEndpoint);
 
@@ -53,11 +45,7 @@ public class DuckDuckGoScraper : IDisposable
 
         _httpClient.BaseAddress = apiEndpoint;
 
-        try
-        {
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_defaultUserAgent);
-        }
-        catch { _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36"); }
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_defaultUserAgent);
 
         _httpClient.DefaultRequestHeaders.Referrer ??= _httpClient.BaseAddress;
     }
@@ -74,7 +62,7 @@ public class DuckDuckGoScraper : IDisposable
         try
         {
             tmp.Clear();
-            response = (await JsonSerializer.DeserializeAsync(stream, DuckDuckGoImageSearchResponseContext.Default.DuckDuckGoImageSearchResponse).ConfigureAwait(false))!;
+            response = (await System.Text.Json.JsonSerializer.DeserializeAsync(stream, DuckDuckGoImageSearchResponseContext.Default.DuckDuckGoImageSearchResponse).ConfigureAwait(false))!;
             if (response != null)
             {
                 foreach (var data in response.Results)

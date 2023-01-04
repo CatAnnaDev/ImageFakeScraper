@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace GScraper.DuckDuckGo;
+﻿namespace GScraper.DuckDuckGo;
 
 internal class DuckDuckGoImageSearchResponse
 {

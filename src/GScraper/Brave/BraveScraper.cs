@@ -1,25 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-
+﻿
 namespace GScraper.Brave;
 
-// TODO: Add support for cancellation tokens and regular search method
-
-/// <summary>
-/// Represents a Brave Search scraper.
-/// </summary>
 public class BraveScraper : IDisposable
 {
-    /// <summary>
-    /// Returns the default API endpoint.
-    /// </summary>
     public const string DefaultApiEndpoint = "https://search.brave.com/api/";
 
-    private readonly string _defaultUserAgent = GScraperRandomUa.RandomUserAgent;
+    private string _defaultUserAgent = "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36";
     private static readonly Uri _defaultBaseAddress = new(DefaultApiEndpoint);
 
     private readonly HttpClient _httpClient;
@@ -51,11 +37,7 @@ public class BraveScraper : IDisposable
 
         _httpClient.BaseAddress = apiEndpoint;
 
-        try
-        {
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_defaultUserAgent);
-        }
-        catch { _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36"); }
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_defaultUserAgent);
     }
 
 
@@ -69,7 +51,7 @@ public class BraveScraper : IDisposable
         try
         {
             tmp.Clear();
-            response = (await JsonSerializer.DeserializeAsync(stream, BraveImageSearchResponseContext.Default.BraveImageSearchResponse).ConfigureAwait(false))!;
+            response = (await System.Text.Json.JsonSerializer.DeserializeAsync(stream, BraveImageSearchResponseContext.Default.BraveImageSearchResponse).ConfigureAwait(false))!;
             if (response != null)
             {
                 foreach (var data in response.Results)
@@ -89,14 +71,12 @@ public class BraveScraper : IDisposable
         return url;
     }
 
-    /// <inheritdoc />
     public void Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
 
-    /// <inheritdoc cref="Dispose()"/>
     protected virtual void Dispose(bool disposing)
     {
         if (_disposed)

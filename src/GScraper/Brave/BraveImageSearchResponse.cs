@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Drawing;
-using System.Text.Json.Serialization;
+﻿
 
 namespace GScraper.Brave;
 
@@ -13,14 +10,14 @@ internal class BraveImageSearchResponse
 
 internal class BraveImageResultModel : BraveImageResult
 {
-    [JsonConstructor]
+    [System.Text.Json.Serialization.JsonConstructor]
     public BraveImageResultModel(BraveImageProperties properties)
         : base(properties)
     {
         Properties = null!;
     }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     [JsonPropertyName("properties")]
     public BraveImageProperties Properties { get; }

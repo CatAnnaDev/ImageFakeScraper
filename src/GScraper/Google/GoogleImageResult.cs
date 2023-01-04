@@ -1,9 +1,4 @@
-﻿using GScraper.Google;
-using System.Diagnostics;
-using System.Drawing;
-using System.Text.Json.Serialization;
-
-namespace GScraper; // TODO: Fix namespace
+﻿namespace GScraper;
 
 public class GoogleImageResult : IImageResult
 {

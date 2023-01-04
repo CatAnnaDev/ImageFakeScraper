@@ -1,10 +1,4 @@
-﻿using Microsoft.AspNetCore.DataProtection.KeyManagement;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using System.Security.Cryptography;
-using System.Text;
-
-namespace GScraperExample.function;
+﻿namespace GScraperExample.function;
 
 public class cacheURL
 {
@@ -15,7 +9,6 @@ public class cacheURL
 internal class redisImagePush
 {
     #region Var
-    private static readonly bool printLog = false;
     public static long recordtmp { get; private set; } = 0;
     public static long record { get; private set; } = 0;
 

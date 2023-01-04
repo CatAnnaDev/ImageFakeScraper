@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text.Json.Serialization;
-
-namespace GScraper.DuckDuckGo;
+﻿namespace GScraper.DuckDuckGo;
 
 
 [DebuggerDisplay("Title: {Title}, Url: {Url}")]
