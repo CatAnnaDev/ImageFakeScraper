@@ -34,7 +34,7 @@ internal class Settings
     // Redis image push
     public static int stopAfter { get; } = 11;
     public static int restartAfter { get; set; } = 10;
-    public static bool PrintLog { get; set; } = false;
+    public static bool PrintLog { get; set; } = true;
 
     // Main 
     public static bool PrintLogMain { get; set; } = true;
