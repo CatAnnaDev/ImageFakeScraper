@@ -7,8 +7,8 @@
     <Nullable>enable</Nullable>
     <Authors>PsykoDev</Authors>
     <NeutralLanguage>en</NeutralLanguage>
-    <RepositoryUrl>https://github.com/PsykoDev/GScraper</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/PsykoDev/GScraper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/PsykoDev/ImageFakeScraper</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/PsykoDev/ImageFakeScraper</PackageProjectUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	<IsTrimmable>true</IsTrimmable>
@@ -16,7 +16,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <PackageTags>gscraper;scraping;web-scraping;google;google-images;duckduckgo;brave</PackageTags>
     <Description>A collection of search engine image scrapers (Google Images, DuckDuckGo and Brave).</Description>
-    <PackageReleaseNotes>https://github.com/PsykoDev/GScraper/releases</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/PsykoDev/ImageFakeScraper/releases</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net7.0'">
