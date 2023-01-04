@@ -1,6 +1,4 @@
-﻿using ImageFakeScraperExample.function;
-
-namespace ImageFakeScraperExample;
+﻿namespace ImageFakeScraperExample;
 
 internal static class Program
 {

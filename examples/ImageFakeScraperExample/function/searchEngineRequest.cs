@@ -3,38 +3,38 @@
 public class searchEngineRequest
 {
     #region Var
-    private static readonly List<string> googleResult = new();
+    private static List<string> googleResult = new();
     private static readonly GoogleScraper scraper = new();
 
-    private static readonly List<string> ducResult = new();
+    private static List<string> ducResult = new();
     private static readonly DuckDuckGoScraper duck = new();
     private static bool ddc = true;
 
-    private static readonly List<string> BraveResult = new();
+    private static List<string> BraveResult = new();
     private static readonly BraveScraper brave = new();
     private static bool brv = false;
 
-    private static readonly List<string> OpenResult = new();
+    private static List<string> OpenResult = new();
     private static readonly OpenVerseScraper open = new();
     private static bool ov = false;
 
-    private static readonly List<string> BingResult = new();
+    private static List<string> BingResult = new();
     private static readonly BinImageFakeScraper bingg = new();
     private static bool bing = false;
 
-    private static readonly List<string> YahooResult = new();
+    private static List<string> YahooResult = new();
     private static readonly YahooScraper yahooo = new();
     private static bool yahoo = false;
 
-    private static readonly List<string> GettyResult = new();
+    private static List<string> GettyResult = new();
     private static readonly GettyScraper Gettyy = new();
     private static bool getty = false;
 
-    private static readonly List<string> EveryResult = new();
+    private static List<string> EveryResult = new();
     private static readonly PixelScraper pixell = new();
     private static bool every = false;
 
-    private static readonly List<string> immerseResult = new();
+    private static List<string> immerseResult = new();
     private static readonly ImmerseScraper immerse = new();
     private static bool imme = false;
 
@@ -53,9 +53,7 @@ public class searchEngineRequest
             googleResult.Clear();
             try
             {
-                List<string> google = await scraper.GetImagesAsync(text);
-                if (google.Count > 0)
-                    google.ForEach(image => { googleResult.Add(image); });
+                googleResult = await scraper.GetImagesAsync(text);
             }
             catch { }
             NbOfRequest++;
@@ -69,9 +67,7 @@ public class searchEngineRequest
             ducResult.Clear();
             try
             {
-                List<string>? duckduck = await duck.GetImagesAsync(text);
-                if (duckduck.Count > 0)
-                    duckduck.ForEach(image => { ducResult.Add(image); });
+                ducResult = await duck.GetImagesAsync(text);
             }
             catch { }
             NbOfRequest++;
@@ -85,9 +81,7 @@ public class searchEngineRequest
             BraveResult.Clear();
             try
             {
-                List<string> bravelist = await brave.GetImagesAsync(text);
-                if (bravelist.Count > 0)
-                    bravelist.ForEach(image => { BraveResult.Add(image); });
+                BraveResult = await brave.GetImagesAsync(text);
             }
             catch { }
             NbOfRequest++;
@@ -100,9 +94,7 @@ public class searchEngineRequest
             OpenResult.Clear();
             try
             {
-                List<string> openresult = await open.GtImagesAsync(text);
-                if (openresult.Count > 0)
-                    openresult.ForEach(image => { OpenResult.Add(image); });
+                OpenResult = await open.GtImagesAsync(text);
             }
             catch { }
             NbOfRequest += open.NbOfRequest;
@@ -115,9 +107,7 @@ public class searchEngineRequest
             BingResult.Clear();
             try
             {
-                List<string> bingResult = await bingg.GetImagesAsync(text);
-                if (bingResult.Count > 0)
-                    bingResult.ForEach(image => { BingResult.Add(image); });
+                BingResult = await bingg.GetImagesAsync(text);
             }
             catch { }
             NbOfRequest++;
@@ -131,9 +121,7 @@ public class searchEngineRequest
             YahooResult.Clear();
             try
             {
-                List<string> yahooResult = await yahooo.GetImagesAsync(text);
-                if (yahooResult.Count > 0)
-                    yahooResult.ForEach(image => { YahooResult.Add(image); });
+                YahooResult = await yahooo.GetImagesAsync(text);
             }
             catch { }
             NbOfRequest++;
@@ -146,9 +134,7 @@ public class searchEngineRequest
             GettyResult.Clear();
             try
             {
-                List<string> gettyResult = await Gettyy.GetImagesAsync(text);
-                if (gettyResult.Count > 0)
-                    gettyResult.ForEach(image => { GettyResult.Add(image); });
+                GettyResult = await Gettyy.GetImagesAsync(text);
             }
             catch { }
             NbOfRequest += Gettyy.NbOfRequest;
@@ -160,9 +146,7 @@ public class searchEngineRequest
             immerseResult.Clear();
             try
             {
-                List<string> gettyResult = await immerse.GetImagesAsync(text);
-                if (gettyResult.Count > 0)
-                    gettyResult.ForEach(image => { immerseResult.Add(image); });
+                immerseResult = await immerse.GetImagesAsync(text);
             }
             catch { }
             NbOfRequest++;
@@ -174,9 +158,7 @@ public class searchEngineRequest
             EveryResult.Clear();
             try
             {
-                List<string> pixelResult = await pixell.GetImagesAsync(text);
-                if (pixelResult.Count > 0)
-                    pixelResult.ForEach(image => { EveryResult.Add(image); });
+                EveryResult = await pixell.GetImagesAsync(text);
             }
             catch { }
             NbOfRequest += pixell.NbOfRequest;

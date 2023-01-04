@@ -9,6 +9,7 @@ global using ImageFakeScraper.immerse;
 global using ImageFakeScraper.OpenVerse;
 global using ImageFakeScraper.Pixel;
 global using ImageFakeScraper.Yahoo;
+global using ImageFakeScraperExample.function;
 global using MongoDB.Bson;
 global using MongoDB.Driver;
 global using Prometheus;
