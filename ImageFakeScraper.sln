@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30717.126
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GScraper", "src\GScraper\GScraper.csproj", "{C01D3947-77B4-4E3E-80DF-4FD57C5667B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageFakeScraper", "src\GScraper\ImageFakeScraper.csproj", "{C01D3947-77B4-4E3E-80DF-4FD57C5667B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GScraperExample", "examples\GScraperExample\GScraperExample.csproj", "{6C387D01-59DF-4DE6-A791-6FDB14F13495}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageFakeScraperExample", "examples\GScraperExample\ImageFakeScraperExample.csproj", "{6C387D01-59DF-4DE6-A791-6FDB14F13495}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
