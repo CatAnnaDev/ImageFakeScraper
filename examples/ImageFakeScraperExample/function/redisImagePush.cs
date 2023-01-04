@@ -171,7 +171,7 @@ internal class redisImagePush
                     }
                     Console.ResetColor();
                 }
-                
+
                 if (recordtmp > record)
                 {
                     record = recordtmp;

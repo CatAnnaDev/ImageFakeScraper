@@ -17,7 +17,7 @@ public class ImmerseScraper
         try
         {
             tmp.Clear();
-            for (int i = 1; i < Settings.ImmerseMaxPage+1; i++)
+            for (int i = 1; i < Settings.ImmerseMaxPage + 1; i++)
             {
                 ImageFakeScraperGuards.NotNull(query, nameof(query));
                 JsonCreatePush json = new JsonCreatePush
