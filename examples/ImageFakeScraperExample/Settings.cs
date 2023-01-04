@@ -4,7 +4,6 @@ internal class Settings
 {
     // Google
     public static bool GoogleRun { get; set; } = true;
-    public static bool GoogleGetNewTag { get; set; } = false;
 
     // DuckduckGO
     public static bool DuckduckGORun { get; set; } = true;
@@ -17,7 +16,6 @@ internal class Settings
 
     // Bing
     public static bool BingRun { get; set; } = true;
-    public static bool BingGetNewTag { get; set; } = false;
 
     // Yahoo
     public static bool YahooRun { get; set; } = true;
@@ -38,5 +36,8 @@ internal class Settings
 
     // Main 
     public static bool PrintLogMain { get; set; } = true;
+    public static bool GetNewTagGoogle { get; set; } = false;
+    public static bool GetNewTagBing { get; set; } = false;
+
 
 }

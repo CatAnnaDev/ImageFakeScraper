@@ -39,24 +39,13 @@ internal static class Program
         passArgs = args;
         random = new Random();
         qword = new();
-        //mySyncdQ = Queue.Synchronized(qword);
 
         AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
-
-
-        //string[] readText = File.ReadAllText("google_twunter_lol.txt").Split("\n");
-        //
-        //random.Shuffle(readText);
-        //foreach (string s in readText)
-        //{
-        //    qword.Enqueue(s);
-        //}
 
         string credential = args[0];
         redisConnector = new(credential, 5000);
         redis = redisConnection.redisConnect();
         conn = redis.GetDatabase();
-        //write("mot random en cas de besoin", redis);
 
         RedisValue[] bl = await conn.ListRangeAsync("domain_blacklist");
         foreach (RedisValue item in bl)
@@ -94,13 +83,14 @@ internal static class Program
                 site = await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
                 await redisImagePush.GetAllImageAndPush(conn, site, passArgs);
 
-                //Queue<string> callQword = await searchEngineRequest.getAllNextTag(text, conn);
-                //
-                //while (callQword.Count != 0)
-                //{
-                //    qword.Enqueue(callQword.Dequeue()); // euh
-                //}
-
+                if (Settings.GetNewTag)
+                {
+                    Queue<string> callQword = await searchEngineRequest.getAllNextTag(text, conn);
+                    while (callQword.Count != 0)
+                    {
+                        qword.Enqueue(callQword.Dequeue());
+                    }
+                }
 
                 site.Clear();
 
