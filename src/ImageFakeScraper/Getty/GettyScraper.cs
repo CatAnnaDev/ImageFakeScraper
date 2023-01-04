@@ -23,7 +23,7 @@ public class GettyScraper
             tmp.Clear();
             NbOfRequest = 0;
             ImageFakeScraperGuards.NotNull(query, nameof(query));
-            for (int i = 1; i < 500; i++)
+            for (int i = 1; i < ImageFakeScraperSettings.GettyMaxPage+1; i++)
             {
                 object[] args = new object[] { query, query, i.ToString() };
                 HtmlDocument doc = await httpRequest.Get(uri, args);

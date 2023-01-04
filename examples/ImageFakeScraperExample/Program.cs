@@ -212,29 +212,6 @@ internal static class Program
         await collection.Indexes.CreateOneAsync(indexModel).ConfigureAwait(false);
     }
 
-    public static void Worker()
-    {
-        tasks.Add(Task.Run(async () =>
-        {
-
-        }));
-    }
-
-
-    private static void ShowThreadInformation(string taskName)
-    {
-        string? msg = null;
-        Thread thread = Thread.CurrentThread;
-        lock (lockObj)
-        {
-            msg = string.Format("{0} thread information\n", taskName) +
-                  string.Format("   Background: {0}\n", thread.IsBackground) +
-                  string.Format("   Thread Pool: {0}\n", thread.IsThreadPoolThread) +
-                  string.Format("   Thread ID: {0}\n", thread.ManagedThreadId);
-        }
-        Console.WriteLine(msg);
-    }
-
     #region printData
     private static void printData(string text)
     {

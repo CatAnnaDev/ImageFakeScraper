@@ -8,35 +8,27 @@ public class searchEngineRequest
 
     private static List<string> ducResult = new();
     private static readonly DuckDuckGoScraper duck = new();
-    private static bool ddc = true;
 
     private static List<string> BraveResult = new();
     private static readonly BraveScraper brave = new();
-    private static bool brv = false;
 
     private static List<string> OpenResult = new();
     private static readonly OpenVerseScraper open = new();
-    private static bool ov = false;
 
     private static List<string> BingResult = new();
     private static readonly BinImageFakeScraper bingg = new();
-    private static bool bing = false;
 
     private static List<string> YahooResult = new();
     private static readonly YahooScraper yahooo = new();
-    private static bool yahoo = false;
 
     private static List<string> GettyResult = new();
     private static readonly GettyScraper Gettyy = new();
-    private static bool getty = false;
 
     private static List<string> EveryResult = new();
     private static readonly PixelScraper pixell = new();
-    private static bool every = false;
 
     private static List<string> immerseResult = new();
     private static readonly ImmerseScraper immerse = new();
-    private static bool imme = false;
 
     private static readonly Dictionary<string, List<string>> returnLink = new();
 
@@ -48,7 +40,7 @@ public class searchEngineRequest
     {
         returnLink.Clear();
         #region Google
-        if (GoogleScraper.gg)
+        if (Settings.GoogleRun)
         {
             googleResult.Clear();
             try
@@ -62,7 +54,7 @@ public class searchEngineRequest
         }
         #endregion
         #region DuckduckGO
-        if (ddc)
+        if (Settings.DuckduckGORun)
         {
             ducResult.Clear();
             try
@@ -76,7 +68,7 @@ public class searchEngineRequest
         }
         #endregion
         #region Brave
-        if (brv)
+        if (Settings.BraveRun)
         {
             BraveResult.Clear();
             try
@@ -89,7 +81,7 @@ public class searchEngineRequest
         }
         #endregion
         #region OpenVerse
-        if (ov)
+        if (Settings.OpenVerseRun)
         {
             OpenResult.Clear();
             try
@@ -102,7 +94,7 @@ public class searchEngineRequest
         }
         #endregion
         #region Bing
-        if (bing)
+        if (Settings.BingRun)
         {
             BingResult.Clear();
             try
@@ -116,7 +108,7 @@ public class searchEngineRequest
         }
         #endregion
         #region Yahoo
-        if (yahoo)
+        if (Settings.YahooRun)
         {
             YahooResult.Clear();
             try
@@ -129,7 +121,7 @@ public class searchEngineRequest
         }
         #endregion
         #region GettyImage
-        if (getty)
+        if (Settings.GettyImageRun)
         {
             GettyResult.Clear();
             try
@@ -141,7 +133,7 @@ public class searchEngineRequest
             returnLink.Add("Getty", GettyResult);
         }
         #endregion
-        if (imme)
+        if (Settings.ImmerseRun)
         {
             immerseResult.Clear();
             try
@@ -153,7 +145,7 @@ public class searchEngineRequest
             returnLink.Add("Immerse", immerseResult);
         }
         #region EveryPixel
-        if (every)
+        if (Settings.EveryPixelRun)
         {
             EveryResult.Clear();
             try

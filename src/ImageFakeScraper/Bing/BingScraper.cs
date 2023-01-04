@@ -18,11 +18,6 @@ public class BinImageFakeScraper
     // Regex.Match(url, @"^(?:https?://)?(?:[^@/\n]+@)?(?:www.)?([^:/?\n]+)").Groups[1].Value
 
 
-    /// <summary>
-    /// GetImagesAsync for Bing
-    /// </summary>
-    /// <param name="query">string param</param>
-    /// <returns></returns>
     public async Task<List<string>> GetImagesAsync(string query)
     {
         try
@@ -33,8 +28,8 @@ public class BinImageFakeScraper
             HtmlDocument doc = await httpRequest.Get(uri, args);
             IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !String.IsNullOrEmpty(s));
 
-            //HtmlNodeCollection tag = doc.DocumentNode.SelectNodes("//div[@class='suggestion-title-wrapper']");
-            //
+            HtmlNodeCollection tag = doc.DocumentNode.SelectNodes("//div[@class='suggestion-title-wrapper']");
+            
             //if (tag != null)
             //{
             //    foreach (HtmlNode? item in tag)

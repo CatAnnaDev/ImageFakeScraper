@@ -21,7 +21,7 @@ public class PixelScraper
             ImageFakeScraperGuards.NotNull(query, nameof(query));
 
 
-            for (int i = 1; i < 500; i++)
+            for (int i = 1; i < ImageFakeScraperSettings.EveryPixelMaxPage+1; i++)
             {
                 string[] args = new string[] { query, i.ToString() };
                 string jsonGet = await httpRequest.GetJson(uri, args);
