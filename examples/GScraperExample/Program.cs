@@ -73,7 +73,7 @@ internal static class Program
 
         if (redis.IsConnected)
         {
-
+            Console.Clear();
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Redis Connected");
             Console.ResetColor();

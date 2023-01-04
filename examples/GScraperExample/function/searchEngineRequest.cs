@@ -10,7 +10,7 @@ public class searchEngineRequest
 
     private static readonly List<string> ducResult = new();
     private static readonly DuckDuckGoScraper duck = new();
-    private static bool ddc = false;
+    private static bool ddc = true;
 
     private static readonly List<string> BraveResult = new();
     private static readonly BraveScraper brave = new();
@@ -18,27 +18,27 @@ public class searchEngineRequest
 
     private static readonly List<string> OpenResult = new();
     private static readonly OpenVerseScraper open = new();
-    private static bool ov = true;
+    private static bool ov = false;
 
     private static readonly List<string> BingResult = new();
     private static readonly BingScraper bingg = new();
-    private static bool bing = true;
+    private static bool bing = false;
 
     private static readonly List<string> YahooResult = new();
     private static readonly YahooScraper yahooo = new();
-    private static bool yahoo = true;
+    private static bool yahoo = false;
 
     private static readonly List<string> GettyResult = new();
     private static readonly GettyScraper Gettyy = new();
-    private static bool getty = true;
+    private static bool getty = false;
 
     private static readonly List<string> EveryResult = new();
     private static readonly PixelScraper pixell = new();
-    private static bool every = true;
+    private static bool every = false;
 
     private static readonly List<string> immerseResult = new();
     private static readonly ImmerseScraper immerse = new();
-    private static bool imme = true;
+    private static bool imme = false;
 
     private static readonly Dictionary<string, List<string>> returnLink = new();
 

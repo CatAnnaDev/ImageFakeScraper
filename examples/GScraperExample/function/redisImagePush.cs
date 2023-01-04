@@ -1,6 +1,8 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace GScraperExample.function;
 
@@ -19,6 +21,9 @@ internal class redisImagePush
 
     private static int stopAfter { get; } = 11;
     private static int restartAfter { get; set; } = 10;
+
+    private static List<string> list = new();
+    private static List<string> list2 = new();
     #endregion
 
     #region getAllImage
@@ -30,9 +35,8 @@ internal class redisImagePush
         {
             if (image.Value != null)
             {
-
-                List<string> list = new();
-                List<string> list2 = new();
+                list.Clear();
+                list2.Clear();
 
                 foreach (string daata in image.Value)
                 {
@@ -49,15 +53,12 @@ internal class redisImagePush
 
                 foreach (string item in Program.blackList)
                 {
-
-
                     for (int i = 0; i < list.Count; i++)
                     {
                         if (list[i].Contains(item))
                         {
                             list.Remove(list[i]);
                         }
-
                     }
                 }
 
@@ -71,7 +72,7 @@ internal class redisImagePush
                     int parseKey = int.Parse(nextIndex.ToString());
                     Program.key = $"image_jobs_{parseKey}";
 
-                    if (conn.SetLength(Program.key) >= 1_000_000)
+                    if (conn.SetLength(Program.key) >= 1_000_000 || redisList.Count >= stopAfter)
                     {
                         if (redisList.Count >= stopAfter)
                         {
@@ -93,9 +94,11 @@ internal class redisImagePush
                                 }
                             }
                         }
-
-                        Program.key = $"image_jobs_{parseKey + 1}";
-                        await conn.StringSetAsync("jobs_last_index", parseKey + 1);
+                        else
+                        {
+                            Program.key = $"image_jobs_{parseKey + 1}";
+                            await conn.StringSetAsync("jobs_last_index", parseKey + 1);
+                        }
                     }
 
                     if (image.Value.Count >= 1_000_000 - conn.SetLength(Program.key))
@@ -210,12 +213,11 @@ internal class redisImagePush
     {
         using (MD5 md5 = MD5.Create())
         {
-            byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+            byte[] inputBytes = Encoding.ASCII.GetBytes(input);
             byte[] hashBytes = md5.ComputeHash(inputBytes);
 
             return Convert.ToHexString(hashBytes);
         }
     }
-
     private static List<RedisKey> GetAllTable() => redisConnection.GetServers.Keys(0, "*image_jobs*").ToList();
 }

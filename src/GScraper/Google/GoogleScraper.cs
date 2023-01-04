@@ -78,29 +78,12 @@ public class GoogleScraper : IDisposable
         }
     }
 
-    /// <summary>
-    /// Gets images from Google Images.
-    /// </summary>
-    /// <remarks>This method returns at most 100 image results.</remarks>
-    /// <param name="query">The search query.</param>
-    /// <param name="safeSearch">The safe search level.</param>
-    /// <param name="size">The image size.</param>
-    /// <param name="color">The image color. <see cref="GoogleImageColors"/> contains the colors that can be used here.</param>
-    /// <param name="type">The image type.</param>
-    /// <param name="time">The image time.</param>
-    /// <param name="license">The image license. <see cref="GoogleImageLicenses"/> contains the licenses that can be used here.</param>
-    /// <param name="language">The language code to use. <see cref="GoogleLanguages"/> contains the language codes that can be used here.</param>
-    /// <returns>A task representing the asynchronous operation. The result contains an <see cref="IEnumerable{T}"/> of <see cref="GScraper.GoogleImageResult"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="query"/> is null or empty.</exception>
-    /// <exception cref="GScraperException">An error occurred during the scraping process.</exception>
-    public async Task<List<string>> GetImagesAsync(string query, SafeSearchLevel safeSearch = SafeSearchLevel.Off, GoogleImageSize size = GoogleImageSize.Any,
-        string? color = null, GoogleImageType type = GoogleImageType.Any, GoogleImageTime time = GoogleImageTime.Any,
-        string? license = null, string? language = null)
+    public async Task<List<string>> GetImagesAsync(string query)
     {
         // TODO: Use pagination
         GScraperGuards.NotNull(query, nameof(query));
 
-        var uri = new Uri(BuildImageQuery(query, safeSearch, size, color, type, time, license, language), UriKind.Relative);
+        var uri = new Uri(BuildImageQuery(query), UriKind.Relative);
         completUrl += uri;
 
         HttpResponseMessage resp = await _httpClient.GetAsync(uri);
@@ -131,25 +114,9 @@ public class GoogleScraper : IDisposable
         return tmp;
     }
 
-    private static string BuildImageQuery(string query, SafeSearchLevel safeSearch, GoogleImageSize size, string? color,
-        GoogleImageType type, GoogleImageTime time, string? license, string? language)
+    private static string BuildImageQuery(string query)
     {
-        string url = $"?q={Uri.EscapeDataString(query)}&tbm=isch&asearch=isch&async=_fmt:json,p:2&tbs=";
-
-        url += size == GoogleImageSize.Any ? ',' : $"isz:{(char)size},";
-        url += string.IsNullOrEmpty(color) ? ',' : $"ic:{color},";
-        url += type == GoogleImageType.Any ? ',' : $"itp:{type.ToString().ToLowerInvariant()},";
-        url += time == GoogleImageTime.Any ? ',' : $"qdr:{(char)time},";
-        url += string.IsNullOrEmpty(license) ? "" : $"il:{license}";
-
-        url += "&safe=" + safeSearch switch
-        {
-            SafeSearchLevel.Off => "off",
-            _ => "active"
-        };
-
-        if (!string.IsNullOrEmpty(language))
-            url += $"&lr=lang_{language}&hl={language}";
+        string url = $"?q={Uri.EscapeDataString(query)}&tbm=isch&asearch=isch&async=_fmt:json,p:2&tbs=&safe=off";
 
         return url;
     }

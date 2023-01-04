@@ -4,25 +4,16 @@ using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace GScraper.DuckDuckGo;
 
-// TODO: Add support for cancellation tokens and regular search method
-
-/// <summary>
-/// Represents a DuckDuckGo scraper.
-/// </summary>
+// fix duckduck ? ( en vrai balek ) 
 public class DuckDuckGoScraper : IDisposable
 {
-    /// <summary>
-    /// Returns the default API endpoint.
-    /// </summary>
     public const string DefaultApiEndpoint = "https://duckduckgo.com";
 
-    /// <summary>
-    /// Returns the maximum query length.
-    /// </summary>
     public const int MaxQueryLength = 500;
 
     private static ReadOnlySpan<byte> TokenStart => new[] { (byte)'v', (byte)'q', (byte)'d', (byte)'=', (byte)'\'' };
@@ -38,25 +29,16 @@ public class DuckDuckGoScraper : IDisposable
 
     private DuckDuckGoImageSearchResponse response;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DuckDuckGoScraper"/> class.
-    /// </summary>
     public DuckDuckGoScraper() : this(new HttpClient())
     {
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DuckDuckGoScraper"/> class using the provided <see cref="HttpClient"/>.
-    /// </summary>
     public DuckDuckGoScraper(HttpClient client)
     {
         _httpClient = client;
         Init(_httpClient, _defaultBaseAddress);
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DuckDuckGoScraper"/> class using the provided <see cref="HttpClient"/> and API endpoint.
-    /// </summary>
     [Obsolete("This constructor is deprecated and it will be removed in a future version. Use DuckDuckGoScraper(HttpClient) instead.")]
     public DuckDuckGoScraper(HttpClient client, string apiEndpoint)
     {
@@ -70,7 +52,6 @@ public class DuckDuckGoScraper : IDisposable
         GScraperGuards.NotNull(apiEndpoint, nameof(apiEndpoint));
 
         _httpClient.BaseAddress = apiEndpoint;
-        //_httpClient.Timeout = TimeSpan.FromSeconds(5);
 
         try
         {
@@ -81,34 +62,13 @@ public class DuckDuckGoScraper : IDisposable
         _httpClient.DefaultRequestHeaders.Referrer ??= _httpClient.BaseAddress;
     }
 
-    /// <summary>
-    /// Gets images from DuckDuckGo.
-    /// </summary>
-    /// <remarks>This method returns at most 100 image results.</remarks>
-    /// <param name="query">The search query.</param>
-    /// <param name="safeSearch">The safe search level.</param>
-    /// <param name="time">The image time.</param>
-    /// <param name="size">The image size.</param>
-    /// <param name="color">The image color.</param>
-    /// <param name="type">The image type.</param>
-    /// <param name="layout">The image layout.</param>
-    /// <param name="license">The image license.</param>
-    /// <param name="region">The region. <see cref="DuckDuckGoRegions"/> contains the regions that can be used here.</param>
-    /// <returns>A task representing the asynchronous operation. The result contains an <see cref="IEnumerable{T}"/> of <see cref="DuckDuckGoImageResult"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="query"/> is null or empty.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="query"/> is larger than <see cref="MaxQueryLength"/>.</exception>
-    /// <exception cref="GScraperException">An error occurred during the scraping process.</exception>
-    public async Task<List<string>?> GetImagesAsync(string query, SafeSearchLevel safeSearch = SafeSearchLevel.Off,
-        DuckDuckGoImageTime time = DuckDuckGoImageTime.Any, DuckDuckGoImageSize size = DuckDuckGoImageSize.All, DuckDuckGoImageColor color = DuckDuckGoImageColor.All,
-        DuckDuckGoImageType type = DuckDuckGoImageType.All, DuckDuckGoImageLayout layout = DuckDuckGoImageLayout.All, DuckDuckGoImageLicense license = DuckDuckGoImageLicense.All,
-        string region = DuckDuckGoRegions.UsEnglish)
+    public async Task<List<string>?> GetImagesAsync(string query)
     {
         GScraperGuards.NotNull(query, nameof(query));
-        GScraperGuards.NotNullOrEmpty(region, nameof(region));
         GScraperGuards.ArgumentInRange(query.Length, MaxQueryLength, nameof(query), $"The query cannot be larger than {MaxQueryLength}.");
 
         string token = await GetTokenAsync(query).ConfigureAwait(false);
-        Uri uri = new(BuildImageQuery(token, query, safeSearch, time, size, color, type, layout, license, region), UriKind.Relative);
+        Uri uri = new(BuildImageQuery(token, query), UriKind.Relative);
 
         Stream stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
         try
@@ -127,23 +87,9 @@ public class DuckDuckGoScraper : IDisposable
         return tmp;
     }
 
-    private static string BuildImageQuery(string token, string query, SafeSearchLevel safeSearch, DuckDuckGoImageTime time, DuckDuckGoImageSize size,
-        DuckDuckGoImageColor color, DuckDuckGoImageType type, DuckDuckGoImageLayout layout, DuckDuckGoImageLicense license, string region)
+    private static string BuildImageQuery(string token, string query)
     {
-        string url = $"i.js?l={region}" +
-                     "&o=json" +
-                     $"&q={Uri.EscapeDataString(query)}" +
-                     $"&vqd={token}" +
-                     "&f=";
-
-        url += time == DuckDuckGoImageTime.Any ? ',' : $"time:{time},";
-        url += size == DuckDuckGoImageSize.All ? ',' : $"size:{size},";
-        url += color == DuckDuckGoImageColor.All ? ',' : $"color:{color.ToString().ToLowerInvariant()},";
-        url += type == DuckDuckGoImageType.All ? ',' : $"type:{type},";
-        url += layout == DuckDuckGoImageLayout.All ? ',' : $"layout:{layout},";
-        url += license == DuckDuckGoImageLicense.All ? "" : $"license:{license}";
-        url += $"&p={(safeSearch == SafeSearchLevel.Off ? "-1" : "1")}";
-
+        string url = $"i.js?l=fr-fr&o=json&q={Uri.EscapeDataString(query)}&vqd={token}&f=&p=-1";
         return url;
     }
 
@@ -154,7 +100,7 @@ public class DuckDuckGoScraper : IDisposable
             byte[] bytes = await _httpClient.GetByteArrayAsync(new Uri($"?q={Uri.EscapeDataString(query)}", UriKind.Relative)).ConfigureAwait(false);
             return GetToken(bytes);
         }
-        catch { return null; }
+        catch { Console.WriteLine("Failed to get the DuckDuckGo token."); return null; }
     }
 
     private static string GetToken(ReadOnlySpan<byte> rawHtml)
@@ -174,14 +120,12 @@ public class DuckDuckGoScraper : IDisposable
             : Encoding.UTF8.GetString(sliced[..endIndex].ToArray());
     }
 
-    /// <inheritdoc />
     public void Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
 
-    /// <inheritdoc cref="Dispose()"/>
     protected virtual void Dispose(bool disposing)
     {
         if (_disposed)
@@ -196,4 +140,9 @@ public class DuckDuckGoScraper : IDisposable
 
         _disposed = true;
     }
+}
+
+[JsonSerializable(typeof(DuckDuckGoImageSearchResponse))]
+internal partial class DuckDuckGoImageSearchResponseContext : JsonSerializerContext
+{
 }

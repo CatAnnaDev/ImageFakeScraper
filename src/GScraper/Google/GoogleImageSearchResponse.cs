@@ -19,12 +19,10 @@ internal class Ischj
 internal class GoogleImageResultModel : GoogleImageResult
 {
     [JsonConstructor]
-    public GoogleImageResultModel(Color? color, GoogleOriginalImage originalImage, GoogleInternalImageResult result, GoogleImageThumbnail thumbnail)
-        : base(color, originalImage, result, thumbnail)
+    public GoogleImageResultModel(GoogleOriginalImage originalImage)
+        : base(originalImage)
     {
         OriginalImage = null!;
-        Result = null!;
-        Thumbnail = null!;
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -32,49 +30,11 @@ internal class GoogleImageResultModel : GoogleImageResult
     [JsonPropertyName("original_image")]
     public GoogleOriginalImage OriginalImage { get; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    [JsonPropertyName("result")]
-    public GoogleInternalImageResult Result { get; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    [JsonPropertyName("thumbnail")]
-    public GoogleImageThumbnail Thumbnail { get; }
 }
 
 internal class GoogleOriginalImage
 {
-    [JsonPropertyName("height")]
-    public int Height { get; set; }
 
     [JsonPropertyName("url")]
     public string Url { get; set; } = null!;
-
-    [JsonPropertyName("width")]
-    public int Width { get; set; }
-}
-
-internal class GoogleInternalImageResult
-{
-    [JsonPropertyName("image_source_url")]
-    public string ImageSourceUrl { get; set; } = null!;
-
-    [JsonPropertyName("page_title")]
-    public string PageTitle { get; set; } = null!;
-
-    [JsonPropertyName("referrer_url")]
-    public string ReferrerUrl { get; set; } = null!;
-}
-
-internal class GoogleImageThumbnail
-{
-    [JsonPropertyName("height")]
-    public int Height { get; set; }
-
-    [JsonPropertyName("url")]
-    public string Url { get; set; } = null!;
-
-    [JsonPropertyName("width")]
-    public int Width { get; set; }
 }

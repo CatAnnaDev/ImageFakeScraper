@@ -79,7 +79,7 @@ namespace GScraper.immerse
         public string searchText { get; set; }
         public string imageUrl { get; set; } = "";
         public int? pageNum { get; set; } = 1;
-        public int? pageSize { get; set; } = 30000;
+        public int? pageSize { get; set; } = 1000;
         public string searchType { get; set; } = "image";
     }
 }
