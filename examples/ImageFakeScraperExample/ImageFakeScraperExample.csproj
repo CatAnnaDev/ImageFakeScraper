@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\GScraper\ImageFakeScraper.csproj" />
+    <ProjectReference Include="..\..\src\ImageFakeScraper\ImageFakeScraper.csproj" />
   </ItemGroup>
 
   <ItemGroup>

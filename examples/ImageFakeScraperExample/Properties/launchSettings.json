@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ImageFakeScraperExample": {
+      "commandName": "Project",
+      "commandLineArgs": "\"redis://:Wau7eCrEMenreUVErQ6JrkHJ@imagefake.net:6379\" 0 \"Psyko\""
+    }
+  }
+}
