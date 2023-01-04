@@ -6,10 +6,10 @@ internal class Settings
     public static bool GoogleRun { get; set; } = true;
 
     // DuckduckGO
-    public static bool DuckduckGORun { get; set; } = true;
+    public static bool DuckduckGORun { get; set; } = false;
 
     // Brave
-    public static bool BraveRun { get; set; } = true;
+    public static bool BraveRun { get; set; } = false;
 
     // OpenVerse
     public static bool OpenVerseRun { get; set; } = true;
@@ -30,8 +30,8 @@ internal class Settings
     public static bool EveryPixelRun { get; set; } = true;
 
     // Redis image push
-    public static int stopAfter { get; } = 11;
-    public static int restartAfter { get; set; } = 10;
+    public static int stopAfter { get; } = 10;
+    public static int restartAfter { get; set; } = 9;
     public static bool PrintLog { get; set; } = true;
 
     // Main 

@@ -83,7 +83,7 @@ internal static class Program
                 site = await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
                 await redisImagePush.GetAllImageAndPush(conn, site, passArgs);
 
-                if (Settings.GetNewTag)
+                if (Settings.GetNewTagGoogle)
                 {
                     Queue<string> callQword = await searchEngineRequest.getAllNextTag(text, conn);
                     while (callQword.Count != 0)

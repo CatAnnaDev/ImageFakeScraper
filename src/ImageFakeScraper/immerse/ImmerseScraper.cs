@@ -26,7 +26,7 @@ public class ImmerseScraper
                     pageNum = i
                 };
 
-                string jsonString = System.Text.Json.JsonSerializer.Serialize(json);
+                string jsonString = JsonSerializer.Serialize(json);
                 string doc = await httpRequest.PostJson(uri, jsonString);
                 Root jsonparsed = Newtonsoft.Json.JsonConvert.DeserializeObject<Root>(doc);
 
@@ -52,8 +52,6 @@ public class ImmerseScraper
                         }
                     }
                 }
-
-                Console.WriteLine($"cycle {i} = {tmp.Count}");
             }
         }
         catch (Exception e) { }

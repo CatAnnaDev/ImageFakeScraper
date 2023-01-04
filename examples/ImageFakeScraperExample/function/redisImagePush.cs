@@ -144,12 +144,7 @@ internal class redisImagePush
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     await Console.Out.WriteLineAsync($"/!\\ Fail upload redis {image.Key} ! /!\\");
-                    await Console.Out.WriteLineAsync($"/!\\ Fail upload redis {image.Key} ! /!\\");
-                    await Console.Out.WriteLineAsync($"/!\\ Fail upload redis {image.Key} ! /!\\");
                     Console.ResetColor();
-
-                    await Console.Out.WriteLineAsync("/!\\ Reconnecting to redis server ! /!\\");
-                    //redisConnection.redisConnect();
                 }
             }
             else
