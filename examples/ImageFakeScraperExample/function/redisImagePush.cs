@@ -6,13 +6,9 @@ internal class redisImagePush
     public static long recordtmp { get; private set; } = 0;
     public static long record { get; private set; } = 0;
 
-    private static int stopAfter { get; } = 11;
-    private static int restartAfter { get; set; } = 10;
-
     private static List<string> list = new();
     private static List<string> list2 = new();
     #endregion
-
     #region getAllImage
     public static async Task<long> GetAllImageAndPush(IDatabase conn, Dictionary<string, List<string>> site, string[] args)
     {
@@ -59,13 +55,13 @@ internal class redisImagePush
                     int parseKey = int.Parse(nextIndex.ToString());
                     Program.key = $"image_jobs_{parseKey}";
 
-                    if (conn.SetLength(Program.key) >= 1_000_000 || redisList.Count >= stopAfter)
+                    if (conn.SetLength(Program.key) >= 1_000_000 || redisList.Count >= Settings.stopAfter)
                     {
-                        if (redisList.Count >= stopAfter)
+                        if (redisList.Count >= Settings.stopAfter)
                         {
                             while (true)
                             {
-                                if (redisList.Count <= restartAfter)
+                                if (redisList.Count <= Settings.restartAfter)
                                 {
                                     Console.WriteLine("");
                                     break;
@@ -74,7 +70,7 @@ internal class redisImagePush
                                 {
                                     for (int a = 120; a >= 0; a--)
                                     {
-                                        Console.Write("{0} Queue in process, Retry after {1}\r", redisList.Count - restartAfter, TimeSpan.FromMinutes(a));
+                                        Console.Write("{0} Queue in process, Retry after {1}\r", redisList.Count - Settings.restartAfter, TimeSpan.FromMinutes(a));
                                         Thread.Sleep(1000);
                                     }
                                     GetAllTable();
@@ -195,7 +191,7 @@ internal class redisImagePush
         return data;
     }
     #endregion
-
+    #region CreateMD5
     public static string CreateMD5(string input)
     {
         using (MD5 md5 = MD5.Create())
@@ -206,5 +202,8 @@ internal class redisImagePush
             return Convert.ToHexString(hashBytes);
         }
     }
+    #endregion
+    #region GetAllTable
     private static List<RedisKey> GetAllTable() => redisConnection.GetServers.Keys(0, "*image_jobs*").ToList();
+    #endregion
 }

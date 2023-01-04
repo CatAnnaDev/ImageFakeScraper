@@ -3,15 +3,15 @@
 internal class Settings
 {
     // Getty
-    public static int GettyMaxPage = 500;
+    public static int GettyMaxPage { get; set; } = 500;
 
     // Immerse
-    public static int ImmerseMaxPage = 2;
-    public static int ImmersePageSize = 1000;
+    public static int ImmerseMaxPage { get; set; } = 2;
+    public static int ImmersePageSize { get; set; } = 1000;
 
     // OpenVerse
-    public static int OpenVerseMaxPage = 2;
+    public static int OpenVerseMaxPage { get; set; } = 2;
 
     // EveryPixel
-    public static int EveryPixelMaxPage = 500;
+    public static int EveryPixelMaxPage { get; set; } = 500;
 }

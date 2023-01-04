@@ -10,7 +10,6 @@ internal class redisConnection
     public static IDatabase GetDatabase { get; set; }
     public static bool Connected { get; private set; } = false;
     #endregion
-
     #region Constuctor
     public redisConnection(string loggin, int ExponentialRetry)
     {
@@ -18,7 +17,6 @@ internal class redisConnection
         exponentialRetry = ExponentialRetry;
     }
     #endregion
-
     #region Login
     public static ConnectionMultiplexer redisConnect()
     {
@@ -61,7 +59,6 @@ internal class redisConnection
         Connected = false;
     }
     #endregion
-
     #region disconnect
     public static async void redisDisconnet()
     {

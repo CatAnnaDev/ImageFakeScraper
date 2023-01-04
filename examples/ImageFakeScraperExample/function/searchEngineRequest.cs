@@ -34,7 +34,6 @@ public class searchEngineRequest
 
     public static int NbOfRequest = 0;
     #endregion
-
     #region getAllDataFromsearchEngineAsync
     public static async Task<Dictionary<string, List<string>>> getAllDataFromsearchEngineAsync(string text)
     {
@@ -161,7 +160,6 @@ public class searchEngineRequest
         return returnLink;
     }
     #endregion
-
     #region getAllNextTag
     //public static async Task<Queue<string>> getAllNextTag(string text, IDatabase redis)
     //{
@@ -218,7 +216,6 @@ public class searchEngineRequest
     //    return qword;
     //}
     #endregion
-
     #region redisRead
     private static async Task<long> Read(IDatabase redis, string text)
     {

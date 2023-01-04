@@ -31,4 +31,8 @@ internal class Settings
     // EveryPixel
     public static bool EveryPixelRun { get; set; } = true;
 
+    // Redis image push
+    public static int stopAfter { get; } = 11;
+    public static int restartAfter { get; set; } = 10;
+
 }
