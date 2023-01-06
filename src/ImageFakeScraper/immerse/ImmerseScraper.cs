@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace ImageFakeScraper.immerse;
+﻿namespace ImageFakeScraper.immerse;
 
 
 public class ImmerseScraper

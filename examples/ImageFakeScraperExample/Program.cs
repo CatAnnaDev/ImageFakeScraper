@@ -45,6 +45,17 @@ internal static class Program
         waittime = ConfigFile.Config.Sleep;
         Pseudo = ConfigFile.Config.Pseudo;
 
+        // Bloom filter 
+
+        //int capacity = 2000000;
+        //var filter = new Bloom.Bloom<string>(capacity);
+        //filter.Add("content");
+        //
+        //if (filter.Contains("content"))
+        //{
+        //    return;
+        //}
+
         if (Credential == "Redis Login")
         {
             Console.WriteLine($"Update config file \n{Directory.GetCurrentDirectory()}\\Config.json");
