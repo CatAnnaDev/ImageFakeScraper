@@ -14,7 +14,7 @@
     <PackageReference Include="prometheus-net" Version="7.0.0" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="7.0.0" />
     <PackageReference Include="Reddit" Version="1.5.2" />
-    <PackageReference Include="StackExchange.Redis" Version="2.6.86" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.90" />
   </ItemGroup>
 
   <ItemGroup>

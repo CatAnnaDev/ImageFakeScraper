@@ -3,8 +3,10 @@ namespace ImageFakeScraper.OpenVerse;
 
 public class OpenVerseScraper
 {
+
     public OpenVerseScraper() { }
 
+    private SettingsDll settingsDll = new();
     private readonly List<string> tmp = new();
 
     private const string uri = "https://api.openverse.engineering/v1/images/?format=json&q={0}&page={1}&mature=true";
@@ -17,7 +19,7 @@ public class OpenVerseScraper
         {
             tmp.Clear();
             NbOfRequest = 0;
-            int page = Settings.OpenVerseMaxPage + 1;
+            int page = settingsDll.OpenVerseMaxPage + 1;
             ImageFakeScraperGuards.NotNull(query, nameof(query));
             for (int i = 1; i < page; i++)
             {

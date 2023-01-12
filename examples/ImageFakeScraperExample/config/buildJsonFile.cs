@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ImageFakeScraper;
+using Newtonsoft.Json;
 
 namespace ImageFakeScraperExample.config
 {
@@ -33,8 +34,34 @@ namespace ImageFakeScraperExample.config
                 words_list = "words_list",
                 words_done = "words_done",
                 record_push = "record_push",
-                jobs_last_index = "jobs_last_index",
-                image_jobsPattern = "*image_jobs_*"
+                images_jobs = "image_jobs",
+                settings = new()
+                {
+                    GoogleRun = true,
+                    DuckduckGORun = false,
+                    BraveRun = false,
+                    OpenVerseRun = true,
+                    BingRun = true,
+                    YahooRun = true,
+                    GettyImageRun = true,
+                    ImmerseRun = true,
+                    EveryPixelRun = true,
+                    stopAfter = 8000000,
+                    useMongoDB = false,
+                    PrintLog = true,
+                    PrintLogMain = true,
+                    GetNewTagGoogle = false,
+                    GetNewTagBing = false
+                },
+
+                settingsDll = new()
+                {
+                    GettyMaxPage = 500,
+                    ImmerseMaxPage = 2,
+                    ImmersePageSize = 1000,
+                    OpenVerseMaxPage = 2,
+                    EveryPixelMaxPage = 500
+                }
             };
         }
     }

@@ -3,12 +3,13 @@
 
 public class ImmerseScraper
 {
+    private static SettingsDll settingsDll = new();
 
     public ImmerseScraper()
     {
 
     }
-
+    
     private readonly List<string> tmp = new();
     private const string uri = "https://www.immerse.zone/api/immerse/search";
     private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
@@ -18,7 +19,7 @@ public class ImmerseScraper
         try
         {
             tmp.Clear();
-            for (int i = 1; i < Settings.ImmerseMaxPage + 1; i++)
+            for (int i = 1; i < settingsDll.ImmerseMaxPage + 1; i++)
             {
                 ImageFakeScraperGuards.NotNull(query, nameof(query));
                 JsonCreatePush json = new()
@@ -64,9 +65,11 @@ public class ImmerseScraper
 
 public class JsonCreatePush
 {
+    static SettingsDll settings = new();
+
     public string? searchText { get; set; }
     public string imageUrl { get; set; } = "";
     public int? pageNum { get; set; } = 1;
-    public int? pageSize { get; set; } = Settings.ImmersePageSize;
+    public int? pageSize { get; set; } = settings.ImmersePageSize;
     public string searchType { get; set; } = "image";
 }

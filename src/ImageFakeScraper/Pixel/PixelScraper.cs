@@ -7,6 +7,8 @@ public class PixelScraper
     {
     }
 
+    private SettingsDll settingsDll = new();
+
     private readonly List<string> tmp = new();
     public int NbOfRequest = 0;
     private const string uri = "https://www.everypixel.com/search/search?q={0}&limit=20000&json=1&page={1}";
@@ -21,7 +23,7 @@ public class PixelScraper
             ImageFakeScraperGuards.NotNull(query, nameof(query));
 
 
-            for (int i = 1; i < Settings.EveryPixelMaxPage + 1; i++)
+            for (int i = 1; i < settingsDll.EveryPixelMaxPage + 1; i++)
             {
                 string[] args = new string[] { query, i.ToString() };
                 string jsonGet = await httpRequest.GetJson(uri, args);

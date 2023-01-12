@@ -9,7 +9,8 @@
         public string? words_list { get; set; }
         public string? words_done { get; set; }
         public string? record_push { get; set; }
-        public string? jobs_last_index { get; set; }
-        public string? image_jobsPattern { get; set; }
+        public string? images_jobs { get; set; }
+        public Settings settings { get; set; }
+        public SettingsDll settingsDll { get; set; }
     }
 }

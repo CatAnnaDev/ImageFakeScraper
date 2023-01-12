@@ -1,8 +1,12 @@
-﻿namespace ImageFakeScraperExample.function;
+﻿using ImageFakeScraperExample.config;
+
+namespace ImageFakeScraperExample.function;
 
 internal class redisImagePush
 {
     #region Var
+    static Settings settings = new();
+    static buildJsonFile settingsFile = new();
     public static long recordtmp { get; private set; } = 0;
     public static long record { get; private set; } = 0;
 
@@ -21,7 +25,7 @@ internal class redisImagePush
                 list.Clear();
                 list2.Clear();
 
-                if (Settings.useMongoDB)
+                if (settings.useMongoDB)
                 {
                     foreach (string daata in image.Value)
                     {
@@ -56,60 +60,18 @@ internal class redisImagePush
                 try
                 {
                     Uri opts = new(Program.Credential);
-                    List<RedisKey> redisList = GetAllTable();
 
-                    RedisValue nextIndex = await conn.StringGetAsync(Program.ConfigFile.Config.jobs_last_index);
-                    int parseKey = int.Parse(nextIndex.ToString());
-                    Program.key = $"image_jobs_{parseKey}";
+                    RedisValue nextIndex = await conn.SetLengthAsync(Program.key);
+                    int img_job_count = int.Parse(nextIndex.ToString());
 
-                    if (conn.SetLength(Program.key) >= 1_000_000 || redisList.Count >= Settings.stopAfter)
-                    {
-                        if (redisList.Count >= Settings.stopAfter)
-                        {
-                            while (true)
-                            {
-                                if (redisList.Count <= Settings.restartAfter)
-                                {
-                                    Console.WriteLine("");
-                                    break;
-                                }
-                                else
-                                {
-                                    for (int a = 120; a >= 0; a--)
-                                    {
-                                        Console.Write("{0} Queue in process, Retry after {1}\r", redisList.Count - Settings.restartAfter, TimeSpan.FromMinutes(a));
-                                        Thread.Sleep(1000);
-                                    }
-                                    _ = GetAllTable();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Program.key = $"image_jobs_{parseKey + 1}";
-                            _ = await conn.StringSetAsync(Program.ConfigFile.Config.jobs_last_index, parseKey + 1);
-                        }
-                    }
 
-                    if (image.Value.Count >= 1_000_000 - conn.SetLength(Program.key))
-                    {
 
-                        for (int i = 0; i < 1_000_000 - conn.SetLength(Program.key); i++)
-                        {
-                            list2.Add(list[i]);
-                            _ = list.Remove(list[i]);
-                        }
-
-                        RedisValue[] push2 = Array.ConvertAll(list2.ToArray(), item => (RedisValue)item);
-
-                        data = await conn.SetAddAsync(Program.key, push2);
-                    }
-                    else
-                    {
+                    if(img_job_count < settings.stopAfter)
                         data = await conn.SetAddAsync(Program.key, push);
-                    }
 
-                    if (Settings.PrintLog)
+
+
+                    if (settings.PrintLog)
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
                         if (image.Key == "DuckDuckGo" || image.Key.Contains("Immerse"))
@@ -123,7 +85,7 @@ internal class redisImagePush
                     }
 
                     totalpushactual += data;
-                    if (image.Key == image.Key.Last().ToString())
+                    if (image.Key == "Pixel")
                     {
                         Console.WriteLine($"Total:\t\t{totalpushactual}");
                         recordtmp = totalpushactual;
@@ -162,7 +124,7 @@ internal class redisImagePush
             }
             else
             {
-                if (Settings.PrintLog)
+                if (settings.PrintLog)
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     if (image.Key == "DuckDuckGo" || image.Key.Contains("Immerse"))
@@ -176,7 +138,7 @@ internal class redisImagePush
 
                     Console.ResetColor();
                     Console.ForegroundColor = ConsoleColor.Green;
-                    if (image.Key == image.Key.Last().ToString())
+                    if (image.Key == "Pixel")
                     {
                         Console.WriteLine($"Total:\t\t{totalpushactual}");
                         recordtmp = totalpushactual;
@@ -217,12 +179,6 @@ internal class redisImagePush
         byte[] hashBytes = md5.ComputeHash(inputBytes);
 
         return Convert.ToHexString(hashBytes);
-    }
-    #endregion
-    #region GetAllTable
-    private static List<RedisKey> GetAllTable()
-    {
-        return redisConnection.GetServers.Keys(0, "*image_jobs*").ToList();
     }
     #endregion
 }

@@ -5,6 +5,9 @@ namespace ImageFakeScraperExample.function;
 public class searchEngineRequest
 {
     #region Var
+
+    static Settings settings = new();
+
     private static List<string> googleResult = new();
     private static readonly GoogleScraper scraper = new();
 
@@ -44,7 +47,7 @@ public class searchEngineRequest
     {
         returnLink.Clear();
         #region Google
-        if (Settings.GoogleRun)
+        if (settings.GoogleRun)
         {
             googleResult.Clear();
             try
@@ -58,7 +61,7 @@ public class searchEngineRequest
         }
         #endregion
         #region DuckduckGO
-        if (Settings.DuckduckGORun)
+        if (settings.DuckduckGORun)
         {
             ducResult.Clear();
             try
@@ -72,7 +75,7 @@ public class searchEngineRequest
         }
         #endregion
         #region Brave
-        if (Settings.BraveRun)
+        if (settings.BraveRun)
         {
             BraveResult.Clear();
             try
@@ -85,7 +88,7 @@ public class searchEngineRequest
         }
         #endregion
         #region OpenVerse
-        if (Settings.OpenVerseRun)
+        if (settings.OpenVerseRun)
         {
             OpenResult.Clear();
             try
@@ -98,7 +101,7 @@ public class searchEngineRequest
         }
         #endregion
         #region Bing
-        if (Settings.BingRun)
+        if (settings.BingRun)
         {
             BingResult.Clear();
             try
@@ -112,7 +115,7 @@ public class searchEngineRequest
         }
         #endregion
         #region Yahoo
-        if (Settings.YahooRun)
+        if (settings.YahooRun)
         {
             YahooResult.Clear();
             try
@@ -125,7 +128,7 @@ public class searchEngineRequest
         }
         #endregion
         #region GettyImage
-        if (Settings.GettyImageRun)
+        if (settings.GettyImageRun)
         {
             GettyResult.Clear();
             try
@@ -137,7 +140,7 @@ public class searchEngineRequest
             returnLink.Add("Getty", GettyResult);
         }
         #endregion
-        if (Settings.ImmerseRun)
+        if (settings.ImmerseRun)
         {
             immerseResult.Clear();
             try
@@ -149,7 +152,7 @@ public class searchEngineRequest
             returnLink.Add("Immerse", immerseResult);
         }
         #region EveryPixel
-        if (Settings.EveryPixelRun)
+        if (settings.EveryPixelRun)
         {
             EveryResult.Clear();
             try

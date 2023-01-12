@@ -19,6 +19,7 @@ internal static class Program
     public static buildJsonFile? ConfigFile;
 
     // Config File
+    static Settings settings = new();
     public static string Credential = "";
     private static double waittime = 0;
     public static string Pseudo = "";
@@ -44,6 +45,7 @@ internal static class Program
         Credential = ConfigFile.Config.Credential;
         waittime = ConfigFile.Config.Sleep;
         Pseudo = ConfigFile.Config.Pseudo;
+        key = ConfigFile.Config.images_jobs;
 
         // Bloom filter 
 
@@ -62,7 +64,7 @@ internal static class Program
             return;
         }
 
-        if (Settings.useMongoDB)
+        if (settings.useMongoDB)
         {
             IMongoDatabase dbList = dbClient.GetDatabase("local");
             Collection = dbList.GetCollection<BsonDocument>("cache");
@@ -111,7 +113,7 @@ internal static class Program
                 site = await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
                 _ = await redisImagePush.GetAllImageAndPush(conn, site);
 
-                if (Settings.GetNewTagGoogle)
+                if (settings.GetNewTagGoogle)
                 {
                     Queue<string> callQword = await searchEngineRequest.getAllNextTag(text, conn);
                     while (callQword.Count != 0)
@@ -127,7 +129,7 @@ internal static class Program
                 {
                     RedisValue newword = await redisGetNewTag(conn);
 
-                    if (!newword.IsNull && Settings.PrintLogMain)
+                    if (!newword.IsNull && settings.PrintLogMain)
                     {
 
                         qword.Enqueue(newword.ToString());
@@ -150,7 +152,7 @@ internal static class Program
 
                 try
                 {
-                    if (Program.key != null && Settings.PrintLogMain)
+                    if (Program.key != null && settings.PrintLogMain)
                     {
                         string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
                         long redisDBLength = conn.SetLength(Program.key);
