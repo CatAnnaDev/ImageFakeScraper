@@ -1,7 +1,6 @@
 ﻿
 namespace ImageFakeScraper.DuckDuckGo;
 
-// fix duckduck ? ( en vrai balek ) 
 public class DuckDuckGoScraper
 {
     public const string DefaultApiEndpoint = "https://duckduckgo.com";

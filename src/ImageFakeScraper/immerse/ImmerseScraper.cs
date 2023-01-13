@@ -53,8 +53,14 @@ public class ImmerseScraper
                                 }
                             }
                         }
+                        else
+                            break;
                     }
+                    else
+                        break;
                 }
+                else
+                    break;
             }
         }
         catch (Exception) { }
