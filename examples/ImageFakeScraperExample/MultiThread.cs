@@ -132,15 +132,16 @@ namespace ImageFakeScraperExample
         {
             try
             {
-                RedisValue img_job_ = await redisConnection.GetDatabase.SetLengthAsync(Program.key);
+                RedisValue img_job_ = await redisConnection.GetDatabase.SetLengthAsync(Program.ConfigFile.Config.images_jobs);
                 int img_job_count = int.Parse(img_job_.ToString());
 
-                RedisValue to_dl = await redisConnection.GetDatabase.SetLengthAsync(Program.key);
+                RedisValue to_dl = await redisConnection.GetDatabase.SetLengthAsync(Program.ConfigFile.Config.to_download);
                 int to_dl_count = int.Parse(to_dl.ToString());
 
-                if (img_job_count < Program.ConfigFile.Config.settings.stopAfter || to_dl_count < Program.ConfigFile.Config.settings.stopAfter)
+                if (img_job_count < Program.ConfigFile.Config.settings.stopAfter && to_dl_count < Program.ConfigFile.Config.settings.stopAfter)
                 {
                     RedisValue[] push = Array.ConvertAll(moteur.ToArray(), item => (RedisValue)item);
+
                     long data = await redisConnection.GetDatabase.SetAddAsync(Program.key, push);
                     if (printLog)
                     {
@@ -154,9 +155,28 @@ namespace ImageFakeScraperExample
                 }
                 else
                 {
-                    lock (_lock)
+                    while (true)
                     {
+                        Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine($"Wait Redis full");
+                        Console.ResetColor();
+                        for (int a = 120; a >= 0; a--)
+                        {
+                            Thread.Sleep(1000);
+                            Console.Write($"\rWait after retry {TimeSpan.FromMinutes(a)}");
+                        }
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.Write($"\rWait Redis full retry! {DateTime.Now.ToString("G")}");
+                        Console.ResetColor();
+
+                        RedisValue img_job_check = await redisConnection.GetDatabase.SetLengthAsync(Program.ConfigFile.Config.images_jobs);
+                        int img_job_count_check = int.Parse(img_job_check.ToString());
+
+                        RedisValue to_dl_check = await redisConnection.GetDatabase.SetLengthAsync(Program.ConfigFile.Config.to_download);
+                        int to_dl_count_check = int.Parse(to_dl_check.ToString());
+
+                        if (img_job_count < Program.ConfigFile.Config.settings.stopAfter && to_dl_count < Program.ConfigFile.Config.settings.stopAfter)
+                            break;
                     }
                 }
             }
