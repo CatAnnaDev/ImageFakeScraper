@@ -11,14 +11,12 @@ public class OpenVerseScraper
 
     private const string uri = "https://api.openverse.engineering/v1/images/?format=json&q={0}&page={1}&mature=true";
     private readonly Regex RegexCheck = new(@"^(http|https://):?([^\s([<,>/]*)(\/)[^\s[,><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s[,><]*)?");
-    public int NbOfRequest = 0;
 
     public async Task<List<string>> GetImagesAsync(string query, int OpenVerseMaxPage)
     {
         try
         {
             tmp.Clear();
-            NbOfRequest = 0;
             int page = OpenVerseMaxPage + 1;
             ImageFakeScraperGuards.NotNull(query, nameof(query));
             for (int i = 1; i < page; i++)
@@ -40,7 +38,6 @@ public class OpenVerseScraper
                         }
                     }
                 }
-                NbOfRequest++;
             }
 
         }

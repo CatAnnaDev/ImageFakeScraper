@@ -8,7 +8,6 @@ public class GettyScraper
 
     private readonly List<string> tmp = new();
     private const string uri = "https://www.gettyimages.fr/photos/{0}?assettype=image&excludenudity=false&license=rf&family=creative&phrase={1}&sort=mostpopular&page={2}";
-    public int NbOfRequest = 0;
     private readonly Regex RegexCheck = new(@"^(https:\/\/)?s?:?([^\s([""<,>\/]*)(\/)[^\s["",><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s["",><]*)?");
 
     /// <summary>
@@ -21,7 +20,6 @@ public class GettyScraper
         try
         {
             tmp.Clear();
-            NbOfRequest = 0;
             ImageFakeScraperGuards.NotNull(query, nameof(query));
             for (int i = 1; i < GettyMaxPage + 1; i++)
             {
@@ -41,7 +39,6 @@ public class GettyScraper
                         tmp.Add(data.Replace("&amp;", "&"));
                     }
                 }
-                NbOfRequest++;
             }
         }
         catch (Exception e) { Console.WriteLine(e); }

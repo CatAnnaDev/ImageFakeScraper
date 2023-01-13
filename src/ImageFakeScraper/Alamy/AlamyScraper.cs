@@ -10,7 +10,6 @@ namespace ImageFakeScraper.Alamy
 
         private readonly List<string> tmp = new();
         private const string uri = "https://www.alamy.com/search-api/search/?qt={0}&sortBy=relevant&ispartial=false&type=picture&geo=FR&pn={1}&ps={2}"; // qt query, pn page numb, ps page size
-        public int NbOfRequest = 0;
         private readonly Regex RegexCheck = new(@"^(https:\/\/)?s?:?([^\s([""<,>\/]*)(\/)[^\s["",><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s["",><]*)?");
 
         public async Task<List<string>> GetImagesAsync(string query, int AlamyMaxPage, int AlamyMaxResult, bool UnlimitedCrawlPage)
@@ -18,7 +17,6 @@ namespace ImageFakeScraper.Alamy
             try
             {
                 tmp.Clear();
-                NbOfRequest = 0;
                 int page = AlamyMaxPage+1;
                 ImageFakeScraperGuards.NotNull(query, nameof(query));
                 for (int i = 1; i < page; i++)
@@ -48,7 +46,6 @@ namespace ImageFakeScraper.Alamy
                     }
                     else
                         break;
-                    NbOfRequest++;
                 }
 
             }

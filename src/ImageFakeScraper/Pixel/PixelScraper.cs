@@ -8,7 +8,6 @@ public class PixelScraper
     }
 
     private readonly List<string> tmp = new();
-    public int NbOfRequest = 0;
     private const string uri = "https://www.everypixel.com/search/search?q={0}&limit=20000&json=1&page={1}";
     private readonly Regex RegexCheck = new(@"^(http|https:\/\/):?([^\s([<,>\/]*)(\/)[^\s[,><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s[,><]*)?");
 
@@ -17,7 +16,6 @@ public class PixelScraper
         try
         {
             tmp.Clear();
-            NbOfRequest = 0;
             ImageFakeScraperGuards.NotNull(query, nameof(query));
 
 
@@ -50,8 +48,6 @@ public class PixelScraper
                 {
                     break;
                 }
-
-                NbOfRequest++;
             }
         }
         catch (Exception) { }
