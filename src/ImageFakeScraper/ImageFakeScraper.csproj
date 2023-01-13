@@ -28,4 +28,10 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Alamy\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Alamy\" />
+  </ItemGroup>
 </Project>

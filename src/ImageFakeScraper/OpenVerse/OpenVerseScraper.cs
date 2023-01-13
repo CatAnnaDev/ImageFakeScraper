@@ -13,7 +13,7 @@ public class OpenVerseScraper
     private readonly Regex RegexCheck = new(@"^(http|https://):?([^\s([<,>/]*)(\/)[^\s[,><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s[,><]*)?");
     public int NbOfRequest = 0;
 
-    public async Task<List<string>> GtImagesAsync(string query, int OpenVerseMaxPage)
+    public async Task<List<string>> GetImagesAsync(string query, int OpenVerseMaxPage)
     {
         try
         {

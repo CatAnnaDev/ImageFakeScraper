@@ -2,6 +2,12 @@
 
 public class SettingsDll
 {
+
+    // Alamy
+    public int AlamyMaxPage { get; set; }
+    public int AlamyPageSize { get; set; }
+    public bool AlamyUnlimitedPage { get; set; }
+
     // Getty
     public int GettyMaxPage { get; set; }
 
