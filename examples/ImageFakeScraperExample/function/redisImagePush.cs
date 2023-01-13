@@ -12,7 +12,7 @@ internal class redisImagePush
     private static string WebSite = "";
     #endregion
     #region getAllImage
-    public static async Task GetAllImageAndPush(IDatabase conn, List<string> site, string Site)
+    public static async Task<long> GetAllImageAndPush(IDatabase conn, List<string> site, string Site)
     {
         WebSite = Site;
         list.Clear();
@@ -84,6 +84,7 @@ internal class redisImagePush
                 Console.WriteLine($"{WebSite}:\t\t{data} / {push.Length}");
             }
         }
+        return data;
     }
     #endregion
     #region CreateMD5

@@ -170,6 +170,7 @@ internal static class Program
                                 $"Memory\t\t{SizeSuffix(usedMemory)}\n" +
                                 $"Previous\t{text}\n" +
                                 $"BlackList\t{blackList.Count}\n" +
+                                $"Total Push\t{searchEngineRequest.TotalPush}\n" +
                                 $"Tags\t\t{qword.Count}\n" +
                                 $"Tag done\t{conn.ListLengthAsync(ConfigFile.Config.words_done).Result}\n" +
                                 $"Tag remaining\t{conn.ListLengthAsync(ConfigFile.Config.words_list).Result}\n" +
@@ -187,7 +188,7 @@ internal static class Program
                 Thread.Sleep(TimeSpan.FromSeconds(waittime));
 
                 timer.Reset();
-                searchEngineRequest.NbOfRequest = 0;
+                searchEngineRequest.TotalPush = 0;
             }
         }
         Console.WriteLine("Done");

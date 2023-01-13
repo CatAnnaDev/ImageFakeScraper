@@ -39,7 +39,7 @@ public class searchEngineRequest
     private static readonly Queue<string> qword = new();
     private static HtmlNodeCollection? table;
 
-    public static int NbOfRequest = 0;
+    public static long TotalPush = 0;
     #endregion
     #region getAllDataFromsearchEngineAsync
     public static async Task getAllDataFromsearchEngineAsync(string text)
@@ -52,7 +52,7 @@ public class searchEngineRequest
             try
             {
                 googleResult = await scraper.GetImagesAsync(text);
-                await RedisPush(googleResult, "Google");
+                TotalPush += await RedisPush(googleResult, "Google");
             }
             catch { }
         }
@@ -64,7 +64,7 @@ public class searchEngineRequest
             try
             {
                 ducResult = await duck.GetImagesAsync(text);
-                await RedisPush(ducResult, "DuckDuckGo");
+                TotalPush += await RedisPush(ducResult, "DuckDuckGo");
             }
             catch { }
         }
@@ -76,7 +76,7 @@ public class searchEngineRequest
             try
             {
                 BraveResult = await brave.GetImagesAsync(text);
-                await RedisPush(BraveResult, "Brave");
+                TotalPush += await RedisPush(BraveResult, "Brave");
             }
             catch { }
         }
@@ -88,7 +88,7 @@ public class searchEngineRequest
             try
             {
                 AlamyResult = await alamy.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.AlamyMaxPage, Program.ConfigFile.Config.settingsDll.AlamyPageSize, Program.ConfigFile.Config.settingsDll.AlamyUnlimitedPage);
-                await RedisPush(AlamyResult, "Alamy");
+                TotalPush += await RedisPush(AlamyResult, "Alamy");
             }
             catch { }
         }
@@ -100,7 +100,7 @@ public class searchEngineRequest
             try
             {
                 OpenResult = await open.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.OpenVerseMaxPage);
-                await RedisPush(OpenResult, "Open");
+                TotalPush += await RedisPush(OpenResult, "Open");
             }
             catch { }
         }
@@ -112,7 +112,7 @@ public class searchEngineRequest
             try
             {
                 BingResult = await bingg.GetImagesAsync(text);
-                await RedisPush(BingResult, "Bing");
+                TotalPush += await RedisPush(BingResult, "Bing");
             }
             catch { }
         }
@@ -124,7 +124,7 @@ public class searchEngineRequest
             try
             {
                 YahooResult = await yahooo.GetImagesAsync(text);
-                await RedisPush(YahooResult, "Yahoo");
+                TotalPush += await RedisPush(YahooResult, "Yahoo");
             }
             catch { }
         }
@@ -136,7 +136,7 @@ public class searchEngineRequest
             try
             {
                 GettyResult = await Gettyy.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.GettyMaxPage);
-                await RedisPush(GettyResult, "Getty");
+                TotalPush += await RedisPush(GettyResult, "Getty");
             }
             catch { }
         }
@@ -147,7 +147,7 @@ public class searchEngineRequest
             try
             {
                 immerseResult = await immerse.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.ImmersePageSize, Program.ConfigFile.Config.settingsDll.ImmerseMaxPage);
-                await RedisPush(immerseResult, "Immerse");
+                TotalPush += await RedisPush(immerseResult, "Immerse");
             }
             catch { }
         }
@@ -158,7 +158,7 @@ public class searchEngineRequest
             try
             {
                 EveryResult = await pixell.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.EveryPixelMaxPage);
-                await RedisPush(EveryResult, "Pixel");
+                TotalPush += await RedisPush(EveryResult, "Pixel");
             }
             catch { }
         }
@@ -195,7 +195,6 @@ public class searchEngineRequest
                             qword.Enqueue(table[j].InnerText);
                         }
                     }
-                    NbOfRequest++;
                 }
             }
             catch (Exception e)
@@ -217,8 +216,8 @@ public class searchEngineRequest
     }
     #endregion
 
-    private static async Task RedisPush(List<string> moteur, string Name)
+    private static async Task<long> RedisPush(List<string> moteur, string Name)
     {
-        await redisImagePush.GetAllImageAndPush(redisConnection.GetDatabase, moteur, Name);
+        return await redisImagePush.GetAllImageAndPush(redisConnection.GetDatabase, moteur, Name);
     }
 }
