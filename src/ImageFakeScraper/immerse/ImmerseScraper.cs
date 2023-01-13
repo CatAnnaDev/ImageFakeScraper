@@ -22,7 +22,7 @@ public class ImmerseScraper
             for (int i = 1; i < settingsDll.ImmerseMaxPage + 1; i++)
             {
                 ImageFakeScraperGuards.NotNull(query, nameof(query));
-                JsonCreatePush json = new()
+                JsonCreatePush json = new(settingsDll)
                 {
                     searchText = query,
                     pageNum = i
@@ -65,11 +65,12 @@ public class ImmerseScraper
 
 public class JsonCreatePush
 {
-    static SettingsDll settings = new();
+    static SettingsDll setting;
+    public JsonCreatePush(SettingsDll settings) { setting = settings; }
 
     public string? searchText { get; set; }
     public string imageUrl { get; set; } = "";
     public int? pageNum { get; set; } = 1;
-    public int? pageSize { get; set; } = settings.ImmersePageSize;
+    public int? pageSize { get; set; } = setting.ImmersePageSize;
     public string searchType { get; set; } = "image";
 }
