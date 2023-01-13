@@ -20,7 +20,6 @@ internal static class Program
     public static buildJsonFile? ConfigFile;
 
     // Config File
-    static Settings settings = new();
     public static string Credential = "";
     private static double waittime = 0;
     public static string Pseudo = "";
@@ -43,6 +42,7 @@ internal static class Program
     {
         ConfigFile = new();
         await InitializeGlobalDataAsync();
+
         Credential = ConfigFile.Config.Credential;
         waittime = ConfigFile.Config.Sleep;
         Pseudo = ConfigFile.Config.Pseudo;
@@ -66,7 +66,7 @@ internal static class Program
             return;
         }
 
-        if (settings.useMongoDB)
+        if (ConfigFile.Config.settings.useMongoDB)
         {
             IMongoDatabase dbList = dbClient.GetDatabase("local");
             Collection = dbList.GetCollection<BsonDocument>("cache");
@@ -115,7 +115,7 @@ internal static class Program
                 site = await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
                 _ = await redisImagePush.GetAllImageAndPush(conn, site);
 
-                if (settings.GetNewTagGoogle)
+                if (ConfigFile.Config.settings.GetNewTagGoogle)
                 {
                     Queue<string> callQword = await searchEngineRequest.getAllNextTag(text, conn);
                     while (callQword.Count != 0)
@@ -131,7 +131,7 @@ internal static class Program
                 {
                     RedisValue newword = await redisGetNewTag(conn);
 
-                    if (!newword.IsNull && settings.PrintLogMain)
+                    if (!newword.IsNull && ConfigFile.Config.settings.PrintLogMain)
                     {
 
                         qword.Enqueue(newword.ToString());
@@ -154,14 +154,14 @@ internal static class Program
 
                 try
                 {
-                    if (Program.key != null && settings.PrintLogMain)
+                    if (Program.key != null && ConfigFile.Config.settings.PrintLogMain)
                     {
                         string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
                         long redisDBLength = conn.SetLength(Program.key);
-                        string redisLength = $"{redisDBLength} / {settings.stopAfter} ({100.0 * redisDBLength / settings.stopAfter:0.00}%)";
+                        string redisLength = $"{redisDBLength} / {ConfigFile.Config.settings.stopAfter} ({100.0 * redisDBLength / ConfigFile.Config.settings.stopAfter:0.00}%)";
 
                         long redisDBLengthto_dl = conn.SetLength(key_to_dl);
-                        string redisLengthto_dl = $"{redisDBLengthto_dl} / {settings.stopAfter} ({100.0 * redisDBLengthto_dl / settings.stopAfter:0.00}%)";
+                        string redisLengthto_dl = $"{redisDBLengthto_dl} / {ConfigFile.Config.settings.stopAfter} ({100.0 * redisDBLengthto_dl / ConfigFile.Config.settings.stopAfter:0.00}%)";
 
 
                         double elapsed = TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds;

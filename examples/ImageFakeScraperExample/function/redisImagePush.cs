@@ -5,7 +5,6 @@ namespace ImageFakeScraperExample.function;
 internal class redisImagePush
 {
     #region Var
-    static Settings settings = new();
     public static long recordtmp { get; private set; } = 0;
     public static long record { get; private set; } = 0;
 
@@ -24,7 +23,7 @@ internal class redisImagePush
                 list.Clear();
                 list2.Clear();
 
-                if (settings.useMongoDB)
+                if (Program.ConfigFile.Config.settings.useMongoDB)
                 {
                     foreach (string daata in image.Value)
                     {
@@ -67,12 +66,12 @@ internal class redisImagePush
                     int to_dl_count = int.Parse(to_dl.ToString());
 
 
-                    if (img_job_count < settings.stopAfter || to_dl_count < settings.stopAfter)
+                    if (img_job_count < Program.ConfigFile.Config.settings.stopAfter || to_dl_count < Program.ConfigFile.Config.settings.stopAfter)
                         data = await conn.SetAddAsync(Program.key, push);
 
 
 
-                    if (settings.PrintLog)
+                    if (Program.ConfigFile.Config.settings.PrintLog)
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
                         if (image.Key == "DuckDuckGo" || image.Key.Contains("Immerse"))
@@ -125,7 +124,7 @@ internal class redisImagePush
             }
             else
             {
-                if (settings.PrintLog)
+                if (Program.ConfigFile.Config.settings.PrintLog)
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     if (image.Key == "DuckDuckGo" || image.Key.Contains("Immerse"))

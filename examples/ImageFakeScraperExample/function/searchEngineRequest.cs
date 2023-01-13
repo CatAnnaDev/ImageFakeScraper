@@ -6,8 +6,6 @@ public class searchEngineRequest
 {
     #region Var
 
-    static Settings settings = new();
-
     private static List<string> googleResult = new();
     private static readonly GoogleScraper scraper = new();
 
@@ -47,7 +45,7 @@ public class searchEngineRequest
     {
         returnLink.Clear();
         #region Google
-        if (settings.GoogleRun)
+        if (Program.ConfigFile.Config.settings.GoogleRun)
         {
             googleResult.Clear();
             try
@@ -61,7 +59,7 @@ public class searchEngineRequest
         }
         #endregion
         #region DuckduckGO
-        if (settings.DuckduckGORun)
+        if (Program.ConfigFile.Config.settings.DuckduckGORun)
         {
             ducResult.Clear();
             try
@@ -75,7 +73,7 @@ public class searchEngineRequest
         }
         #endregion
         #region Brave
-        if (settings.BraveRun)
+        if (Program.ConfigFile.Config.settings.BraveRun)
         {
             BraveResult.Clear();
             try
@@ -88,12 +86,12 @@ public class searchEngineRequest
         }
         #endregion
         #region OpenVerse
-        if (settings.OpenVerseRun)
+        if (Program.ConfigFile.Config.settings.OpenVerseRun)
         {
             OpenResult.Clear();
             try
             {
-                OpenResult = await open.GtImagesAsync(text);
+                OpenResult = await open.GtImagesAsync(text, Program.ConfigFile.Config.settingsDll.OpenVerseMaxPage);
             }
             catch { }
             NbOfRequest += open.NbOfRequest;
@@ -101,7 +99,7 @@ public class searchEngineRequest
         }
         #endregion
         #region Bing
-        if (settings.BingRun)
+        if (Program.ConfigFile.Config.settings.BingRun)
         {
             BingResult.Clear();
             try
@@ -115,7 +113,7 @@ public class searchEngineRequest
         }
         #endregion
         #region Yahoo
-        if (settings.YahooRun)
+        if (Program.ConfigFile.Config.settings.YahooRun)
         {
             YahooResult.Clear();
             try
@@ -128,36 +126,36 @@ public class searchEngineRequest
         }
         #endregion
         #region GettyImage
-        if (settings.GettyImageRun)
+        if (Program.ConfigFile.Config.settings.GettyImageRun)
         {
             GettyResult.Clear();
             try
             {
-                GettyResult = await Gettyy.GetImagesAsync(text);
+                GettyResult = await Gettyy.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.GettyMaxPage);
             }
             catch { }
             NbOfRequest += Gettyy.NbOfRequest;
             returnLink.Add("Getty", GettyResult);
         }
         #endregion
-        if (settings.ImmerseRun)
+        if (Program.ConfigFile.Config.settings.ImmerseRun)
         {
             immerseResult.Clear();
             try
             {
-                immerseResult = await immerse.GetImagesAsync(text);
+                immerseResult = await immerse.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.ImmersePageSize, Program.ConfigFile.Config.settingsDll.ImmerseMaxPage);
             }
             catch { }
             NbOfRequest++;
             returnLink.Add("Immerse", immerseResult);
         }
         #region EveryPixel
-        if (settings.EveryPixelRun)
+        if (Program.ConfigFile.Config.settings.EveryPixelRun)
         {
             EveryResult.Clear();
             try
             {
-                EveryResult = await pixell.GetImagesAsync(text);
+                EveryResult = await pixell.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.EveryPixelMaxPage);
             }
             catch { }
             NbOfRequest += pixell.NbOfRequest;
