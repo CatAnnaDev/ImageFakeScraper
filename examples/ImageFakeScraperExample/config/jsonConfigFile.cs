@@ -8,7 +8,6 @@
         public string? domain_blacklist { get; set; }
         public string? words_list { get; set; }
         public string? words_done { get; set; }
-        public string? record_push { get; set; }
         public string? images_jobs { get; set; }
         public string? to_download { get; set; }
         public Settings? settings { get; set; }

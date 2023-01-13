@@ -33,7 +33,6 @@ namespace ImageFakeScraperExample.config
                 domain_blacklist = "domain_blacklist",
                 words_list = "words_list",
                 words_done = "words_done",
-                record_push = "record_push",
                 images_jobs = "image_jobs",
                 to_download = "to_download",
                 settings = new()

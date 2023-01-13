@@ -42,7 +42,7 @@ public class searchEngineRequest
     public static int NbOfRequest = 0;
     #endregion
     #region getAllDataFromsearchEngineAsync
-    public static async Task<Dictionary<string, List<string>>> getAllDataFromsearchEngineAsync(string text)
+    public static async Task getAllDataFromsearchEngineAsync(string text)
     {
         returnLink.Clear();
         #region Google
@@ -52,11 +52,9 @@ public class searchEngineRequest
             try
             {
                 googleResult = await scraper.GetImagesAsync(text);
+                await RedisPush(googleResult, "Google");
             }
             catch { }
-            NbOfRequest++;
-            returnLink.Add("Google", googleResult);
-
         }
         #endregion
         #region DuckduckGO
@@ -66,11 +64,9 @@ public class searchEngineRequest
             try
             {
                 ducResult = await duck.GetImagesAsync(text);
+                await RedisPush(ducResult, "DuckDuckGo");
             }
             catch { }
-            NbOfRequest++;
-            returnLink.Add("DuckDuckGo", ducResult);
-
         }
         #endregion
         #region Brave
@@ -80,10 +76,9 @@ public class searchEngineRequest
             try
             {
                 BraveResult = await brave.GetImagesAsync(text);
+                await RedisPush(BraveResult, "Brave");
             }
             catch { }
-            NbOfRequest++;
-            returnLink.Add("Brave", BraveResult);
         }
         #endregion
         #region Alamy
@@ -93,10 +88,9 @@ public class searchEngineRequest
             try
             {
                 AlamyResult = await alamy.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.AlamyMaxPage, Program.ConfigFile.Config.settingsDll.AlamyPageSize, Program.ConfigFile.Config.settingsDll.AlamyUnlimitedPage);
+                await RedisPush(AlamyResult, "Alamy");
             }
             catch { }
-            NbOfRequest += alamy.NbOfRequest;
-            returnLink.Add("Alamy", AlamyResult);
         }
         #endregion
         #region OpenVerse
@@ -106,10 +100,9 @@ public class searchEngineRequest
             try
             {
                 OpenResult = await open.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.OpenVerseMaxPage);
+                await RedisPush(OpenResult, "Open");
             }
             catch { }
-            NbOfRequest += open.NbOfRequest;
-            returnLink.Add("Open", OpenResult);
         }
         #endregion
         #region Bing
@@ -119,11 +112,9 @@ public class searchEngineRequest
             try
             {
                 BingResult = await bingg.GetImagesAsync(text);
+                await RedisPush(BingResult, "Bing");
             }
             catch { }
-            NbOfRequest++;
-            returnLink.Add("Bing", BingResult);
-
         }
         #endregion
         #region Yahoo
@@ -133,10 +124,9 @@ public class searchEngineRequest
             try
             {
                 YahooResult = await yahooo.GetImagesAsync(text);
+                await RedisPush(YahooResult, "Yahoo");
             }
             catch { }
-            NbOfRequest++;
-            returnLink.Add("Yahoo", YahooResult);
         }
         #endregion
         #region GettyImage
@@ -146,10 +136,9 @@ public class searchEngineRequest
             try
             {
                 GettyResult = await Gettyy.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.GettyMaxPage);
+                await RedisPush(GettyResult, "Getty");
             }
             catch { }
-            NbOfRequest += Gettyy.NbOfRequest;
-            returnLink.Add("Getty", GettyResult);
         }
         #endregion
         if (Program.ConfigFile.Config.settings.ImmerseRun)
@@ -158,10 +147,9 @@ public class searchEngineRequest
             try
             {
                 immerseResult = await immerse.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.ImmersePageSize, Program.ConfigFile.Config.settingsDll.ImmerseMaxPage);
+                await RedisPush(immerseResult, "Immerse");
             }
             catch { }
-            NbOfRequest++;
-            returnLink.Add("Immerse", immerseResult);
         }
         #region EveryPixel
         if (Program.ConfigFile.Config.settings.EveryPixelRun)
@@ -170,14 +158,11 @@ public class searchEngineRequest
             try
             {
                 EveryResult = await pixell.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.EveryPixelMaxPage);
+                await RedisPush(EveryResult, "Pixel");
             }
             catch { }
-            NbOfRequest += pixell.NbOfRequest;
-            returnLink.Add("Pixel", EveryResult);
         }
         #endregion
-
-        return returnLink;
     }
     #endregion
     #region getAllNextTag
@@ -231,4 +216,9 @@ public class searchEngineRequest
         return await redis.ListPositionAsync("words_done", text);
     }
     #endregion
+
+    private static async Task RedisPush(List<string> moteur, string Name)
+    {
+        await redisImagePush.GetAllImageAndPush(redisConnection.GetDatabase, moteur, Name);
+    }
 }

@@ -9,7 +9,6 @@ internal static class Program
     public static ConnectionMultiplexer? redis;
     public static redisConnection? redisConnector;
     public static Queue<string>? qword;
-    private static Dictionary<string, List<string>>? site;
     private static readonly KestrelMetricServer server = new(port: 4444);
     public static string? key;
     public static string? key_to_dl;
@@ -112,8 +111,8 @@ internal static class Program
                 timer.Start();
                 uptime.Start();
 
-                site = await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
-                _ = await redisImagePush.GetAllImageAndPush(conn, site);
+                await searchEngineRequest.getAllDataFromsearchEngineAsync(text);
+                //_ = await redisImagePush.GetAllImageAndPush(conn, site);
 
                 if (ConfigFile.Config.settings.GetNewTagGoogle)
                 {
@@ -123,9 +122,6 @@ internal static class Program
                         qword.Enqueue(callQword.Dequeue());
                     }
                 }
-
-                site.Clear();
-
 
                 if (qword.Count <= 2)
                 {
@@ -173,16 +169,12 @@ internal static class Program
                                 $"Sleep\t\t{waittime} sec\n" +
                                 $"Memory\t\t{SizeSuffix(usedMemory)}\n" +
                                 $"Previous\t{text}\n" +
-                                $"NbRequest\t{searchEngineRequest.NbOfRequest}\n" +
                                 $"BlackList\t{blackList.Count}\n" +
                                 $"Tags\t\t{qword.Count}\n" +
                                 $"Tag done\t{conn.ListLengthAsync(ConfigFile.Config.words_done).Result}\n" +
                                 $"Tag remaining\t{conn.ListLengthAsync(ConfigFile.Config.words_list).Result}\n" +
                                 $"{Program.key}\t{redisLength}\n" +
-                                $"{key_to_dl}\t{redisLengthto_dl}\n" +
-                                $"Total upload\t{totalimageupload}\n" +
-                                $"Record\t\t{redisImagePush.record}\n" +
-                                $"Record Glb:\t{conn.StringGet(ConfigFile.Config.record_push)}");
+                                $"{key_to_dl}\t{redisLengthto_dl}\n");
                     }
                 }
                 catch (Exception e)
