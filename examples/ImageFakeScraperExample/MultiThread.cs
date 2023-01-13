@@ -1,4 +1,5 @@
 ﻿using System;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ImageFakeScraperExample
 {
@@ -23,6 +24,12 @@ namespace ImageFakeScraperExample
         bool printLog;
         bool printLogTag;
 
+        static long dataPrint = 0;
+        static long data = 0;
+        static int img_job_count = 0;
+        static int to_dl_count = 0;
+        private static readonly Stopwatch uptime = new();
+
         public MultiThread(bool printLog, bool printLogTag, int nbThread = 8, int QueueLimit = 30)
 		{            
             ThreadCount = nbThread;
@@ -33,6 +40,7 @@ namespace ImageFakeScraperExample
 
         public void InitMultiThread()
         {
+            uptime.Start();
             if (Program.ConfigFile.Config.settings.GoogleRun)
                 dicoEngine.Add("Google", new GoogleScraper());
             if (Program.ConfigFile.Config.settings.DuckduckGORun)
@@ -53,9 +61,6 @@ namespace ImageFakeScraperExample
                 dicoEngine.Add("Pixel", new PixelScraper());
             if (Program.ConfigFile.Config.settings.ImmerseRun)
                 dicoEngine.Add("Immerse", new ImmerseScraper());
-
-
-
         }
 
         private async void PollKeywords()
@@ -73,13 +78,34 @@ namespace ImageFakeScraperExample
                             lock (_lock)
                             {
                                 Console.ForegroundColor = ConsoleColor.Magenta;
-                                Console.WriteLine($"Keyword pick: {keyword} / Keywords Count: {queue.Count()}");
+                                Console.WriteLine($"Keyword pick: {keyword}");
                                 Console.ResetColor();
                             }
                         }
                     }
                 }
                 Thread.Sleep(5000);
+            }
+            
+        }
+
+        private void LogPrintData()
+        {
+            while (true)
+            {
+                try
+                {
+                    string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
+                    printData(
+                        $"Uptime\t\t\t{uptimeFormated}\n"+
+                        $"Total push in 1min\t{dataPrint}\n" +
+                        $"Total Tag\t\t{queue.Count}\n" +
+                        $"img_job_count\t\t{img_job_count}\n" +
+                        $"to_dl_count\t\t{to_dl_count}");
+                }
+                catch { }
+
+                Thread.Sleep(TimeSpan.FromMinutes(1));
             }
         }
 
@@ -102,6 +128,9 @@ namespace ImageFakeScraperExample
 
             Thread poll = new Thread(PollKeywords);
             poll.Start();
+
+            Thread GlobalLog = new Thread(LogPrintData);
+            GlobalLog.Start();
         }
 
         private async void Worker()
@@ -133,42 +162,39 @@ namespace ImageFakeScraperExample
             try
             {
                 RedisValue img_job_ = await redisConnection.GetDatabase.SetLengthAsync(Program.ConfigFile.Config.images_jobs);
-                int img_job_count = int.Parse(img_job_.ToString());
+                img_job_count = int.Parse(img_job_.ToString());
 
                 RedisValue to_dl = await redisConnection.GetDatabase.SetLengthAsync(Program.ConfigFile.Config.to_download);
-                int to_dl_count = int.Parse(to_dl.ToString());
+                to_dl_count = int.Parse(to_dl.ToString());
 
                 if (img_job_count < Program.ConfigFile.Config.settings.stopAfter && to_dl_count < Program.ConfigFile.Config.settings.stopAfter)
                 {
                     RedisValue[] push = Array.ConvertAll(moteur.ToArray(), item => (RedisValue)item);
 
-                    long data = await redisConnection.GetDatabase.SetAddAsync(Program.key, push);
+                    data += await redisConnection.GetDatabase.SetAddAsync(Program.key, push);
                     if (printLog)
                     {
                         lock (_lock)
                         {
                             Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine($"engine {Name} / Data {data}");
+                            if (Name.Contains("Duck") || Name.Contains("Immerse"))
+                            {
+                                Console.WriteLine($"{Name}:\t{data}");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"{Name}:\t\t{data}");
+                            }
                             Console.ResetColor();
                         }
                     }
+                    dataPrint += data;
+                    data = 0;
                 }
                 else
                 {
                     while (true)
                     {
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"Wait Redis full");
-                        Console.ResetColor();
-                        for (int a = 120; a >= 0; a--)
-                        {
-                            Thread.Sleep(1000);
-                            Console.Write($"\rWait after retry {TimeSpan.FromMinutes(a)}");
-                        }
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.Write($"\rWait Redis full retry! {DateTime.Now.ToString("G")}");
-                        Console.ResetColor();
-
                         RedisValue img_job_check = await redisConnection.GetDatabase.SetLengthAsync(Program.ConfigFile.Config.images_jobs);
                         int img_job_count_check = int.Parse(img_job_check.ToString());
 
@@ -177,6 +203,22 @@ namespace ImageFakeScraperExample
 
                         if (img_job_count < Program.ConfigFile.Config.settings.stopAfter && to_dl_count < Program.ConfigFile.Config.settings.stopAfter)
                             break;
+
+                        lock (_lock)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine($" Wait Redis full");
+                            Console.ResetColor();
+                            for (int a = 60; a >= 0; a--)
+                            {
+                                Thread.Sleep(1000);
+                                Console.Write($"\rWait after retry {TimeSpan.FromMinutes(a)}, img_job_count: {img_job_count_check}, to_dl_count: {to_dl_count_check}");
+                            }
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.Write($"\n\rWait Redis full retry! {DateTime.Now.ToString("G")}");
+                            Console.ResetColor();
+                        }
+
                     }
                 }
             }
@@ -188,6 +230,17 @@ namespace ImageFakeScraperExample
                     Console.WriteLine($"/!\\ Fail upload redis {Name} ! /!\\");
                     Console.ResetColor();
                 }
+            }
+        }
+
+        private static void printData(string text)
+        {
+            lock (_lock)
+            {
+                string line = string.Concat(Enumerable.Repeat("=", Console.WindowWidth));
+                Console.WriteLine(line);
+                Console.WriteLine(text);
+                Console.WriteLine(line);
             }
         }
     }
