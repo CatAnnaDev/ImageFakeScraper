@@ -6,8 +6,6 @@ public class GettyScraper
     {
     }
 
-    private SettingsDll settingsDll = new();
-
     private readonly List<string> tmp = new();
     private const string uri = "https://www.gettyimages.fr/photos/{0}?assettype=image&excludenudity=false&license=rf&family=creative&phrase={1}&sort=mostpopular&page={2}";
     public int NbOfRequest = 0;
@@ -18,14 +16,14 @@ public class GettyScraper
     /// </summary>
     /// <param name="query">string param</param>
     /// <returns></returns>
-    public async Task<List<string>> GetImagesAsync(string query)
+    public async Task<List<string>> GetImagesAsync(string query, int GettyMaxPage)
     {
         try
         {
             tmp.Clear();
             NbOfRequest = 0;
             ImageFakeScraperGuards.NotNull(query, nameof(query));
-            for (int i = 1; i < settingsDll.GettyMaxPage + 1; i++)
+            for (int i = 1; i < GettyMaxPage + 1; i++)
             {
                 object[] args = new object[] { query, query, i.ToString() };
                 HtmlDocument doc = await httpRequest.Get(uri, args);

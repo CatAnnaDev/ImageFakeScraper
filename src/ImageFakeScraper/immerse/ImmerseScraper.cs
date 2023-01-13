@@ -3,30 +3,28 @@
 
 public class ImmerseScraper
 {
-    private static SettingsDll settingsDll = new();
-
     public ImmerseScraper()
     {
 
     }
-    
+
     private readonly List<string> tmp = new();
     private const string uri = "https://www.immerse.zone/api/immerse/search";
     private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
 
-    public async Task<List<string>> GetImagesAsync(string query)
+    public async Task<List<string>> GetImagesAsync(string query, int pageSize, int ImmerseMaxPage)
     {
         try
         {
             tmp.Clear();
-            for (int i = 1; i < settingsDll.ImmerseMaxPage + 1; i++)
+            for (int i = 1; i < ImmerseMaxPage + 1; i++)
             {
                 ImageFakeScraperGuards.NotNull(query, nameof(query));
                 JsonCreatePush json = new()
                 {
                     searchText = query,
                     pageNum = i,
-                    pageSize = settingsDll.ImmersePageSize
+                    pageSize = pageSize
                 };
 
                 string jsonString = JsonSerializer.Serialize(json);

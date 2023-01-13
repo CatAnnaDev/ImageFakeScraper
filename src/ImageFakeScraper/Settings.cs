@@ -2,17 +2,16 @@
 
 public class SettingsDll
 {
-    public SettingsDll() { }
     // Getty
-    public int GettyMaxPage { get; set; } = 500;
+    public int GettyMaxPage { get; set; }
 
     // Immerse
-    public int ImmerseMaxPage { get; set; } = 2;
-    public int ImmersePageSize { get; set; } = 1000;
+    public int ImmerseMaxPage { get; set; }
+    public int ImmersePageSize { get; set; }
 
     // OpenVerse
-    public int OpenVerseMaxPage { get; set; } = 2;
+    public int OpenVerseMaxPage { get; set; }
 
     // EveryPixel
-    public int EveryPixelMaxPage { get; set; } = 500;
+    public int EveryPixelMaxPage { get; set; }
 }
