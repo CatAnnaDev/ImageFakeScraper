@@ -58,9 +58,9 @@ namespace ImageFakeScraperExample.config
 
                 settingsDll = new()
                 {
-                    AlamyMaxPage = 25,
+                    AlamyMaxPage = 200,
                     AlamyPageSize = 1500,
-                    AlamyUnlimitedPage = false,
+                    AlamyUnlimitedPage = true,
                     GettyMaxPage = 500,
                     ImmerseMaxPage = 2,
                     ImmersePageSize = 1000,

@@ -1,7 +1,4 @@
-﻿using System.Net.Http;
-using ImageFakeScraper.Alamy;
-
-namespace ImageFakeScraperExample.function;
+﻿namespace ImageFakeScraperExample.function;
 
 public class searchEngineRequest
 {
