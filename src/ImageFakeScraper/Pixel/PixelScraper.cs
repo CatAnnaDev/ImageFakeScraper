@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 namespace ImageFakeScraper.Pixel;
 
-public class PixelScraper
+public class PixelScraper : Scraper
 {
     public PixelScraper()
     {
@@ -52,5 +52,10 @@ public class PixelScraper
         }
         catch (Exception) { }
         return tmp;
+    }
+
+    public override async Task<List<string>> GetImages(params object[] args)
+    {
+        return await GetImagesAsync((string)args[0], (int)args[1]);
     }
 }

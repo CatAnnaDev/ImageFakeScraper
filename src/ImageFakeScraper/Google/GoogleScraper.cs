@@ -1,6 +1,6 @@
 ﻿namespace ImageFakeScraper.Google;
 
-public class GoogleScraper
+public class GoogleScraper : Scraper
 {
 
     public const string DefaultApiEndpoint = "https://www.google.com/search";
@@ -82,6 +82,11 @@ public class GoogleScraper
         catch { return null; }
 
         return tmp;
+    }
+
+    public override async Task<List<string>> GetImages(params object[] args)
+    {
+        return await GetImagesAsync((string)args[0]);
     }
 
     private static string BuildImageQuery(string query)

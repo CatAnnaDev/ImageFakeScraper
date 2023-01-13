@@ -35,13 +35,7 @@ public class Settings
 
     // Redis image push
     public int stopAfter { get; set; }
-    public bool useMongoDB { get; set; }
     public bool PrintLog { get; set; }
-
-    // Main 
-    public bool PrintLogMain { get; set; }
-    public bool GetNewTagGoogle { get; set; }
-    public bool GetNewTagBing { get; set; }
-
+    public bool PrintLogTag { get; set; }
 
 }

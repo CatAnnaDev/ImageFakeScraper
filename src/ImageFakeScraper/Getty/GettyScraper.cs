@@ -1,6 +1,6 @@
 ﻿namespace ImageFakeScraper.Getty;
 
-public class GettyScraper
+public class GettyScraper : Scraper
 {
     public GettyScraper()
     {
@@ -41,7 +41,12 @@ public class GettyScraper
                 }
             }
         }
-        catch (Exception e) { Console.WriteLine(e); }
+        catch (Exception e) {  }
         return tmp;
+    }
+
+    public override async Task<List<string>> GetImages(params object[] args)
+    {
+        return await GetImagesAsync((string)args[0], (int)args[1]);
     }
 }

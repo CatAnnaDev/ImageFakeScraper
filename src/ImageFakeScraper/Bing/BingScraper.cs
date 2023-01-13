@@ -1,7 +1,7 @@
 ﻿namespace ImageFakeScraper.Bing;
 
 
-public class BinImageFakeScraper
+public class BinImageFakeScraper : Scraper
 {
 
     public BinImageFakeScraper()
@@ -57,7 +57,12 @@ public class BinImageFakeScraper
                 }
             }
         }
-        catch (Exception e) { Console.WriteLine(e); }
+        catch (Exception e) {  }
         return tmp;
+    }
+
+    public override async Task<List<string>> GetImages(params object[] args)
+    {
+        return await GetImagesAsync((string)args[0]);
     }
 }

@@ -1,7 +1,7 @@
 ﻿
 namespace ImageFakeScraper.Brave;
 
-public class BraveScraper
+public class BraveScraper : Scraper
 {
     public const string DefaultApiEndpoint = "https://search.brave.com/api/";
 
@@ -68,6 +68,11 @@ public class BraveScraper
     {
         string url = $"images?q={Uri.EscapeDataString(query)}&safesearch=Off&size=All&_type=All&layout=All&color=All&license=All&source=web";
         return url;
+    }
+
+    public override async Task<List<string>> GetImages(params object[] args)
+    {
+        return await GetImagesAsync((string)args[0]);
     }
 }
 

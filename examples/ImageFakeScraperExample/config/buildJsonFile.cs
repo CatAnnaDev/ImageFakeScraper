@@ -29,12 +29,12 @@ namespace ImageFakeScraperExample.config
             {
                 Credential = "Redis Login",
                 Sleep = 0,
-                Pseudo = "Pseudo",
-                domain_blacklist = "domain_blacklist",
+                Thread = 8,
+                QueueLimit = 30,
                 words_list = "words_list",
-                words_done = "words_done",
                 images_jobs = "image_jobs",
                 to_download = "to_download",
+
                 settings = new()
                 {
                     GoogleRun = true,
@@ -48,23 +48,8 @@ namespace ImageFakeScraperExample.config
                     ImmerseRun = true,
                     EveryPixelRun = true,
                     stopAfter = 8000000,
-                    useMongoDB = false,
-                    PrintLog = true,
-                    PrintLogMain = true,
-                    GetNewTagGoogle = false,
-                    GetNewTagBing = false
-                },
-
-                settingsDll = new()
-                {
-                    AlamyMaxPage = 25,
-                    AlamyPageSize = 1500,
-                    AlamyUnlimitedPage = false,
-                    GettyMaxPage = 500,
-                    ImmerseMaxPage = 2,
-                    ImmersePageSize = 1000,
-                    OpenVerseMaxPage = 2,
-                    EveryPixelMaxPage = 500
+                    PrintLogTag = true,
+                    PrintLog = true
                 }
             };
         }

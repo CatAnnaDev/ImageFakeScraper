@@ -1,7 +1,7 @@
 ﻿namespace ImageFakeScraper.immerse;
 
 
-public class ImmerseScraper
+public class ImmerseScraper : Scraper
 {
     public ImmerseScraper()
     {
@@ -65,6 +65,11 @@ public class ImmerseScraper
         }
         catch (Exception) { }
         return tmp;
+    }
+
+    public override async Task<List<string>> GetImages(params object[] args)
+    {
+        return await GetImagesAsync((string)args[0], (int)args[1], (int)args[2]);
     }
 }
 

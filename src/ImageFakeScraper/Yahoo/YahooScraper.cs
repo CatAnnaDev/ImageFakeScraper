@@ -1,5 +1,5 @@
 ﻿namespace ImageFakeScraper.Yahoo;
-public class YahooScraper
+public class YahooScraper : Scraper
 {
 
     public YahooScraper()
@@ -33,7 +33,12 @@ public class YahooScraper
                 }
             }
         }
-        catch (Exception e) { Console.WriteLine(e); }
+        catch (Exception e) {  }
         return tmp;
+    }
+
+    public override async Task<List<string>> GetImages(params object[] args)
+    {
+        return await GetImagesAsync((string)args[0]);
     }
 }

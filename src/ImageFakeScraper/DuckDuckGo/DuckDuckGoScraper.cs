@@ -1,7 +1,7 @@
 ﻿
 namespace ImageFakeScraper.DuckDuckGo;
 
-public class DuckDuckGoScraper
+public class DuckDuckGoScraper : Scraper
 {
     public const string DefaultApiEndpoint = "https://duckduckgo.com";
 
@@ -70,6 +70,11 @@ public class DuckDuckGoScraper
         }
         catch { return null; }
         return tmp;
+    }
+
+    public override async Task<List<string>> GetImages(params object[] args)
+    {
+        return await GetImagesAsync((string)args[0]);
     }
 
     private static string BuildImageQuery(string token, string query)

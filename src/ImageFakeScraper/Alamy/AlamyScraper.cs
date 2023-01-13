@@ -2,8 +2,8 @@
 
 namespace ImageFakeScraper.Alamy
 {
-	public class AlamyScraper
-	{
+	public class AlamyScraper : Scraper
+    {
 		public AlamyScraper()
 		{
 		}
@@ -51,6 +51,12 @@ namespace ImageFakeScraper.Alamy
             }
             catch { }
             return tmp;
+        }
+
+
+        public override async Task<List<string>> GetImages(params object[] args)
+        {
+            return await GetImagesAsync((string)args[0], (int)args[1], (int)args[2], (bool)args[3]);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 namespace ImageFakeScraper.OpenVerse;
 
-public class OpenVerseScraper
+public class OpenVerseScraper : Scraper
 {
 
     public OpenVerseScraper() { }
@@ -43,5 +43,10 @@ public class OpenVerseScraper
         }
         catch { }
         return tmp;
+    }
+
+    public override async Task<List<string>> GetImages(params object[] args)
+    {
+        return await GetImagesAsync((string)args[0], (int)args[1]);
     }
 }
