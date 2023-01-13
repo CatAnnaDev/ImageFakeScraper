@@ -41,6 +41,7 @@ namespace ImageFakeScraperExample.config
                     GoogleRun = true,
                     DuckduckGORun = false,
                     BraveRun = false,
+                    AlamyRun = true,
                     OpenVerseRun = true,
                     BingRun = true,
                     YahooRun = true,
@@ -57,6 +58,9 @@ namespace ImageFakeScraperExample.config
 
                 settingsDll = new()
                 {
+                    AlamyMaxPage = 200,
+                    AlamyPageSize = 1500,
+                    AlamyUnlimitedPage = true,
                     GettyMaxPage = 500,
                     ImmerseMaxPage = 2,
                     ImmersePageSize = 1000,

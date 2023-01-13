@@ -15,6 +15,9 @@ public class Settings
     // OpenVerse
     public bool OpenVerseRun { get; set; }
 
+    // Alamy
+    public bool AlamyRun { get; set; }
+    
     // Bing
     public bool BingRun { get; set; }
 

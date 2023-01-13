@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using ImageFakeScraper.Alamy;
 
 namespace ImageFakeScraperExample.function;
 
@@ -14,6 +15,9 @@ public class searchEngineRequest
 
     private static List<string> BraveResult = new();
     private static readonly BraveScraper brave = new();
+
+    private static List<string> AlamyResult = new();
+    private static readonly AlamyScraper alamy = new();
 
     private static List<string> OpenResult = new();
     private static readonly OpenVerseScraper open = new();
@@ -85,13 +89,26 @@ public class searchEngineRequest
             returnLink.Add("Brave", BraveResult);
         }
         #endregion
+        #region Alamy
+        if (Program.ConfigFile.Config.settings.AlamyRun)
+        {
+            AlamyResult.Clear();
+            try
+            {
+                AlamyResult = await alamy.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.AlamyMaxPage, Program.ConfigFile.Config.settingsDll.AlamyPageSize, Program.ConfigFile.Config.settingsDll.AlamyUnlimitedPage);
+            }
+            catch { }
+            NbOfRequest += alamy.NbOfRequest;
+            returnLink.Add("Alamy", AlamyResult);
+        }
+        #endregion
         #region OpenVerse
         if (Program.ConfigFile.Config.settings.OpenVerseRun)
         {
             OpenResult.Clear();
             try
             {
-                OpenResult = await open.GtImagesAsync(text, Program.ConfigFile.Config.settingsDll.OpenVerseMaxPage);
+                OpenResult = await open.GetImagesAsync(text, Program.ConfigFile.Config.settingsDll.OpenVerseMaxPage);
             }
             catch { }
             NbOfRequest += open.NbOfRequest;
