@@ -6,7 +6,6 @@ internal class redisImagePush
 {
     #region Var
     static Settings settings = new();
-    static buildJsonFile settingsFile = new();
     public static long recordtmp { get; private set; } = 0;
     public static long record { get; private set; } = 0;
 
@@ -61,12 +60,14 @@ internal class redisImagePush
                 {
                     Uri opts = new(Program.Credential);
 
-                    RedisValue nextIndex = await conn.SetLengthAsync(Program.key);
-                    int img_job_count = int.Parse(nextIndex.ToString());
+                    RedisValue img_job_ = await conn.SetLengthAsync(Program.key);
+                    int img_job_count = int.Parse(img_job_.ToString());
+
+                    RedisValue to_dl = await conn.SetLengthAsync(Program.key);
+                    int to_dl_count = int.Parse(to_dl.ToString());
 
 
-
-                    if(img_job_count < settings.stopAfter)
+                    if (img_job_count < settings.stopAfter || to_dl_count < settings.stopAfter)
                         data = await conn.SetAddAsync(Program.key, push);
 
 

@@ -10,7 +10,8 @@
         public string? words_done { get; set; }
         public string? record_push { get; set; }
         public string? images_jobs { get; set; }
-        public Settings settings { get; set; }
-        public SettingsDll settingsDll { get; set; }
+        public string? to_download { get; set; }
+        public Settings? settings { get; set; }
+        public SettingsDll? settingsDll { get; set; }
     }
 }

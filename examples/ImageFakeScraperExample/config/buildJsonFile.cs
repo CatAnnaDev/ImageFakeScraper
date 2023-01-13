@@ -35,6 +35,7 @@ namespace ImageFakeScraperExample.config
                 words_done = "words_done",
                 record_push = "record_push",
                 images_jobs = "image_jobs",
+                to_download = "to_download",
                 settings = new()
                 {
                     GoogleRun = true,

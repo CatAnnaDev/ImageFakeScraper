@@ -12,6 +12,7 @@ internal static class Program
     private static Dictionary<string, List<string>>? site;
     private static readonly KestrelMetricServer server = new(port: 4444);
     public static string? key;
+    public static string? key_to_dl;
     public static long totalimageupload = 0;
     public static List<string> blackList = new();
     private static readonly MongoClient dbClient = new("mongodb://localhost:27017/");
@@ -46,6 +47,7 @@ internal static class Program
         waittime = ConfigFile.Config.Sleep;
         Pseudo = ConfigFile.Config.Pseudo;
         key = ConfigFile.Config.images_jobs;
+        key_to_dl = ConfigFile.Config.to_download;
 
         // Bloom filter 
 
@@ -156,7 +158,12 @@ internal static class Program
                     {
                         string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
                         long redisDBLength = conn.SetLength(Program.key);
-                        string redisLength = $"{redisDBLength} / {1_000_000} ({100.0 * redisDBLength / 1_000_000:0.00}%)";
+                        string redisLength = $"{redisDBLength} / {settings.stopAfter} ({100.0 * redisDBLength / settings.stopAfter:0.00}%)";
+
+                        long redisDBLengthto_dl = conn.SetLength(key_to_dl);
+                        string redisLengthto_dl = $"{redisDBLengthto_dl} / {settings.stopAfter} ({100.0 * redisDBLengthto_dl / settings.stopAfter:0.00}%)";
+
+
                         double elapsed = TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds).TotalSeconds;
 
 
@@ -172,6 +179,7 @@ internal static class Program
                                 $"Tag done\t{conn.ListLengthAsync(ConfigFile.Config.words_done).Result}\n" +
                                 $"Tag remaining\t{conn.ListLengthAsync(ConfigFile.Config.words_list).Result}\n" +
                                 $"{Program.key}\t{redisLength}\n" +
+                                $"{key_to_dl}\t{redisLengthto_dl}\n" +
                                 $"Total upload\t{totalimageupload}\n" +
                                 $"Record\t\t{redisImagePush.record}\n" +
                                 $"Record Glb:\t{conn.StringGet(ConfigFile.Config.record_push)}");
