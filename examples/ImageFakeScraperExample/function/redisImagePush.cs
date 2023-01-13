@@ -58,14 +58,14 @@ internal class redisImagePush
             {
                 if (Program.ConfigFile.Config.settings.PrintLog)
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    if (Site == "DuckDuckGo" || Site.Contains("Immerse"))
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    if (Site == "DuckDuckGo")
                     {
-                        Console.WriteLine($"{Site}\tdown");
+                        Console.WriteLine($"{Site}\tdown / off");
                     }
                     else
                     {
-                        Console.WriteLine($"{Site}\t\tdown");
+                        Console.WriteLine($"{Site}\t\tdown / off");
                     }
 
                     Console.ResetColor();

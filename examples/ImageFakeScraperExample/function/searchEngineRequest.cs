@@ -55,7 +55,8 @@ public class searchEngineRequest
                 TotalPush += await RedisPush(googleResult, "Google");
             }
             catch { }
-        }
+        }else
+            TotalPush += await RedisPush(null, "Google");
         #endregion
         #region DuckduckGO
         if (Program.ConfigFile.Config.settings.DuckduckGORun)
@@ -68,6 +69,8 @@ public class searchEngineRequest
             }
             catch { }
         }
+        else
+            TotalPush += await RedisPush(null, "DuckDuckGo");
         #endregion
         #region Brave
         if (Program.ConfigFile.Config.settings.BraveRun)
@@ -80,6 +83,8 @@ public class searchEngineRequest
             }
             catch { }
         }
+        else
+            TotalPush += await RedisPush(null, "Brave");
         #endregion
         #region Alamy
         if (Program.ConfigFile.Config.settings.AlamyRun)
@@ -92,6 +97,8 @@ public class searchEngineRequest
             }
             catch { }
         }
+        else
+            TotalPush += await RedisPush(null, "Alamy");
         #endregion
         #region OpenVerse
         if (Program.ConfigFile.Config.settings.OpenVerseRun)
@@ -104,6 +111,8 @@ public class searchEngineRequest
             }
             catch { }
         }
+        else
+            TotalPush += await RedisPush(null, "Open");
         #endregion
         #region Bing
         if (Program.ConfigFile.Config.settings.BingRun)
@@ -116,6 +125,8 @@ public class searchEngineRequest
             }
             catch { }
         }
+        else
+            TotalPush += await RedisPush(null, "Bing");
         #endregion
         #region Yahoo
         if (Program.ConfigFile.Config.settings.YahooRun)
@@ -128,6 +139,8 @@ public class searchEngineRequest
             }
             catch { }
         }
+        else
+            TotalPush += await RedisPush(null, "Yahoo");
         #endregion
         #region GettyImage
         if (Program.ConfigFile.Config.settings.GettyImageRun)
@@ -140,6 +153,8 @@ public class searchEngineRequest
             }
             catch { }
         }
+        else
+            TotalPush += await RedisPush(null, "Getty");
         #endregion
         if (Program.ConfigFile.Config.settings.ImmerseRun)
         {
@@ -151,6 +166,8 @@ public class searchEngineRequest
             }
             catch { }
         }
+        else
+            TotalPush += await RedisPush(null, "Immerse");
         #region EveryPixel
         if (Program.ConfigFile.Config.settings.EveryPixelRun)
         {
@@ -162,6 +179,8 @@ public class searchEngineRequest
             }
             catch { }
         }
+        else
+            TotalPush += await RedisPush(null, "Pixel");
         #endregion
     }
     #endregion
