@@ -52,12 +52,13 @@ public class DuckDuckGoScraper : Scraper
         ImageFakeScraperGuards.NotNull(query, nameof(query));
         ImageFakeScraperGuards.ArgumentInRange(query.Length, MaxQueryLength, nameof(query), $"The query cannot be larger than {MaxQueryLength}.");
 
-        string token = await GetTokenAsync(query).ConfigureAwait(false);
-        Uri uri = new(BuildImageQuery(token, query), UriKind.Relative);
 
-        Stream stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
         try
         {
+            string token = await GetTokenAsync(query).ConfigureAwait(false);
+            Uri uri = new(BuildImageQuery(token, query), UriKind.Relative);
+
+            Stream stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
             tmp.Clear();
             response = (await JsonSerializer.DeserializeAsync(stream, DuckDuckGoImageSearchResponseContext.Default.DuckDuckGoImageSearchResponse).ConfigureAwait(false))!;
             if (response != null)

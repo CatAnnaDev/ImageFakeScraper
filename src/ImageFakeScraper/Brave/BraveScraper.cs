@@ -46,9 +46,10 @@ public class BraveScraper : Scraper
 
         Uri uri = new(BuildImageQuery(query), UriKind.Relative);
 
-        Stream stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
         try
         {
+            Stream stream = await _httpClient.GetStreamAsync(uri).ConfigureAwait(false);
+
             tmp.Clear();
             response = (await JsonSerializer.DeserializeAsync(stream, BraveImageSearchResponseContext.Default.BraveImageSearchResponse).ConfigureAwait(false))!;
             if (response != null)

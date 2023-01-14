@@ -1,5 +1,4 @@
 ﻿using System;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ImageFakeScraperExample
 {
@@ -147,7 +146,7 @@ namespace ImageFakeScraperExample
 
                     if(dicoEngine.TryGetValue(name, out Scraper? engine))
                     {
-                        object[] args = new object[] { keyword, 25, 1500, false };
+                        object[] args = new object[] { keyword, 1, 1_500, false };
                         var urls = await engine.GetImages(args);
                         await RedisPush(urls, name, printLog);
                     }
@@ -177,9 +176,10 @@ namespace ImageFakeScraperExample
                         lock (_lock)
                         {
                             Console.ForegroundColor = ConsoleColor.Green;
-                            if (Name.Contains("Duck") || Name.Contains("Immerse"))
+                            if (Name.Contains("Immerse"))
                             {
                                 Console.WriteLine($"{Name}:\t{data}");
+
                             }
                             else
                             {
