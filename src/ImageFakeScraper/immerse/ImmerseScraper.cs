@@ -68,6 +68,7 @@ public class ImmerseScraper : Scraper
 		var urls =await GetImagesAsync((string)args[0], (int)args[1], (int)args[2]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		var result = await redis.SetAddAsync(RedisPushKey, push);
+		SettingsDll.nbPushTotal += result;
 		Console.WriteLine("Immerse " + result);
 	}
 }

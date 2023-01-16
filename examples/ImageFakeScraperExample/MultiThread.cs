@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic;
+﻿using ImageFakeScraper.OpenVerse;
+using Microsoft.VisualBasic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -44,8 +45,8 @@ namespace ImageFakeScraperExample
 
 			if (Program.ConfigFile.Config.settings.BingRun)
 				dicoEngine.Add("Bing", new BinImageFakeScraper(redisConnection.GetDatabase, Program.key));
-			//if (Program.ConfigFile.Config.settings.GoogleRun)
-			//	dicoEngine.Add("Google", new GoogleScraper(redisConnection.GetDatabase, Program.key));
+			if (Program.ConfigFile.Config.settings.GoogleRun)
+				dicoEngine.Add("Google", new GoogleScraper(redisConnection.GetDatabase, Program.key));
 			if (Program.ConfigFile.Config.settings.AlamyRun)
 				dicoEngine.Add("Alamy", new AlamyScraper(redisConnection.GetDatabase, Program.key));
 			if (Program.ConfigFile.Config.settings.OpenVerseRun)
@@ -72,7 +73,8 @@ namespace ImageFakeScraperExample
 						$"Total Tag\t{queue.Count}\n" +
 						$"Thread\t\t{Program.nbThread}\n" +
 						$"Sleep\t\t{Program.waittime}\n" +
-						$"Request/sec\t{Program.requestMaxPerSec}");
+						$"Request/sec\t{Program.requestMaxPerSec}\n"+
+						$"Total Push\t{SettingsDll.nbPushTotal}");
 				}
 				catch { }
 

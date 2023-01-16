@@ -57,6 +57,7 @@ public class BinImageFakeScraper : Scraper
 		var urls =await GetImagesAsync((string)args[0], (IDatabase)args[4]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		var result = await redis.SetAddAsync(RedisPushKey, push);
+		SettingsDll.nbPushTotal += result;
 		Console.WriteLine("Bing " + result);
 	}
 }

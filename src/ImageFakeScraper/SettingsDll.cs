@@ -3,6 +3,7 @@
 public class SettingsDll
 {
 
+    public static long nbPushTotal { get; set; } = 0;
     // Alamy
     public int AlamyMaxPage { get; set; }
     public int AlamyPageSize { get; set; }
