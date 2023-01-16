@@ -27,7 +27,7 @@ public class BinImageFakeScraper : Scraper
             string[] args = new string[] { query };
             HtmlDocument doc = await httpRequest.Get(uri, args);
             IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !string.IsNullOrEmpty(s));
-
+            
             //HtmlNodeCollection tag = doc.DocumentNode.SelectNodes("//div[@class='suggestion-title-wrapper']");
 
             //if (tag != null)
@@ -45,19 +45,19 @@ public class BinImageFakeScraper : Scraper
             //    }
             //}
 
-            foreach (string? data in urls)
+            for (int i = 0; i<urls.Count(); i++)
             {
-                if (RegexCheck.IsMatch(data))
+                if (RegexCheck.IsMatch(urls.ElementAt(i)))
                 {
-                    string cleanUrl = Regex.Replace(data, @"[?&][^?&]+=[^?&]+", "");
-                    if (!cleanUrl.EndsWith("th") && !data.Contains("th?id="))
+                    string cleanUrl = Regex.Replace(urls.ElementAt(i), @"[?&][^?&]+=[^?&]+", "");
+                    if (!cleanUrl.EndsWith("th") && !urls.ElementAt(i).Contains("th?id="))
                     {
                         tmp.Add(cleanUrl);
                     }
                 }
             }
         }
-        catch (Exception e) {  }
+        catch (Exception e) { Console.WriteLine("Bing " + e); }
         return tmp;
     }
 

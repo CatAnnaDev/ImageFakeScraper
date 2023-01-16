@@ -31,7 +31,7 @@ public class OpenVerseScraper : Scraper
                     {
                         for (int j = 0; j < jsonparsed.results.Count; j++)
                         {
-                            if (RegexCheck.IsMatch(jsonparsed.results[i].url))
+                            if (RegexCheck.IsMatch(jsonparsed.results[j].url))
                             {
                                 tmp.Add(jsonparsed.results[j].url);
                             }
@@ -41,7 +41,7 @@ public class OpenVerseScraper : Scraper
             }
 
         }
-        catch { }
+        catch (Exception e) { Console.WriteLine("Open " + e); }
         return tmp;
     }
 

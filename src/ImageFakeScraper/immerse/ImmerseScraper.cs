@@ -63,7 +63,7 @@ public class ImmerseScraper : Scraper
                     break;
             }
         }
-        catch (Exception) { }
+        catch (Exception e) { Console.WriteLine("Immerse " + e); }
         return tmp;
     }
 

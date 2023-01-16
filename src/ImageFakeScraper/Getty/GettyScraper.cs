@@ -32,16 +32,16 @@ public class GettyScraper : Scraper
                     break;
                 }
 
-                foreach (string? data in urls)
+                for (int j = 0; j < urls.Count(); j++)
                 {
-                    if (RegexCheck.IsMatch(data))
+                    if (RegexCheck.IsMatch(urls.ElementAt(j)))
                     {
-                        tmp.Add(data.Replace("&amp;", "&"));
+                        tmp.Add(urls.ElementAt(j).Replace("&amp;", "&"));
                     }
                 }
             }
         }
-        catch (Exception e) {  }
+        catch (Exception e) { Console.WriteLine("Getty " + e); }
         return tmp;
     }
 

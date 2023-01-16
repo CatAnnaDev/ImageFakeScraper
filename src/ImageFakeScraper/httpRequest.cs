@@ -7,16 +7,21 @@ public class httpRequest
 
     public static async Task<HtmlDocument> Get(string uri, params object[] query)
     {
-        string url = string.Format(uri, query);
-        HttpResponseMessage resp = await client.GetAsync(url);
-        if (resp.StatusCode == HttpStatusCode.TooManyRequests)
+        try
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            await Console.Out.WriteLineAsync("TooManyRequests (429)");
-            Console.ResetColor();
+            string url = string.Format(uri, query);
+            HttpResponseMessage resp = await client.GetAsync(url);
+            if (resp.StatusCode == HttpStatusCode.TooManyRequests)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                await Console.Out.WriteLineAsync("TooManyRequests (429)");
+                Console.ResetColor();
+            }
+            string data = await resp.Content.ReadAsStringAsync();
+            doc.LoadHtml(data);
         }
-        string data = await resp.Content.ReadAsStringAsync();
-        doc.LoadHtml(data);
+        catch { }
+
         return doc;
     }
 

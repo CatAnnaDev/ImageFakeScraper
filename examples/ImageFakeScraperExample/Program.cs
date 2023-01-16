@@ -49,10 +49,13 @@ internal static class Program
 
             MultiThread multi = new(ConfigFile.Config.settings.PrintLog, ConfigFile.Config.settings.PrintLogTag, Thread, QueueLimit);
 
+            Console.WriteLine("InitMultiThread");
             multi.InitMultiThread();
+            Console.WriteLine("Search");
             multi.Search(await redisGetNewTag(redisConnection.GetDatabase));
+            Console.WriteLine("SpawnThreads");
             multi.SpawnThreads();
-
+            Console.WriteLine("Wait");
             Console.Read();
 
         }

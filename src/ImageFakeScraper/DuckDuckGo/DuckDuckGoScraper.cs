@@ -63,13 +63,13 @@ public class DuckDuckGoScraper : Scraper
             response = (await JsonSerializer.DeserializeAsync(stream, DuckDuckGoImageSearchResponseContext.Default.DuckDuckGoImageSearchResponse).ConfigureAwait(false))!;
             if (response != null)
             {
-                foreach (DuckDuckGoImageResultModel data in response.Results)
+                for (int i = 0; i < response.Results.Count(); i++)
                 {
-                    tmp.Add(data.Url);
+                    tmp.Add(response.Results[i].Url);
                 }
             }
         }
-        catch { return null; }
+        catch(Exception e) { Console.WriteLine("Duck " + e); return null; }
         return tmp;
     }
 

@@ -50,7 +50,7 @@ public class PixelScraper : Scraper
                 }
             }
         }
-        catch (Exception) { }
+        catch (Exception e) { Console.WriteLine("Pixel " + e); }
         return tmp;
     }
 

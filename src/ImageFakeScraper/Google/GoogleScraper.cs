@@ -73,13 +73,13 @@ public class GoogleScraper : Scraper
             images = JsonSerializer.Deserialize(bytes.AsSpan(5, bytes.Length - 5), GoogleImageSearchResponseContext.Default.GoogleImageSearchResponse)!.Ischj.Metadata;
             if (images != null)
             {
-                foreach (GoogleImageResultModel data in images)
+                for (int i = 0; i < images.Count(); i++)
                 {
-                    tmp.Add(data.Url);
+                        tmp.Add(images[i].Url);
                 }
             }
         }
-        catch { return null; }
+        catch(Exception e) { Console.WriteLine("Google " + e); return null; }
 
         return tmp;
     }

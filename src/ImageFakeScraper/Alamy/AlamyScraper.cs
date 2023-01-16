@@ -49,7 +49,7 @@ namespace ImageFakeScraper.Alamy
                 }
 
             }
-            catch { }
+            catch (Exception e) { Console.WriteLine("Alamy " +e); }
             return tmp;
         }
 

@@ -54,13 +54,13 @@ public class BraveScraper : Scraper
             response = (await JsonSerializer.DeserializeAsync(stream, BraveImageSearchResponseContext.Default.BraveImageSearchResponse).ConfigureAwait(false))!;
             if (response != null)
             {
-                foreach (BraveImageResultModel data in response.Results)
+                for (int i = 0; i < response.Results.Count(); i++)
                 {
-                    tmp.Add(data.Url);
+                    tmp.Add(response.Results[i].Url);
                 }
             }
         }
-        catch { return null; }
+        catch(Exception e) { Console.WriteLine("Brave "+e); return null; }
 
         return tmp;
     }
