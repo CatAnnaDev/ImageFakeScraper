@@ -4,7 +4,7 @@
 public class BinImageFakeScraper : Scraper
 {
 
-	public BinImageFakeScraper(IDatabase redis, string key) : base(redis, key) { }
+	public BinImageFakeScraper(IDatabase redis, Dictionary<string, object> key) : base(redis, key) { }
 
 	private const string uri = "https://www.bing.com/images/search?q={0}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&adlt=off";
 	private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
@@ -54,9 +54,12 @@ public class BinImageFakeScraper : Scraper
 
 	public override async void GetImages(AsyncCallback ac, params object[] args)
 	{
+		if (!await redisCheckCount())
+			return;
+
 		var urls =await GetImagesAsync((string)args[0], (IDatabase)args[4]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
-		var result = await redis.SetAddAsync(RedisPushKey, push);
+		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
 		Console.WriteLine("Bing " + result);
 	}

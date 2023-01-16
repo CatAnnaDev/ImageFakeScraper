@@ -4,7 +4,7 @@ namespace ImageFakeScraper.OpenVerse;
 public class OpenVerseScraper : Scraper
 {
 
-    public OpenVerseScraper(IDatabase redis, string key) : base(redis, key) { }
+    public OpenVerseScraper(IDatabase redis, Dictionary<string, object> key) : base(redis, key) { }
 
 	private SettingsDll settingsDll = new();
 
@@ -46,9 +46,12 @@ public class OpenVerseScraper : Scraper
 
 	public override async void GetImages(AsyncCallback ac, params object[] args)
 	{
+		if (!await redisCheckCount())
+			return;
+            
 		var urls =await GetImagesAsync((string)args[0], (int)args[1]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
-		var result = await redis.SetAddAsync(RedisPushKey, push);
+		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
 		Console.WriteLine("Open " + result);
 	}

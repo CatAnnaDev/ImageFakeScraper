@@ -2,7 +2,7 @@
 
 public class GettyScraper : Scraper
 {
-    public GettyScraper(IDatabase redis, string key) : base(redis, key) { }
+    public GettyScraper(IDatabase redis, Dictionary<string, object> key) : base(redis, key) { }
 
 	private const string uri = "https://www.gettyimages.fr/photos/{0}?assettype=image&excludenudity=false&license=rf&family=creative&phrase={1}&sort=mostpopular&page={2}";
     private readonly Regex RegexCheck = new(@"^(https:\/\/)?s?:?([^\s([""<,>\/]*)(\/)[^\s["",><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s["",><]*)?");
@@ -44,9 +44,12 @@ public class GettyScraper : Scraper
 
 	public override async void GetImages(AsyncCallback ac, params object[] args)
 	{
+		if (!await redisCheckCount())
+			return;
+
 		var urls =await GetImagesAsync((string)args[0], (int)args[1]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
-		var result = await redis.SetAddAsync(RedisPushKey, push);
+		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
 		Console.WriteLine("Getty " + result);
 	}

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using StackExchange.Redis;
 
 namespace ImageFakeScraper.Google;
 
@@ -6,9 +7,7 @@ public class GoogleScraper : Scraper
 {
 	private const string uri = "https://www.google.com/search?q={0}&tbm=isch&asearch=isch&async=_fmt:json,p:2&tbs=&safe=off";
 
-	public GoogleScraper(IDatabase redis, string key) : base(redis, key)
-	{
-	}
+	public GoogleScraper(IDatabase redis, Dictionary<string, object> key) : base(redis, key) { }
 
 	public async Task<List<string>?> GetImagesAsync(string query)
     {
@@ -33,9 +32,12 @@ public class GoogleScraper : Scraper
 
 	public override async void GetImages(AsyncCallback ac, params object[] args)
 	{
-        var urls =await GetImagesAsync((string)args[0]);
+	if (!await redisCheckCount())
+		return;
+
+		var urls =await GetImagesAsync((string)args[0]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
-		var result = await redis.SetAddAsync(RedisPushKey, push);
+		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
 		Console.WriteLine("Google " + result);
 	}

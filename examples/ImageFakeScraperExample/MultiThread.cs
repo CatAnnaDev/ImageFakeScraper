@@ -42,23 +42,28 @@ namespace ImageFakeScraperExample
 		public void InitMultiThread()
 		{
 			uptime.Start();
-
+			Dictionary<string, object> options = new()
+			{
+				{"redis_push_key", Program.key },
+				{"redis_queue_limit_name", Program.ConfigFile.Config.to_download },
+				{"redis_queue_limit_count",  Program.ConfigFile.Config.settings.stopAfter }
+			};
 			if (Program.ConfigFile.Config.settings.BingRun)
-				dicoEngine.Add("Bing", new BinImageFakeScraper(redisConnection.GetDatabase, Program.key));
+				dicoEngine.Add("Bing", new BinImageFakeScraper(redisConnection.GetDatabase, options));
 			if (Program.ConfigFile.Config.settings.GoogleRun)
-				dicoEngine.Add("Google", new GoogleScraper(redisConnection.GetDatabase, Program.key));
+				dicoEngine.Add("Google", new GoogleScraper(redisConnection.GetDatabase, options));
 			if (Program.ConfigFile.Config.settings.AlamyRun)
-				dicoEngine.Add("Alamy", new AlamyScraper(redisConnection.GetDatabase, Program.key));
+				dicoEngine.Add("Alamy", new AlamyScraper(redisConnection.GetDatabase, options));
 			if (Program.ConfigFile.Config.settings.OpenVerseRun)
-				dicoEngine.Add("Open", new OpenVerseScraper(redisConnection.GetDatabase, Program.key));
+				dicoEngine.Add("Open", new OpenVerseScraper(redisConnection.GetDatabase, options));
 			if (Program.ConfigFile.Config.settings.YahooRun)
-				dicoEngine.Add("Yahoo", new YahooScraper(redisConnection.GetDatabase, Program.key));
+				dicoEngine.Add("Yahoo", new YahooScraper(redisConnection.GetDatabase, options));
 			if (Program.ConfigFile.Config.settings.GettyImageRun)
-				dicoEngine.Add("Getty", new GettyScraper(redisConnection.GetDatabase, Program.key));
+				dicoEngine.Add("Getty", new GettyScraper(redisConnection.GetDatabase, options));
 			if (Program.ConfigFile.Config.settings.EveryPixelRun)
-				dicoEngine.Add("Pixel", new PixelScraper(redisConnection.GetDatabase, Program.key));
+				dicoEngine.Add("Pixel", new PixelScraper(redisConnection.GetDatabase, options));
 			if (Program.ConfigFile.Config.settings.ImmerseRun)
-				dicoEngine.Add("Immerse", new ImmerseScraper(redisConnection.GetDatabase, Program.key));
+				dicoEngine.Add("Immerse", new ImmerseScraper(redisConnection.GetDatabase, options));
 		}
 
 		private void LogPrintData()
