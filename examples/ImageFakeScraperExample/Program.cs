@@ -55,8 +55,8 @@ internal static class Program
 
             Console.WriteLine("InitMultiThread");
             multi.InitMultiThread();
-            Console.WriteLine("Search");
-            multi.Search(await redisGetNewTag(redisConnection.GetDatabase));
+            //Console.WriteLine("Search");
+            //multi.Search(await redisGetNewTag(redisConnection.GetDatabase));
             Console.WriteLine("SpawnThreads");
             multi.SpawnThreads();
 /*            Console.WriteLine("Wait");

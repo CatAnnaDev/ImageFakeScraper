@@ -60,32 +60,6 @@ namespace ImageFakeScraperExample
 				dicoEngine.Add("Immerse", new ImmerseScraper(redisConnection.GetDatabase, Program.key));
 		}
 
-		private async void PollKeywords()
-		{
-			while (true)
-			{
-				if (queue.Count() < QueueLimit)
-				{
-					for (int i = 0; i < QueueLimit - queue.Count(); i++)
-					{
-						var keyword = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Config.words_list);
-						Search(keyword);
-						if (printLogTag)
-						{
-							lock (_lock)
-							{
-
-								Console.ForegroundColor = ConsoleColor.Magenta;
-								Console.WriteLine($"Keyword pick: {keyword}");
-								Console.ResetColor();
-							}
-						}
-					}
-				}
-				Thread.Sleep(5000);
-			}
-		}
-
 		private void LogPrintData()
 		{
 			while (true)
@@ -95,23 +69,14 @@ namespace ImageFakeScraperExample
 					string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
 					printData(
 						$"Uptime\t\t{uptimeFormated}\n" +
-						$"Total Tag\t{queue.Count}\n"+
-						$"Thread\t\t{Program.nbThread}\n"+
-						$"Sleep\t\t{Program.waittime}\n"+
+						$"Total Tag\t{queue.Count}\n" +
+						$"Thread\t\t{Program.nbThread}\n" +
+						$"Sleep\t\t{Program.waittime}\n" +
 						$"Request/sec\t{Program.requestMaxPerSec}");
 				}
 				catch { }
 
 				Thread.Sleep(TimeSpan.FromMinutes(1));
-			}
-		}
-
-		public void Search(string keyword)
-		{
-			foreach (var kvp in dicoEngine)
-			{
-				if(keyword != null)
-					queue.Enqueue(new Tuple<string, string>(kvp.Key, keyword));
 			}
 		}
 
@@ -124,8 +89,8 @@ namespace ImageFakeScraperExample
 				thread1.Start();
 			}
 
-			Thread poll = new Thread(PollKeywords);
-			poll.Start();
+			// Thread poll = new Thread(PollKeywords);
+			// poll.Start();
 
 			Thread GlobalLog = new Thread(LogPrintData);
 			GlobalLog.Start();
@@ -133,63 +98,41 @@ namespace ImageFakeScraperExample
 
 		private async void Worker()
 		{
-			var keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Config.words_list);
+
 
 			while (true)
-			{
+			{	
 				try
 				{
-					Tuple<string, string>? work;
-
-					for (int i = 0; i < QueueLimit - queue.Count(); i++)
+					RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Config.words_list);
+					Random rand = new Random();
+					dicoEngine = dicoEngine.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
+					for (int i = 0; i < dicoEngine.Count; i++)
 					{
-						Search(keywords);
-						if (printLogTag)
-						{
-							//lock (_lock)
-							//{
-							//
-							//	Console.ForegroundColor = ConsoleColor.Magenta;
-							//	Console.WriteLine($"Keyword pick: {keywords}");
-							//	Console.ResetColor();
-							//}
-						}
+						object[] args = new object[] { keywords.ToString(), 1, 1_500, false, redisConnection.GetDatabase };
+						AsyncCallback callBack = new AsyncCallback(onRequestFinih);
+						dicoEngine.ElementAt(i).Value.GetImages(callBack, args);
+						Thread.Sleep(TimeSpan.FromSeconds(Program.waittime));
 					}
 
-					if (queue.TryDequeue(out work))
-					{
-						var name = work.Item1;
-						var keyword = work.Item2;
-						//Console.WriteLine(keyword + queue.Count);
-						//if (dicoEngine.TryGetValue(name, out Scraper? engine))
-						Random rand = new Random();
-						dicoEngine = dicoEngine.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
-						for (int i = 0; i < dicoEngine.Count; i++)
-						{
-							object[] args = new object[] { keyword, 1, 1_500, false, redisConnection.GetDatabase };
-							AsyncCallback callBack = new AsyncCallback(onRequestFinih);
-							dicoEngine.ElementAt(i).Value.GetImages(callBack, args);
-							Thread.Sleep(TimeSpan.FromSeconds(Program.waittime));
-						}
-					}
 					//Console.WriteLine("j'arriv pas queue");
 				}
 				catch (Exception e) { /*Console.WriteLine(e);*/ }
 
-				
+
 			}
 		}
 
 		private void onRequestFinih(IAsyncResult ar)
 		{
-			
+
 		}
 
 		private static async Task RedisPush(List<string> urls, string moteur, bool printLog)
 		{
 			try
 			{
-				
+
 				RedisValue img_job_ = await redisConnection.GetDatabase.SetLengthAsync(Program.ConfigFile.Config.images_jobs);
 				int img_job_count = int.Parse(img_job_.ToString());
 
