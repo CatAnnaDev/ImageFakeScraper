@@ -10,7 +10,7 @@ public class GoogleScraper : Scraper
 	public GoogleScraper(IDatabase redis, Dictionary<string, object> key) : base(redis, key) { }
 
 	public async Task<List<string>?> GetImagesAsync(string query)
-    {
+	{
 		List<string> tmp = new();
 		try
 		{
@@ -21,21 +21,25 @@ public class GoogleScraper : Scraper
 			Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(jspnUpdate);
 			foreach (var metadata in myDeserializedClass.ischj.metadata)
 			{
-				if (metadata.original_image.url != null)
-					tmp.Add(metadata.original_image.url);
+				var truc = new Uri(metadata.original_image.url);
+				if (truc == null)
+					continue;
+
+				tmp.Add(metadata.original_image.url);
 			}
 
-		}catch(Exception e) { }
+		}
+		catch (Exception e) { if (e.GetType().Name != "UriFormatException") Console.WriteLine("Google" + e.Message); }
 
 		return tmp;
-    }
+	}
 
 	public override async void GetImages(AsyncCallback ac, params object[] args)
 	{
-	if (!await redisCheckCount())
-		return;
+		if (!await redisCheckCount())
+			return;
 
-		var urls =await GetImagesAsync((string)args[0]);
+		var urls = await GetImagesAsync((string)args[0]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;

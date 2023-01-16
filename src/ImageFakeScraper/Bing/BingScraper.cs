@@ -38,17 +38,18 @@ public class BinImageFakeScraper : Scraper
 
 			for (int i = 0; i < urls.Count(); i++)
 			{
-				if (RegexCheck.IsMatch(urls.ElementAt(i)))
-				{
-					string cleanUrl = Regex.Replace(urls.ElementAt(i), @"[?&][^?&]+=[^?&]+", "");
-					if (!cleanUrl.EndsWith("th") && !urls.ElementAt(i).Contains("th?id="))
-					{
-						tmp.Add(cleanUrl);
-					}
-				}
+
+				string cleanUrl = Regex.Replace(urls.ElementAt(i), @"[?&][^?&]+=[^?&]+", "");
+				if (cleanUrl.EndsWith("th") || urls.ElementAt(i).Contains("th?id="))
+					continue;
+
+				var truc = new Uri(cleanUrl);
+				if (truc == null)
+					continue;
+				tmp.Add(cleanUrl);
 			}
 		}
-		catch (Exception e) { Console.WriteLine("Bing " + e); }
+		catch (Exception e) { if (e.GetType().Name != "UriFormatException") Console.WriteLine("Bing " + e); }
 		return tmp;
 	}
 
@@ -57,7 +58,7 @@ public class BinImageFakeScraper : Scraper
 		if (!await redisCheckCount())
 			return;
 
-		var urls =await GetImagesAsync((string)args[0], (IDatabase)args[4]);
+		var urls = await GetImagesAsync((string)args[0], (IDatabase)args[4]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
