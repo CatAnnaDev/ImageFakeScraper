@@ -28,9 +28,9 @@ namespace ImageFakeScraperExample.config
             return new jsonConfigFile
             {
                 Credential = "Redis Login",
-                Sleep = 0,
-                Thread = 8,
-                QueueLimit = 30,
+                requestMaxPerSec = 8,
+                nbThread = 4,
+				QueueLimit = 30,
                 words_list = "words_list",
                 images_jobs = "image_jobs",
                 to_download = "to_download",

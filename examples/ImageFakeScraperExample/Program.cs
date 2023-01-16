@@ -1,4 +1,6 @@
-﻿namespace ImageFakeScraperExample;
+﻿using System.Threading;
+
+namespace ImageFakeScraperExample;
 
 internal static class Program
 {
@@ -11,22 +13,24 @@ internal static class Program
 
     // Config File
     public static string Credential = "";
-    private static double waittime = 0;
-    public static int Thread;
+	public static double waittime = 0;
+    public static int nbThread;
     public static int QueueLimit;
+    public static int requestMaxPerSec = 8;
 
-    #endregion
-    #region Start
-    [Obsolete]
+	#endregion
+	#region Start
+	[Obsolete]
     private static async Task Main(string[] args)
     {
         ConfigFile = new();
         await InitializeGlobalDataAsync();
 
         Credential = ConfigFile.Config.Credential;
-        waittime = ConfigFile.Config.Sleep;
-        Thread = ConfigFile.Config.Thread;
-        QueueLimit = ConfigFile.Config.QueueLimit;
+		requestMaxPerSec = ConfigFile.Config.requestMaxPerSec;
+        nbThread = ConfigFile.Config.nbThread;
+		waittime = (1.0 / (double)requestMaxPerSec) * nbThread;
+		QueueLimit = ConfigFile.Config.QueueLimit;
         key = ConfigFile.Config.images_jobs;
         key_to_dl = ConfigFile.Config.to_download;
 
@@ -47,7 +51,7 @@ internal static class Program
             Console.WriteLine("Redis Connected");
             Console.ResetColor();
 
-            MultiThread multi = new(ConfigFile.Config.settings.PrintLog, ConfigFile.Config.settings.PrintLogTag, Thread, QueueLimit);
+            MultiThread multi = new(ConfigFile.Config.settings.PrintLog, ConfigFile.Config.settings.PrintLogTag, nbThread, QueueLimit);
 
             Console.WriteLine("InitMultiThread");
             multi.InitMultiThread();

@@ -94,8 +94,11 @@ namespace ImageFakeScraperExample
 				{
 					string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
 					printData(
-						$"Uptime\t\t\t{uptimeFormated}\n" +
-						$"Total Tag\t\t{queue.Count}\n");
+						$"Uptime\t\t{uptimeFormated}\n" +
+						$"Total Tag\t{queue.Count}\n"+
+						$"Thread\t\t{Program.nbThread}\n"+
+						$"Sleep\t\t{Program.waittime}\n"+
+						$"Request/sec\t{Program.requestMaxPerSec}");
 				}
 				catch { }
 
@@ -166,7 +169,7 @@ namespace ImageFakeScraperExample
 							object[] args = new object[] { keyword, 1, 1_500, false, redisConnection.GetDatabase };
 							AsyncCallback callBack = new AsyncCallback(onRequestFinih);
 							dicoEngine.ElementAt(i).Value.GetImages(callBack, args);
-							Thread.Sleep(TimeSpan.FromSeconds(Program.ConfigFile.Config.Sleep));
+							Thread.Sleep(TimeSpan.FromSeconds(Program.waittime));
 						}
 					}
 					//Console.WriteLine("j'arriv pas queue");
