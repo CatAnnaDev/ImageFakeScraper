@@ -3,23 +3,19 @@
 
 public class ImmerseScraper : Scraper
 {
-    public ImmerseScraper()
-    {
+    public ImmerseScraper(IDatabase redis, string key) : base(redis, key) { }
 
-    }
-
-    private readonly List<string> tmp = new();
-    private const string uri = "https://www.immerse.zone/api/immerse/search";
+	private const string uri = "https://www.immerse.zone/api/immerse/search";
     private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
 
     public async Task<List<string>> GetImagesAsync(string query, int pageSize, int ImmerseMaxPage)
     {
-        try
-        {
-            tmp.Clear();
+		List<string> tmp = new();
+
+		try
+		{
             for (int i = 1; i < ImmerseMaxPage + 1; i++)
             {
-                ImageFakeScraperGuards.NotNull(query, nameof(query));
                 JsonCreatePush json = new()
                 {
                     searchText = query,
@@ -67,10 +63,13 @@ public class ImmerseScraper : Scraper
         return tmp;
     }
 
-    public override async Task<List<string>> GetImages(params object[] args)
-    {
-        return await GetImagesAsync((string)args[0], (int)args[1], (int)args[2]);
-    }
+	public override async void GetImages(AsyncCallback ac, params object[] args)
+	{
+		var urls =await GetImagesAsync((string)args[0], (int)args[1], (int)args[2]);
+		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
+		var result = await redis.SetAddAsync(RedisPushKey, push);
+		Console.WriteLine("Immerse " + result);
+	}
 }
 
 public class JsonCreatePush

@@ -3,61 +3,62 @@
 namespace ImageFakeScraper.Alamy
 {
 	public class AlamyScraper : Scraper
-    {
-		public AlamyScraper()
+	{
+		public AlamyScraper(IDatabase redis, string key) : base(redis, key) { }
+
+
+		private const string uri = "https://www.alamy.com/search-api/search/?qt={0}&sortBy=relevant&ispartial=false&type=picture&geo=FR&pn={1}&ps={2}"; // qt query, pn page numb, ps page size
+		private readonly Regex RegexCheck = new(@"^(https:\/\/)?s?:?([^\s([""<,>\/]*)(\/)[^\s["",><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s["",><]*)?");
+
+		public async Task<List<string>> GetImagesAsync(string query, int AlamyMaxPage, int AlamyMaxResult, bool UnlimitedCrawlPage)
 		{
+			List<string> tmp = new();
+			try
+			{
+
+				int page = AlamyMaxPage + 1;
+				for (int i = 1; i < page; i++)
+				{
+					string[] args = new string[] { query, i.ToString(), AlamyMaxResult.ToString() };
+					string jsonGet = await http.GetJson(uri, args);
+					Root jsonparsed = JsonConvert.DeserializeObject<Root>(jsonGet);
+					if (jsonparsed != null)
+					{
+						if (jsonparsed.Items != null)
+						{
+							if (jsonparsed.Items.Count != 0)
+							{
+								for (int j = 0; j < jsonparsed.Items.Count; j++)
+								{
+									if (RegexCheck.IsMatch(jsonparsed.Items[j].Renditions.Comp.Href))
+									{
+										tmp.Add(jsonparsed.Items[j].Renditions.Comp.Href);
+									}
+								}
+								if (UnlimitedCrawlPage)
+									page++;
+							}
+							else
+								break;
+						}
+					}
+					else
+						break;
+				}
+
+			}
+			catch (Exception e) { Console.WriteLine("Alamy " + e); }
+			return tmp;
 		}
 
-        private readonly List<string> tmp = new();
-        private const string uri = "https://www.alamy.com/search-api/search/?qt={0}&sortBy=relevant&ispartial=false&type=picture&geo=FR&pn={1}&ps={2}"; // qt query, pn page numb, ps page size
-        private readonly Regex RegexCheck = new(@"^(https:\/\/)?s?:?([^\s([""<,>\/]*)(\/)[^\s["",><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s["",><]*)?");
-
-        public async Task<List<string>> GetImagesAsync(string query, int AlamyMaxPage, int AlamyMaxResult, bool UnlimitedCrawlPage)
-        {
-            try
-            {
-                tmp.Clear();
-                int page = AlamyMaxPage+1;
-                ImageFakeScraperGuards.NotNull(query, nameof(query));
-                for (int i = 1; i < page; i++)
-                {
-                    string[] args = new string[] { query, i.ToString(), AlamyMaxResult.ToString() };
-                    string jsonGet = await http.GetJson(uri, args);
-                    Root jsonparsed = JsonConvert.DeserializeObject<Root>(jsonGet);
-                    if (jsonparsed != null)
-                    {
-                        if (jsonparsed.Items != null)
-                        {
-                            if (jsonparsed.Items.Count != 0)
-                            {
-                                for (int j = 0; j < jsonparsed.Items.Count; j++)
-                                {
-                                    if (RegexCheck.IsMatch(jsonparsed.Items[j].Renditions.Comp.Href))
-                                    {
-                                        tmp.Add(jsonparsed.Items[j].Renditions.Comp.Href);
-                                    }
-                                }
-                                if(UnlimitedCrawlPage)
-                                    page++;
-                            }
-                            else
-                                break;
-                        }
-                    }
-                    else
-                        break;
-                }
-
-            }
-            catch (Exception e) { Console.WriteLine("Alamy " +e); }
-            return tmp;
-        }
-
-
-        public override async Task<List<string>> GetImages(params object[] args)
-        {
-            return await GetImagesAsync((string)args[0], (int)args[1], (int)args[2], (bool)args[3]);
-        }
-    }
+		public override async void GetImages(AsyncCallback ac, params object[] args)
+		{
+			var urls = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2], (bool)args[3]);
+			RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
+			var result = await redis.SetAddAsync(RedisPushKey, push);
+			Console.WriteLine("alamy " + result);
+			//ac.BeginInvoke(result, ac, "");
+		}
+	}
 }
 

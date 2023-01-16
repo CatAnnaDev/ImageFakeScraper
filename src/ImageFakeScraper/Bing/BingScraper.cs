@@ -4,12 +4,8 @@
 public class BinImageFakeScraper : Scraper
 {
 
-	public BinImageFakeScraper()
-	{
+	public BinImageFakeScraper(IDatabase redis, string key) : base(redis, key) { }
 
-	}
-
-	private readonly List<string> tmp = new();
 	private const string uri = "https://www.bing.com/images/search?q={0}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&adlt=off";
 	private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
 	private Queue<string> qword = new Queue<string>();
@@ -21,10 +17,10 @@ public class BinImageFakeScraper : Scraper
 
 	public async Task<List<string>> GetImagesAsync(string query, IDatabase redis)
 	{
+		List<string> tmp = new();
 		try
 		{
-			tmp.Clear();
-			ImageFakeScraperGuards.NotNull(query, nameof(query));
+
 			string[] args = new string[] { query };
 			HtmlDocument doc = await http.Get(uri, args);
 			IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !string.IsNullOrEmpty(s));
@@ -56,8 +52,11 @@ public class BinImageFakeScraper : Scraper
 		return tmp;
 	}
 
-	public override async Task<List<string>> GetImages(params object[] args)
+	public override async void GetImages(AsyncCallback ac, params object[] args)
 	{
-		return await GetImagesAsync((string)args[0], (IDatabase)args[4]);
+		var urls =await GetImagesAsync((string)args[0], (IDatabase)args[4]);
+		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
+		var result = await redis.SetAddAsync(RedisPushKey, push);
+		Console.WriteLine("Bing " + result);
 	}
 }

@@ -3,21 +3,17 @@ namespace ImageFakeScraper.Pixel;
 
 public class PixelScraper : Scraper
 {
-    public PixelScraper()
-    {
-    }
+    public PixelScraper(IDatabase redis, string key) : base(redis, key) { }
 
-    private readonly List<string> tmp = new();
-    private const string uri = "https://www.everypixel.com/search/search?q={0}&limit=20000&json=1&page={1}";
+	private const string uri = "https://www.everypixel.com/search/search?q={0}&limit=20000&json=1&page={1}";
     private readonly Regex RegexCheck = new(@"^(http|https:\/\/):?([^\s([<,>\/]*)(\/)[^\s[,><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s[,><]*)?");
 
     public async Task<List<string>> GetImagesAsync(string query, int EveryPixelMaxPage)
     {
-        try
-        {
-            tmp.Clear();
-            ImageFakeScraperGuards.NotNull(query, nameof(query));
+		List<string> tmp = new();
 
+		try
+		{
 
             for (int i = 1; i < EveryPixelMaxPage + 1; i++)
             {
@@ -54,8 +50,11 @@ public class PixelScraper : Scraper
         return tmp;
     }
 
-    public override async Task<List<string>> GetImages(params object[] args)
-    {
-        return await GetImagesAsync((string)args[0], (int)args[1]);
-    }
+	public override async void GetImages(AsyncCallback ac, params object[] args)
+	{
+		var urls = await GetImagesAsync((string)args[0], (int)args[1]);
+		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
+		var result = await redis.SetAddAsync(RedisPushKey, push);
+		Console.WriteLine("Pixel " + result);
+	}
 }

@@ -10,7 +10,6 @@ public class GoogleScraper : Scraper
     private static readonly Uri _defaultBaseAddress = new(DefaultApiEndpoint);
 
     private readonly HttpClient _httpClient;
-    private readonly List<string> tmp = new();
 
     public static string completUrl = DefaultApiEndpoint;
 
@@ -18,11 +17,12 @@ public class GoogleScraper : Scraper
 
     private GoogleImageResultModel[] images;
 
-    public GoogleScraper() : this(new HttpClient())
+    public GoogleScraper(IDatabase redis, string key) : base(redis, key)
     {
+        new HttpClient();
     }
 
-    public GoogleScraper(HttpClient client)
+    public GoogleScraper(IDatabase redis, HttpClient client, string key) :base(redis, key)
     {
 
         _httpClient = client;
@@ -30,8 +30,8 @@ public class GoogleScraper : Scraper
     }
 
     [Obsolete("This constructor is deprecated and it will be removed in a future version. Use GoogleScraper(HttpClient) instead.")]
-    public GoogleScraper(HttpClient client, string apiEndpoint)
-    {
+    public GoogleScraper(IDatabase redis, HttpClient client, string apiEndpoint, string key) : base(redis, key)
+	{
         _httpClient = client;
         Init(_httpClient, new Uri(apiEndpoint));
     }
@@ -51,8 +51,6 @@ public class GoogleScraper : Scraper
 
     public async Task<List<string>?> GetImagesAsync(string query)
     {
-        ImageFakeScraperGuards.NotNull(query, nameof(query));
-
         Uri uri = new(BuildImageQuery(query), UriKind.Relative);
         completUrl += uri;
 
@@ -66,10 +64,10 @@ public class GoogleScraper : Scraper
         }
 
         byte[] bytes = await resp.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-
+        List<string> tmp = new();
         try
         {
-            tmp.Clear();
+			
             images = JsonSerializer.Deserialize(bytes.AsSpan(5, bytes.Length - 5), GoogleImageSearchResponseContext.Default.GoogleImageSearchResponse)!.Ischj.Metadata;
             if (images != null)
             {
@@ -84,10 +82,13 @@ public class GoogleScraper : Scraper
         return tmp;
     }
 
-    public override async Task<List<string>> GetImages(params object[] args)
-    {
-        return await GetImagesAsync((string)args[0]);
-    }
+	public override async void GetImages(AsyncCallback ac, params object[] args)
+	{
+        var urls =await GetImagesAsync((string)args[0]);
+		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
+		var result = await redis.SetAddAsync(RedisPushKey, push);
+		Console.WriteLine("Google " + result);
+	}
 
     private static string BuildImageQuery(string query)
     {

@@ -1,10 +1,21 @@
-﻿namespace ImageFakeScraper
+﻿using System.Threading;
+
+namespace ImageFakeScraper
 {
     public class Scraper
     {
+        protected IDatabase redis;
+        protected string RedisPushKey = "";
+        public Scraper(IDatabase redis, string key) 
+        { 
+            this.redis = redis;
+            RedisPushKey = key;
+
+		}
 		public httpRequest http = new();
 
-		public virtual async Task<List<string>> GetImages(params object[] args) { return new List<string>(); }
+		public virtual async void GetImages(AsyncCallback ac, params object[] args) { }
+
 
     }
 }

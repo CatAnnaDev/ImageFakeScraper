@@ -2,8 +2,6 @@
 
 global using ImageFakeScraper;
 global using ImageFakeScraper.Bing;
-global using ImageFakeScraper.Brave;
-global using ImageFakeScraper.DuckDuckGo;
 global using ImageFakeScraper.Getty;
 global using ImageFakeScraper.Google;
 global using ImageFakeScraper.immerse;

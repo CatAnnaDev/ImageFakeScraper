@@ -2,21 +2,17 @@
 public class YahooScraper : Scraper
 {
 
-    public YahooScraper()
-    {
+    public YahooScraper(IDatabase redis, string key) : base(redis, key) { }
 
-    }
-
-    private readonly List<string> tmp = new();
-    private const string uri = "https://images.search.yahoo.com/search/images?ei=UTF-8&p={0}&fr2=p%3As%2Cv%3Ai&.bcrumb=4N2SA8f4BZT&save=0";
+	private const string uri = "https://images.search.yahoo.com/search/images?ei=UTF-8&p={0}&fr2=p%3As%2Cv%3Ai&.bcrumb=4N2SA8f4BZT&save=0";
     private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
 
     public async Task<List<string>> GetImagesAsync(string query)
     {
-        try
-        {
-            tmp.Clear();
-            ImageFakeScraperGuards.NotNull(query, nameof(query));
+		List<string> tmp = new();
+
+		try
+		{
             string[] args = new string[] { query };
             HtmlDocument doc = await http.Get(uri, args);
             IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("data-src", null)).Where(s => !string.IsNullOrEmpty(s));
@@ -41,8 +37,11 @@ public class YahooScraper : Scraper
         return tmp;
     }
 
-    public override async Task<List<string>> GetImages(params object[] args)
-    {
-        return await GetImagesAsync((string)args[0]);
-    }
+	public override async void GetImages(AsyncCallback ac, params object[] args)
+	{
+		var urls = await GetImagesAsync((string)args[0]);
+		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
+		var result = await redis.SetAddAsync(RedisPushKey, push);
+		Console.WriteLine("Yahoo " + result);
+	}
 }
