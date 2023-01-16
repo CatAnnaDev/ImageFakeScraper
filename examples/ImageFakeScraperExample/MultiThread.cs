@@ -166,7 +166,6 @@ namespace ImageFakeScraperExample
 							object[] args = new object[] { keyword, 1, 1_500, false, redisConnection.GetDatabase };
 							AsyncCallback callBack = new AsyncCallback(onRequestFinih);
 							dicoEngine.ElementAt(i).Value.GetImages(callBack, args);
-							Console.WriteLine(dicoEngine.ElementAt(i).Key);
 							Thread.Sleep(TimeSpan.FromSeconds(Program.ConfigFile.Config.Sleep));
 						}
 					}
