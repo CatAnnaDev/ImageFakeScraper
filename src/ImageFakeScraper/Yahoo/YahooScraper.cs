@@ -18,7 +18,7 @@ public class YahooScraper : Scraper
             tmp.Clear();
             ImageFakeScraperGuards.NotNull(query, nameof(query));
             string[] args = new string[] { query };
-            HtmlDocument doc = await httpRequest.Get(uri, args);
+            HtmlDocument doc = await http.Get(uri, args);
             IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("data-src", null)).Where(s => !string.IsNullOrEmpty(s));
 
             if (urls != null)

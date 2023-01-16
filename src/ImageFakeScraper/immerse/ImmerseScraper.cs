@@ -28,7 +28,7 @@ public class ImmerseScraper : Scraper
                 };
 
                 string jsonString = JsonSerializer.Serialize(json);
-                string doc = await httpRequest.PostJson(uri, jsonString);
+                string doc = await http.PostJson(uri, jsonString);
                 Root jsonparsed = Newtonsoft.Json.JsonConvert.DeserializeObject<Root>(doc);
 
                 if (jsonparsed != null)

@@ -24,7 +24,7 @@ public class GettyScraper : Scraper
             for (int i = 1; i < GettyMaxPage + 1; i++)
             {
                 object[] args = new object[] { query, query, i.ToString() };
-                HtmlDocument doc = await httpRequest.Get(uri, args);
+                HtmlDocument doc = await http.Get(uri, args);
                 IEnumerable<string> urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !string.IsNullOrEmpty(s));
 
                 if (urls.Count() == 0)

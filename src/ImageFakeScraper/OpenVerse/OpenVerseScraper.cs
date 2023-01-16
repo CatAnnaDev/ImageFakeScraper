@@ -22,7 +22,7 @@ public class OpenVerseScraper : Scraper
             for (int i = 1; i < page; i++)
             {
                 string[] args = new string[] { query, i.ToString() };
-                string jsonGet = await httpRequest.GetJson(uri, args);
+                string jsonGet = await http.GetJson(uri, args);
                 Root jsonparsed = JsonConvert.DeserializeObject<Root>(jsonGet);
                 if (jsonparsed != null)
                 {

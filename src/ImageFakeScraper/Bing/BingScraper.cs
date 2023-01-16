@@ -22,10 +22,10 @@ public class BinImageFakeScraper : Scraper
     {
         try
         {
-            tmp.Clear();
+			tmp.Clear();
             ImageFakeScraperGuards.NotNull(query, nameof(query));
             string[] args = new string[] { query };
-            HtmlDocument doc = await httpRequest.Get(uri, args);
+            HtmlDocument doc = await http.Get(uri, args);
             IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !string.IsNullOrEmpty(s));
             
             //HtmlNodeCollection tag = doc.DocumentNode.SelectNodes("//div[@class='suggestion-title-wrapper']");
