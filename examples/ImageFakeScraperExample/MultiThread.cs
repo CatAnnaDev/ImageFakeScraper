@@ -1,10 +1,14 @@
 ﻿using Microsoft.VisualBasic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ImageFakeScraperExample
 {
 	public class MultiThread
 	{
+
+		private SemaphoreSlim mySemaphoreSlim = new SemaphoreSlim(1, 1);
+
 		private AutoResetEvent auto = new(false);
 
 		private Dictionary<string, Scraper> dicoEngine = new();
@@ -19,17 +23,11 @@ namespace ImageFakeScraperExample
 
 		int ThreadCount = 0;
 
-		public static long TotalPush = 0;
-
 		int QueueLimit = 30;
 
 		bool printLog;
 		bool printLogTag;
 
-		static long dataPrint = 0;
-		static long data = 0;
-		static int img_job_count = 0;
-		static int to_dl_count = 0;
 		private static readonly Stopwatch uptime = new();
 
 		public MultiThread(bool printLog, bool printLogTag, int nbThread = 8, int QueueLimit = 30)
@@ -44,6 +42,8 @@ namespace ImageFakeScraperExample
 		{
 			uptime.Start();
 
+			if (Program.ConfigFile.Config.settings.BingRun)
+				dicoEngine.Add("Bing", new BinImageFakeScraper());
 			if (Program.ConfigFile.Config.settings.GoogleRun)
 				dicoEngine.Add("Google", new GoogleScraper());
 			if (Program.ConfigFile.Config.settings.DuckduckGORun)
@@ -54,8 +54,6 @@ namespace ImageFakeScraperExample
 				dicoEngine.Add("Alamy", new AlamyScraper());
 			if (Program.ConfigFile.Config.settings.OpenVerseRun)
 				dicoEngine.Add("Open", new OpenVerseScraper());
-			if (Program.ConfigFile.Config.settings.BingRun)
-				dicoEngine.Add("Bing", new BinImageFakeScraper());
 			if (Program.ConfigFile.Config.settings.YahooRun)
 				dicoEngine.Add("Yahoo", new YahooScraper());
 			if (Program.ConfigFile.Config.settings.GettyImageRun)
@@ -74,13 +72,17 @@ namespace ImageFakeScraperExample
 				{
 					for (int i = 0; i < QueueLimit - queue.Count(); i++)
 					{
-						var keyword = await redisConnection.GetDatabase.ListLeftPopAsync(Program.ConfigFile.Config.words_list);
+						var keyword = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Config.words_list);
 						Search(keyword);
 						if (printLogTag)
 						{
-							Console.ForegroundColor = ConsoleColor.Magenta;
-							Console.WriteLine($"Keyword pick: {keyword}");
-							Console.ResetColor();
+							lock (_lock)
+							{
+
+								Console.ForegroundColor = ConsoleColor.Magenta;
+								Console.WriteLine($"Keyword pick: {keyword}");
+								Console.ResetColor();
+							}
 						}
 					}
 				}
@@ -97,10 +99,7 @@ namespace ImageFakeScraperExample
 					string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
 					printData(
 						$"Uptime\t\t\t{uptimeFormated}\n" +
-						$"Total push in 1min\t{dataPrint}\n" +
-						$"Total Tag\t\t{queue.Count}\n" +
-						$"img_job_count\t\t{img_job_count}\n" +
-						$"to_dl_count\t\t{to_dl_count}");
+						$"Total Tag\t\t{queue.Count}\n");
 				}
 				catch { }
 
@@ -146,16 +145,24 @@ namespace ImageFakeScraperExample
 						var keyword = work.Item2;
 						Console.WriteLine(keyword + queue.Count);
 						//if (dicoEngine.TryGetValue(name, out Scraper? engine))
-						for(int i =0; i < dicoEngine.Count; i++)
+						Random rand = new Random();
+						dicoEngine = dicoEngine.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
+						for (int i = 0; i < dicoEngine.Count; i++)
 						{
-							object[] args = new object[] { keyword, 1, 1_500, false };
-							var urls = await dicoEngine.ElementAt(i).Value.GetImages(args);
-							await RedisPush(urls, dicoEngine.ElementAt(i).Key, printLog);
+
+							mySemaphoreSlim.Wait();
+							try
+							{
+								object[] args = new object[] { keyword, 1, 1_500, false, redisConnection.GetDatabase };
+								var urls = dicoEngine.ElementAt(i).Value.GetImages(args);
+								RedisPush(urls.Result, dicoEngine.ElementAt(i).Key, printLog);
+							}
+							finally
+							{
+								mySemaphoreSlim.Release();
+							}
 						}
-
-
 					}
-
 					//Console.WriteLine("j'arriv pas queue");
 				}
 				catch (Exception e) { Console.WriteLine(e); }
@@ -164,38 +171,39 @@ namespace ImageFakeScraperExample
 			}
 		}
 
-		private static async Task RedisPush(List<string> moteur, string Name, bool printLog)
+		private static async Task RedisPush(List<string> urls, string moteur, bool printLog)
 		{
 			try
 			{
+				int dataPrint = 0;
 				RedisValue img_job_ = await redisConnection.GetDatabase.SetLengthAsync(Program.ConfigFile.Config.images_jobs);
-				img_job_count = int.Parse(img_job_.ToString());
+				int img_job_count = int.Parse(img_job_.ToString());
 
 				RedisValue to_dl = await redisConnection.GetDatabase.SetLengthAsync(Program.ConfigFile.Config.to_download);
-				to_dl_count = int.Parse(to_dl.ToString());
+				int to_dl_count = int.Parse(to_dl.ToString());
 
 				if (img_job_count < Program.ConfigFile.Config.settings.stopAfter && to_dl_count < Program.ConfigFile.Config.settings.stopAfter)
 				{
-					RedisValue[] push = Array.ConvertAll(moteur.ToArray(), item => (RedisValue)item);
+					RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 
-					data += await redisConnection.GetDatabase.SetAddAsync(Program.key, push);
+					await redisConnection.GetDatabase.SetAddAsync(Program.key, push);
+
 					if (printLog)
 					{
 
 						Console.ForegroundColor = ConsoleColor.Green;
-						if (Name.Contains("Immerse"))
+						if (moteur.Contains("Immerse"))
 						{
-							Console.WriteLine($"{Name}:\t{data}");
+							Console.WriteLine($"{moteur}:\t{urls.Count}");
 
 						}
 						else
 						{
-							Console.WriteLine($"{Name}:\t\t{data}");
+							Console.WriteLine($"{moteur}:\t\t{urls.Count}");
 						}
 						Console.ResetColor();
 					}
-					dataPrint += data;
-					data = 0;
+					dataPrint += urls.Count;
 				}
 				else
 				{
@@ -210,7 +218,6 @@ namespace ImageFakeScraperExample
 						if (img_job_count < Program.ConfigFile.Config.settings.stopAfter && to_dl_count < Program.ConfigFile.Config.settings.stopAfter)
 							break;
 
-
 						Console.ForegroundColor = ConsoleColor.Green;
 						Console.WriteLine($" Wait Redis full");
 						Console.ResetColor();
@@ -219,6 +226,7 @@ namespace ImageFakeScraperExample
 							Thread.Sleep(1000);
 							Console.Write($"\rWait after retry {TimeSpan.FromMinutes(a)}, img_job_count: {img_job_count_check}, to_dl_count: {to_dl_count_check}");
 						}
+
 						Console.ForegroundColor = ConsoleColor.Green;
 						Console.Write($"\n\rWait Redis full retry! {DateTime.Now.ToString("G")}");
 						Console.ResetColor();
@@ -228,18 +236,22 @@ namespace ImageFakeScraperExample
 			}
 			catch (Exception e)
 			{
+
 				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine($"/!\\ Fail upload redis {Name} ! /!\\" + e.Message);
+				Console.WriteLine($"/!\\ Fail upload redis {moteur} ! /!\\" + e.Message);
 				Console.ResetColor();
 			}
 		}
 
 		private static void printData(string text)
 		{
-			string line = string.Concat(Enumerable.Repeat("=", Console.WindowWidth));
-			Console.WriteLine(line);
-			Console.WriteLine(text);
-			Console.WriteLine(line);
+			lock (_lock)
+			{
+				string line = string.Concat(Enumerable.Repeat("=", Console.WindowWidth));
+				Console.WriteLine(line);
+				Console.WriteLine(text);
+				Console.WriteLine(line);
+			}
 		}
 	}
 }

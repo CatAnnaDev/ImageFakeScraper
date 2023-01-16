@@ -21,7 +21,7 @@ public class Images
 public class Images0
 {
     [JsonProperty("`res_weight`")]
-    public int? res_weight { get; set; }
+    public long? res_weight { get; set; }
     public string? basic_img_id { get; set; }
     public int? equal_count { get; set; }
     public int? has_pressfoto { get; set; }

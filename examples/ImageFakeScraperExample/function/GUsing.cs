@@ -14,7 +14,6 @@ global using ImageFakeScraper.Alamy;
 global using ImageFakeScraperExample.function;
 global using ImageFakeScraperExample.config;
 
-global using Reddit.Controllers;
 global using StackExchange.Redis;
 
 global using System;
