@@ -17,7 +17,7 @@ namespace ImageFakeScraper.Unsplash
                 if (jsonparsed == null || jsonparsed.results == null || jsonparsed.results.Count == 0)
                     return tmp;
 
-                
+
 
                 for (int i = 0; i < jsonparsed.results.Count; i++)
                 {
@@ -30,7 +30,11 @@ namespace ImageFakeScraper.Unsplash
                 }
 
             }
-            catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } Console.WriteLine("Unsplash" + e); }
+            catch (Exception e)
+            {
+                if (e.GetType().Name != "UriFormatException") { }
+                if (settings.printErrorLog) { Console.WriteLine("Unsplash" + e); }
+            }
             return tmp;
         }
 
@@ -45,7 +49,7 @@ namespace ImageFakeScraper.Unsplash
 
             var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
             SettingsDll.nbPushTotal += result;
-            if (SettingsDll.printLog)
+            if (settings.printLog)
                 Console.WriteLine("Qwant " + result);
 
             return (int)result;

@@ -5,6 +5,7 @@ namespace ImageFakeScraper;
 
 public class httpRequest
 {
+    SettingsDll settings = new();
 	public async Task<HtmlDocument> Get(string uri, params object[] query)
     {
 		HttpClient client = new();
@@ -15,7 +16,7 @@ public class httpRequest
             client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15");
 
             HttpResponseMessage resp = await client.GetAsync(url);
-            if (resp.StatusCode == HttpStatusCode.TooManyRequests && SettingsDll.printLog)
+            if (resp.StatusCode == HttpStatusCode.TooManyRequests && settings.printErrorLog)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("TooManyRequests GetAsync (429) " + url);
@@ -36,7 +37,7 @@ public class httpRequest
 
         string url = string.Format(uri, query);
         HttpResponseMessage resp = await client.GetAsync(url);
-		if (resp.StatusCode == HttpStatusCode.TooManyRequests && SettingsDll.printLog)
+		if (resp.StatusCode == HttpStatusCode.TooManyRequests && settings.printErrorLog)
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine("TooManyRequests GetJson (429) " + url);
@@ -53,7 +54,7 @@ public class httpRequest
 
         StringContent content = new(json, Encoding.UTF8, "application/json");
         HttpResponseMessage result = await client.PostAsync(uri, content);
-		if (result.StatusCode == HttpStatusCode.TooManyRequests && SettingsDll.printLog)
+		if (result.StatusCode == HttpStatusCode.TooManyRequests && settings.printErrorLog)
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine("TooManyRequests PostJson (429) " + uri);

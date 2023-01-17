@@ -8,6 +8,7 @@ namespace ImageFakeScraper
         protected Dictionary<string, object> Options;
         protected SimpleMovingAverage movingAverage;
 		public httpRequest http = new();
+        protected SettingsDll settings = new();
 
         public virtual async Task<int> GetImages(AsyncCallback ac, params object[] args) { return 0; }
 

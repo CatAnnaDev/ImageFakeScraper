@@ -32,7 +32,7 @@ public class YahooScraper : Scraper
 				tmp.Add(cleanUrl);
 			}
 		}
-		catch (Exception e) { if(e.GetType().Name != "UriFormatException") { } Console.WriteLine("Yahoo" + e); }
+		catch (Exception e) { if(e.GetType().Name != "UriFormatException") { } if (settings.printErrorLog) { Console.WriteLine("Yahoo" + e); } }
 		return tmp;
 	}
 
@@ -44,8 +44,8 @@ public class YahooScraper : Scraper
 		var urls = await GetImagesAsync((string)args[0]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
-		SettingsDll.nbPushTotal += result;
-        if (SettingsDll.printLog)
+        SettingsDll.nbPushTotal += result;
+        if (settings.printLog)
             Console.WriteLine("Yahoo " + result);
 
         return (int)result;

@@ -50,6 +50,11 @@ namespace ImageFakeScraperExample.config
                     stopAfter = 8000000,
                     PrintLogTag = true,
                     PrintLog = true
+                },
+                settingsDLL = new()
+                {
+                    printLog = false,
+                    printErrorLog = false
                 }
             };
         }

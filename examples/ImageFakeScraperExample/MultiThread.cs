@@ -4,11 +4,13 @@ using ImageFakeScraper.Unsplash;
 using Microsoft.VisualBasic;
 using System.Threading;
 using System.Threading.Tasks;
+using static Prometheus.MetricServerMiddleware;
 
 namespace ImageFakeScraperExample
 {
 	public class MultiThread
 	{
+		private SettingsDll settings = new();
 
 		private SemaphoreSlim mySemaphoreSlim = new SemaphoreSlim(1, 1);
 
@@ -37,7 +39,7 @@ namespace ImageFakeScraperExample
         int totalpushPrint = 0;
 
         int rates = 0;
-        double ratesPrint = 0;
+        int ratesPrint = 0;
 
         private static readonly Stopwatch uptime = new();
 
@@ -126,10 +128,10 @@ namespace ImageFakeScraperExample
 
         private void PrintTotalpersec(object? obj)
         {
-			while (true)
-			{
+            while (true)
+            {
 
-				Console.Write($"\rTotal {SettingsDll.nbPushTotal}, [{ratesPrint}/s]");
+				Console.Write($"\rTotal {SettingsDll.nbPushTotal}, [{ratesPrint}/s]											");
 
 				Thread.Sleep(TimeSpan.FromMilliseconds(100));
 			}
@@ -153,7 +155,7 @@ namespace ImageFakeScraperExample
 						object[] args = new object[] { keywords.ToString(), 1, 1_500, false, redisConnection.GetDatabase };
 						AsyncCallback callBack = new AsyncCallback(onRequestFinih);
 						rates += dicoEngine.ElementAt(i).Value.GetImages(callBack, args).Result;
-						ratesPrint = MovingAverage.Update(rates);
+						ratesPrint = (int)MovingAverage.Update(rates);
 
                         Thread.Sleep(TimeSpan.FromSeconds(Program.waittime));
 					}

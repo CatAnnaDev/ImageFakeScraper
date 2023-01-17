@@ -47,7 +47,8 @@ public class BinImageFakeScraper : Scraper
 				tmp.Add(cleanUrl);
 			}
 		}
-		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } Console.WriteLine("Bing" + e); }
+		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { }
+			if (settings.printErrorLog) { Console.WriteLine("Bing" + e); } }
 		return tmp;
 	}
 
@@ -59,8 +60,8 @@ public class BinImageFakeScraper : Scraper
 		var urls = await GetImagesAsync((string)args[0], (IDatabase)args[4]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
-		SettingsDll.nbPushTotal += result;
-        if (SettingsDll.printLog)
+        SettingsDll.nbPushTotal += result;
+        if (settings.printLog)
             Console.WriteLine("Bing " + result);
         return (int)result;
     }

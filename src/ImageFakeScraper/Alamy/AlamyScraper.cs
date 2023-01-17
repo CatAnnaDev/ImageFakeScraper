@@ -36,7 +36,7 @@ namespace ImageFakeScraper.Alamy
 				}
 
 			}
-			catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } Console.WriteLine("Alamy" + e); }
+			catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } if (settings.printErrorLog) { Console.WriteLine("Alamy" + e); } }
 			return tmp;
 		}
 
@@ -50,9 +50,9 @@ namespace ImageFakeScraper.Alamy
 			RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 
 			var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
-			SettingsDll.nbPushTotal += result;
+            SettingsDll.nbPushTotal += result;
 
-            if (SettingsDll.printLog)
+            if (settings.printLog)
 				Console.WriteLine("alamy " + result);
 
 			return (int)result;

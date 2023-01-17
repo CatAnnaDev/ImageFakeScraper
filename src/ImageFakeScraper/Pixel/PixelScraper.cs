@@ -32,7 +32,8 @@ public class PixelScraper : Scraper
 				}
 			}
 		}
-		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } Console.WriteLine("Pixel" + e); }
+		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { }
+			if (settings.printErrorLog) { Console.WriteLine("Pixel" + e); } }
 		return tmp;
 	}
 
@@ -44,9 +45,9 @@ public class PixelScraper : Scraper
 		var urls = await GetImagesAsync((string)args[0], (int)args[1]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
-		SettingsDll.nbPushTotal += result;
+        SettingsDll.nbPushTotal += result;
 
-        if (SettingsDll.printLog)
+        if (settings.printLog)
             Console.WriteLine("Pixel " + result);
 
         return (int)result;
