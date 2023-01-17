@@ -1,4 +1,6 @@
 ﻿using ImageFakeScraper.OpenVerse;
+using ImageFakeScraper.Qwant;
+using ImageFakeScraper.Unsplash;
 using Microsoft.VisualBasic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,7 +52,11 @@ namespace ImageFakeScraperExample
 			};
 			if (Program.ConfigFile.Config.settings.BingRun)
 				dicoEngine.Add("Bing", new BinImageFakeScraper(redisConnection.GetDatabase, options));
-			if (Program.ConfigFile.Config.settings.GoogleRun)
+            if (Program.ConfigFile.Config.settings.QwantRun)
+                dicoEngine.Add("Qwant", new QwantScraper(redisConnection.GetDatabase, options));
+            if (Program.ConfigFile.Config.settings.UnsplashRun)
+                dicoEngine.Add("Unsplash", new UnsplashScraper(redisConnection.GetDatabase, options));
+            if (Program.ConfigFile.Config.settings.GoogleRun)
 				dicoEngine.Add("Google", new GoogleScraper(redisConnection.GetDatabase, options));
 			if (Program.ConfigFile.Config.settings.AlamyRun)
 				dicoEngine.Add("Alamy", new AlamyScraper(redisConnection.GetDatabase, options));
@@ -112,7 +118,8 @@ namespace ImageFakeScraperExample
 				try
 				{
 					RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Config.words_list);
-					Random rand = new Random();
+					//Console.WriteLine(keywords);
+                    Random rand = new Random();
 					dicoEngine = dicoEngine.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
 					for (int i = 0; i < dicoEngine.Count; i++)
 					{

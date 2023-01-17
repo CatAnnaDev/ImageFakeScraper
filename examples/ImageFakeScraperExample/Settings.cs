@@ -6,11 +6,11 @@ public class Settings
     // Google
     public bool GoogleRun { get; set; }
 
-    // DuckduckGO
-    public bool DuckduckGORun { get; set; }
+    // UnsplashRun
+    public bool UnsplashRun { get; set; }
 
-    // Brave
-    public bool BraveRun { get; set; }
+    // QwantRun
+    public bool QwantRun { get; set; }
 
     // OpenVerse
     public bool OpenVerseRun { get; set; }

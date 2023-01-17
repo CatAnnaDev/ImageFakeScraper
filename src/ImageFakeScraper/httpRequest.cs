@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 
 namespace ImageFakeScraper;
 
@@ -11,7 +12,9 @@ public class httpRequest
 		try
         {
 			string url = string.Format(uri, query);
-			HttpResponseMessage resp = await client.GetAsync(url);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15");
+
+            HttpResponseMessage resp = await client.GetAsync(url);
             if (resp.StatusCode == HttpStatusCode.TooManyRequests)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -29,7 +32,9 @@ public class httpRequest
     public async Task<string> GetJson(string uri, params object[] query)
     {
 		HttpClient client = new();
-		string url = string.Format(uri, query);
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15");
+
+        string url = string.Format(uri, query);
         HttpResponseMessage resp = await client.GetAsync(url);
 		if (resp.StatusCode == HttpStatusCode.TooManyRequests)
 		{
@@ -44,7 +49,9 @@ public class httpRequest
     public async Task<string> PostJson(string uri, string json)
     {
 		HttpClient client = new();
-		StringContent content = new(json, Encoding.UTF8, "application/json");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15");
+
+        StringContent content = new(json, Encoding.UTF8, "application/json");
         HttpResponseMessage result = await client.PostAsync(uri, content);
 		if (result.StatusCode == HttpStatusCode.TooManyRequests)
 		{

@@ -39,11 +39,11 @@ public class ImmerseScraper : Scraper
 								{
 									tmp.Add(jsonparsed.data.imageData[j].sourceImageUrl);
 								}
-								else
-								{
-									string cleanUrl = Regex.Replace(jsonparsed.data.imageData[j].sourceImageUrl, @"[?&][^?&]+=[^?&]+", "");
-									tmp.Add(cleanUrl);
-								}
+								//else
+								//{
+								//	string cleanUrl = Regex.Replace(jsonparsed.data.imageData[j].sourceImageUrl, @"[?&][^?&]+=[^?&]+", "");
+								//	tmp.Add(cleanUrl);
+								//}
 							}
 						}
 						else

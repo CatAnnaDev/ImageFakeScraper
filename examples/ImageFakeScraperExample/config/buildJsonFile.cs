@@ -38,8 +38,8 @@ namespace ImageFakeScraperExample.config
                 settings = new()
                 {
                     GoogleRun = true,
-                    DuckduckGORun = false,
-                    BraveRun = false,
+                    UnsplashRun = true,
+                    QwantRun = true,
                     AlamyRun = true,
                     OpenVerseRun = true,
                     BingRun = true,
