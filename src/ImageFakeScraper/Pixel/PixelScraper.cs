@@ -3,8 +3,6 @@ namespace ImageFakeScraper.Pixel;
 
 public class PixelScraper : Scraper
 {
-	public PixelScraper(IDatabase redis, Dictionary<string, object> key) : base(redis, key) { }
-
 	private const string uri = "https://www.everypixel.com/search/search?q={0}&limit=20000&json=1&page={1}";
 	private readonly Regex RegexCheck = new(@"^(http|https:\/\/):?([^\s([<,>\/]*)(\/)[^\s[,><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s[,><]*)?");
 
@@ -34,19 +32,23 @@ public class PixelScraper : Scraper
 				}
 			}
 		}
-		catch (Exception e) { if (e.GetType().Name != "UriFormatException") Console.WriteLine("Pixel " + e); }
+		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } }
 		return tmp;
 	}
 
-	public override async void GetImages(AsyncCallback ac, params object[] args)
+	public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
 	{
 		if (!await redisCheckCount())
-			return;
+			return 0;
 
 		var urls = await GetImagesAsync((string)args[0], (int)args[1]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
-		Console.WriteLine("Pixel " + result);
-	}
+
+        if (SettingsDll.printLog)
+            Console.WriteLine("Pixel " + result);
+
+        return (int)result;
+    }
 }

@@ -4,8 +4,6 @@
 public class BinImageFakeScraper : Scraper
 {
 
-	public BinImageFakeScraper(IDatabase redis, Dictionary<string, object> key) : base(redis, key) { }
-
 	private const string uri = "https://www.bing.com/images/search?q={0}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&adlt=off";
 	private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
 	private Queue<string> qword = new Queue<string>();
@@ -49,19 +47,21 @@ public class BinImageFakeScraper : Scraper
 				tmp.Add(cleanUrl);
 			}
 		}
-		catch (Exception e) { if (e.GetType().Name != "UriFormatException") Console.WriteLine("Bing " + e); }
+		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } }
 		return tmp;
 	}
 
-	public override async void GetImages(AsyncCallback ac, params object[] args)
+	public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
 	{
 		if (!await redisCheckCount())
-			return;
+			return 0;
 
 		var urls = await GetImagesAsync((string)args[0], (IDatabase)args[4]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
-		Console.WriteLine("Bing " + result);
-	}
+        if (SettingsDll.printLog)
+            Console.WriteLine("Bing " + result);
+        return (int)result;
+    }
 }

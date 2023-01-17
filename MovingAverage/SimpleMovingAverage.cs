@@ -1,8 +1,7 @@
-﻿using System;
-namespace ImageFakeScraperExample.function
+﻿namespace MovingAverage
 {
-	public class SimpleMovingAverage
-	{
+    public class SimpleMovingAverage
+    {
         private readonly int _k;
         private readonly int[] _values;
 
@@ -33,4 +32,3 @@ namespace ImageFakeScraperExample.function
         }
     }
 }
-

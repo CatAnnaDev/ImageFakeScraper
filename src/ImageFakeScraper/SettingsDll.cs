@@ -21,4 +21,6 @@ public class SettingsDll
 
     // EveryPixel
     public int EveryPixelMaxPage { get; set; }
+
+    public static bool printLog { get; set; } = false;
 }

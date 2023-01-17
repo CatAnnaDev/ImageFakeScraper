@@ -7,8 +7,6 @@ public class GoogleScraper : Scraper
 {
 	private const string uri = "https://www.google.com/search?q={0}&tbm=isch&asearch=isch&async=_fmt:json,p:2&tbs=&safe=off";
 
-	public GoogleScraper(IDatabase redis, Dictionary<string, object> key) : base(redis, key) { }
-
 	public async Task<List<string>?> GetImagesAsync(string query)
 	{
 		List<string> tmp = new();
@@ -29,20 +27,23 @@ public class GoogleScraper : Scraper
 			}
 
 		}
-		catch (Exception e) { if (e.GetType().Name != "UriFormatException") Console.WriteLine("Google" + e.Message); }
+		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } }
 
 		return tmp;
 	}
 
-	public override async void GetImages(AsyncCallback ac, params object[] args)
+	public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
 	{
 		if (!await redisCheckCount())
-			return;
+			return 0;
 
 		var urls = await GetImagesAsync((string)args[0]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
-		Console.WriteLine("Google " + result);
-	}
+        if (SettingsDll.printLog)
+            Console.WriteLine("Google " + result);
+
+        return (int)result;
+    }
 }

@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ImageFakeScraper\ImageFakeScraper.csproj" />
+    <ProjectReference Include="..\..\MovingAverage\MovingAverage.csproj" />
   </ItemGroup>
 
 </Project>

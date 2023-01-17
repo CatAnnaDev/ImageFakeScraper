@@ -12,7 +12,9 @@ namespace ImageFakeScraperExample
 
 		private SemaphoreSlim mySemaphoreSlim = new SemaphoreSlim(1, 1);
 
-		private AutoResetEvent auto = new(false);
+        private SimpleMovingAverage MovingAverage = new SimpleMovingAverage(5);
+
+        private AutoResetEvent auto = new(false);
 
 		private Dictionary<string, Scraper> dicoEngine = new();
 
@@ -31,7 +33,13 @@ namespace ImageFakeScraperExample
 		bool printLog;
 		bool printLogTag;
 
-		private static readonly Stopwatch uptime = new();
+        DateTime last_time = DateAndTime.Now;
+        int totalpushPrint = 0;
+
+        int rates = 0;
+        double ratesPrint = 0;
+
+        private static readonly Stopwatch uptime = new();
 
 		public MultiThread(bool printLog, bool printLogTag, int nbThread = 8, int QueueLimit = 30)
 		{
@@ -51,25 +59,32 @@ namespace ImageFakeScraperExample
 				{"redis_queue_limit_count",  Program.ConfigFile.Config.settings.stopAfter }
 			};
 			if (Program.ConfigFile.Config.settings.BingRun)
-				dicoEngine.Add("Bing", new BinImageFakeScraper(redisConnection.GetDatabase, options));
+				dicoEngine.Add("Bing", new BinImageFakeScraper());
             if (Program.ConfigFile.Config.settings.QwantRun)
-                dicoEngine.Add("Qwant", new QwantScraper(redisConnection.GetDatabase, options));
+                dicoEngine.Add("Qwant", new QwantScraper());
             if (Program.ConfigFile.Config.settings.UnsplashRun)
-                dicoEngine.Add("Unsplash", new UnsplashScraper(redisConnection.GetDatabase, options));
+                dicoEngine.Add("Unsplash", new UnsplashScraper());
             if (Program.ConfigFile.Config.settings.GoogleRun)
-				dicoEngine.Add("Google", new GoogleScraper(redisConnection.GetDatabase, options));
+				dicoEngine.Add("Google", new GoogleScraper());
 			if (Program.ConfigFile.Config.settings.AlamyRun)
-				dicoEngine.Add("Alamy", new AlamyScraper(redisConnection.GetDatabase, options));
+				dicoEngine.Add("Alamy", new AlamyScraper());
 			if (Program.ConfigFile.Config.settings.OpenVerseRun)
-				dicoEngine.Add("Open", new OpenVerseScraper(redisConnection.GetDatabase, options));
+				dicoEngine.Add("Open", new OpenVerseScraper());
 			if (Program.ConfigFile.Config.settings.YahooRun)
-				dicoEngine.Add("Yahoo", new YahooScraper(redisConnection.GetDatabase, options));
+				dicoEngine.Add("Yahoo", new YahooScraper());
 			if (Program.ConfigFile.Config.settings.GettyImageRun)
-				dicoEngine.Add("Getty", new GettyScraper(redisConnection.GetDatabase, options));
+				dicoEngine.Add("Getty", new GettyScraper());
 			if (Program.ConfigFile.Config.settings.EveryPixelRun)
-				dicoEngine.Add("Pixel", new PixelScraper(redisConnection.GetDatabase, options));
+				dicoEngine.Add("Pixel", new PixelScraper());
 			if (Program.ConfigFile.Config.settings.ImmerseRun)
-				dicoEngine.Add("Immerse", new ImmerseScraper(redisConnection.GetDatabase, options));
+				dicoEngine.Add("Immerse", new ImmerseScraper());
+
+			foreach(var engine in dicoEngine)
+			{
+				engine.Value.setRedis(redisConnection.GetDatabase);
+				engine.Value.setOptions(options);
+				engine.Value.setMovingAverage(MovingAverage);
+            }
 		}
 
 		private void LogPrintData()
@@ -102,14 +117,25 @@ namespace ImageFakeScraperExample
 				thread1.Start();
 			}
 
-			// Thread poll = new Thread(PollKeywords);
-			// poll.Start();
+            Thread poll = new Thread(PrintTotalpersec);
+			poll.Start();
 
 			Thread GlobalLog = new Thread(LogPrintData);
 			GlobalLog.Start();
 		}
 
-		private async void Worker()
+        private void PrintTotalpersec(object? obj)
+        {
+			while (true)
+			{
+
+				Console.Write($"\rTotal {SettingsDll.nbPushTotal}, [{ratesPrint}/s]");
+
+				Thread.Sleep(TimeSpan.FromMilliseconds(100));
+			}
+        }
+
+        private async void Worker()
 		{
 
 
@@ -117,7 +143,9 @@ namespace ImageFakeScraperExample
 			{	
 				try
 				{
-					RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Config.words_list);
+					
+
+                    RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Config.words_list);
 					//Console.WriteLine(keywords);
                     Random rand = new Random();
 					dicoEngine = dicoEngine.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
@@ -125,12 +153,15 @@ namespace ImageFakeScraperExample
 					{
 						object[] args = new object[] { keywords.ToString(), 1, 1_500, false, redisConnection.GetDatabase };
 						AsyncCallback callBack = new AsyncCallback(onRequestFinih);
-						dicoEngine.ElementAt(i).Value.GetImages(callBack, args);
-						Thread.Sleep(TimeSpan.FromSeconds(Program.waittime));
+						rates += await dicoEngine.ElementAt(i).Value.GetImages(callBack, args);
+						ratesPrint = MovingAverage.Update(rates);
+
+                        Thread.Sleep(TimeSpan.FromSeconds(Program.waittime));
 					}
 
-					//Console.WriteLine("j'arriv pas queue");
-				}
+                    rates = 0;
+                    //Console.WriteLine("j'arriv pas queue");
+                }
 				catch (Exception e) { /*Console.WriteLine(e);*/ }
 
 
@@ -222,7 +253,7 @@ namespace ImageFakeScraperExample
 			lock (_lock)
 			{
 				string line = string.Concat(Enumerable.Repeat("=", Console.WindowWidth));
-				Console.WriteLine(line);
+				Console.WriteLine("\n"+line);
 				Console.WriteLine(text);
 				Console.WriteLine(line);
 			}

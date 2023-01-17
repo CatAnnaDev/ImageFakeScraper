@@ -2,7 +2,6 @@
 {
 	public class QwantScraper : Scraper
 	{
-        public QwantScraper(IDatabase redis, Dictionary<string, object> key) : base(redis, key) { }
 
         private const string uri = "https://api.qwant.com/v3/search/images?q={0}&count=250&offset=0&locale=fr_fr&s=0";
 
@@ -28,22 +27,25 @@
                 }
 
             }
-            catch (Exception e) { if (e.GetType().Name != "UriFormatException") Console.WriteLine("Alamy " + e); }
+            catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } }
             return tmp;
         }
 
-        public override async void GetImages(AsyncCallback ac, params object[] args)
+        public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
         {
 
             if (!await redisCheckCount())
-                return;
+                return 0;
 
             var urls = await GetImagesAsync((string)args[0]);
             RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 
             var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
             SettingsDll.nbPushTotal += result;
-            Console.WriteLine("Qwant " + result);
+            if (SettingsDll.printLog)
+                Console.WriteLine("Qwant " + result);
+
+            return (int)result;
         }
     }
 }

@@ -3,7 +3,6 @@
 
 public class ImmerseScraper : Scraper
 {
-	public ImmerseScraper(IDatabase redis, Dictionary<string, object> key) : base(redis, key) { }
 
 	private const string uri = "https://www.immerse.zone/api/immerse/search";
 	private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
@@ -56,21 +55,24 @@ public class ImmerseScraper : Scraper
 					break;
 			}
 		}
-		catch (Exception e) { if (e.GetType().Name != "UriFormatException") Console.WriteLine("Immerse " + e); }
+		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } }
 		return tmp;
 	}
 
-	public override async void GetImages(AsyncCallback ac, params object[] args)
+	public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
 	{
 		if (!await redisCheckCount())
-			return;
+			return 0;
 
 		var urls = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
-		Console.WriteLine("Immerse " + result);
-	}
+        if (SettingsDll.printLog)
+            Console.WriteLine("Immerse " + result);
+
+        return (int)result;
+    }
 }
 
 public class JsonCreatePush

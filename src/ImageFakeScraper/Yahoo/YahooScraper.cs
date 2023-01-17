@@ -2,8 +2,6 @@
 public class YahooScraper : Scraper
 {
 
-	public YahooScraper(IDatabase redis, Dictionary<string, object> key) : base(redis, key) { }
-
 	private const string uri = "https://images.search.yahoo.com/search/images?ei=UTF-8&p={0}&fr2=p%3As%2Cv%3Ai&.bcrumb=4N2SA8f4BZT&save=0";
 	private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
 
@@ -34,19 +32,22 @@ public class YahooScraper : Scraper
 				tmp.Add(cleanUrl);
 			}
 		}
-		catch (Exception e) { if(e.GetType().Name != "UriFormatException") Console.WriteLine("Yahoo " + e); }
+		catch (Exception e) { if(e.GetType().Name != "UriFormatException") { } }
 		return tmp;
 	}
 
-	public override async void GetImages(AsyncCallback ac, params object[] args)
+	public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
 	{
 		if (!await redisCheckCount())
-			return;
+			return 0;
 
 		var urls = await GetImagesAsync((string)args[0]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
-		Console.WriteLine("Yahoo " + result);
-	}
+        if (SettingsDll.printLog)
+            Console.WriteLine("Yahoo " + result);
+
+        return (int)result;
+    }
 }

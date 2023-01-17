@@ -5,17 +5,11 @@ namespace ImageFakeScraper
     public class Scraper
     {
         protected IDatabase redis;
-        protected Dictionary<string, object> Options = new();
-        public Scraper(IDatabase redis, Dictionary<string, object> key) 
-        { 
-            this.redis = redis;
-            Options = key;
-
-		}
+        protected Dictionary<string, object> Options;
+        protected SimpleMovingAverage movingAverage;
 		public httpRequest http = new();
 
-		public virtual async void GetImages(AsyncCallback ac, params object[] args) { }
-
+        public virtual async Task<int> GetImages(AsyncCallback ac, params object[] args) { return 0; }
 
         public async Task<bool> redisCheckCount()
         {
@@ -29,5 +23,19 @@ namespace ImageFakeScraper
             return true;
 		}
 
+        public virtual void setRedis(IDatabase redis)
+        {
+            this.redis = redis;
+        }
+
+        public virtual void setOptions(Dictionary<string, object> key)
+        {
+            Options = key;
+        }
+
+        public virtual void setMovingAverage(SimpleMovingAverage movingAverage)
+        {
+            this.movingAverage = movingAverage;
+        }
     }
 }

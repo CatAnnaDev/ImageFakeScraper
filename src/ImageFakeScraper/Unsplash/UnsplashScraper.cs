@@ -3,8 +3,6 @@ namespace ImageFakeScraper.Unsplash
 {
 	public class UnsplashScraper : Scraper
 	{
-        public UnsplashScraper(IDatabase redis, Dictionary<string, object> key) : base(redis, key) { }
-
         private const string uri = "https://unsplash.com/napi/search/photos?query={0}&page=1&per_page=10000";
 
         public async Task<List<string>> GetImagesAsync(string query)
@@ -32,22 +30,25 @@ namespace ImageFakeScraper.Unsplash
                 }
 
             }
-            catch (Exception e) { if (e.GetType().Name != "UriFormatException") Console.WriteLine("Alamy " + e); }
+            catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } }
             return tmp;
         }
 
-        public override async void GetImages(AsyncCallback ac, params object[] args)
+        public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
         {
 
             if (!await redisCheckCount())
-                return;
+                return 0;
 
             var urls = await GetImagesAsync((string)args[0]);
             RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 
             var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
             SettingsDll.nbPushTotal += result;
-            Console.WriteLine("Qwant " + result);
+            if (SettingsDll.printLog)
+                Console.WriteLine("Qwant " + result);
+
+            return (int)result;
         }
 
     }

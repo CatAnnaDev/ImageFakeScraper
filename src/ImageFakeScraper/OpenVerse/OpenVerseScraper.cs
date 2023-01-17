@@ -4,8 +4,6 @@ namespace ImageFakeScraper.OpenVerse;
 public class OpenVerseScraper : Scraper
 {
 
-	public OpenVerseScraper(IDatabase redis, Dictionary<string, object> key) : base(redis, key) { }
-
 	private SettingsDll settingsDll = new();
 
 	private const string uri = "https://api.openverse.engineering/v1/images/?format=json&q={0}&page={1}&mature=true";
@@ -40,19 +38,22 @@ public class OpenVerseScraper : Scraper
 
 			}
 		}
-		catch (Exception e) { if (e.GetType().Name != "UriFormatException") Console.WriteLine("Open " + e); }
+		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } }
 		return tmp;
 	}
 
-	public override async void GetImages(AsyncCallback ac, params object[] args)
+	public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
 	{
 		if (!await redisCheckCount())
-			return;
+			return 0;
 
 		var urls = await GetImagesAsync((string)args[0], (int)args[1]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
-		Console.WriteLine("Open " + result);
-	}
+        if (SettingsDll.printLog)
+            Console.WriteLine("Open " + result);
+
+        return (int)result;
+    }
 }
