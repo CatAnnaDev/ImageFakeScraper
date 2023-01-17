@@ -55,7 +55,7 @@ public class ImmerseScraper : Scraper
 					break;
 			}
 		}
-		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } }
+		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } Console.WriteLine("Immerse" + e); }
 		return tmp;
 	}
 

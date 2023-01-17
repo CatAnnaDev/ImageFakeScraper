@@ -36,7 +36,7 @@ public class GettyScraper : Scraper
 				}
 			}
 		}
-		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } }
+		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } Console.WriteLine("Getty" + e); }
 		return tmp;
 	}
 

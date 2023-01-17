@@ -30,7 +30,7 @@ namespace ImageFakeScraper.Unsplash
                 }
 
             }
-            catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } }
+            catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } Console.WriteLine("Unsplash" + e); }
             return tmp;
         }
 

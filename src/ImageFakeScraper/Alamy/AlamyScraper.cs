@@ -36,7 +36,7 @@ namespace ImageFakeScraper.Alamy
 				}
 
 			}
-			catch (Exception e) { if (e.GetType().Name != "UriFormatException") { }  }
+			catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } Console.WriteLine("Alamy" + e); }
 			return tmp;
 		}
 

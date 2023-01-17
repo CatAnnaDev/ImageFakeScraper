@@ -12,7 +12,7 @@ namespace ImageFakeScraperExample
 
 		private SemaphoreSlim mySemaphoreSlim = new SemaphoreSlim(1, 1);
 
-        private SimpleMovingAverage MovingAverage = new SimpleMovingAverage(5);
+        private SimpleMovingAverage MovingAverage = new SimpleMovingAverage(30);
 
         private AutoResetEvent auto = new(false);
 
@@ -143,7 +143,6 @@ namespace ImageFakeScraperExample
 			{	
 				try
 				{
-					
 
                     RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Config.words_list);
 					//Console.WriteLine(keywords);
@@ -153,7 +152,7 @@ namespace ImageFakeScraperExample
 					{
 						object[] args = new object[] { keywords.ToString(), 1, 1_500, false, redisConnection.GetDatabase };
 						AsyncCallback callBack = new AsyncCallback(onRequestFinih);
-						rates += await dicoEngine.ElementAt(i).Value.GetImages(callBack, args);
+						rates += dicoEngine.ElementAt(i).Value.GetImages(callBack, args).Result;
 						ratesPrint = MovingAverage.Update(rates);
 
                         Thread.Sleep(TimeSpan.FromSeconds(Program.waittime));
@@ -162,7 +161,7 @@ namespace ImageFakeScraperExample
                     rates = 0;
                     //Console.WriteLine("j'arriv pas queue");
                 }
-				catch (Exception e) { /*Console.WriteLine(e);*/ }
+				catch (Exception e) { Console.WriteLine(e); }
 
 
 			}

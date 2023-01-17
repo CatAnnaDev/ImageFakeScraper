@@ -47,7 +47,7 @@ public class BinImageFakeScraper : Scraper
 				tmp.Add(cleanUrl);
 			}
 		}
-		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } }
+		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } Console.WriteLine("Bing" + e); }
 		return tmp;
 	}
 
