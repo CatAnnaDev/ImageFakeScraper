@@ -1,6 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
-#pragma warning disable
+#pragma warning disable CS8602, CS8604, CS8618, CS1634
 namespace ImageFakeScraper.Alamy
 {
     public class _450v

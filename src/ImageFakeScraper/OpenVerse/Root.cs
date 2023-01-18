@@ -1,5 +1,5 @@
 ﻿namespace ImageFakeScraper.OpenVerse;
-#pragma warning disable
+#pragma warning disable CS8602, CS8604, CS8618, CS1634
 public class Result
 {
     public string? id { get; set; }

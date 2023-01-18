@@ -1,6 +1,6 @@
 ﻿namespace ImageFakeScraper.immerse;
 
-#pragma warning disable
+#pragma warning disable CS8602, CS8604, CS8618, CS1634, CS8600, IL2026
 public class ImmerseScraper : Scraper
 {
 

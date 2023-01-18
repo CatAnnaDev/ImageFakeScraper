@@ -1,5 +1,5 @@
 ﻿namespace ImageFakeScraper;
-#pragma warning disable
+#pragma warning disable CS8602, CS8604, CS8618, CS1634
 internal static class ImageFakeScraperGuards
 {
     public static void NotNull<T>(T? obj, string parameterName) where T : class

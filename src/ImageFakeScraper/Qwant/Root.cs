@@ -1,5 +1,5 @@
 ﻿using System;
-#pragma warning disable
+#pragma warning disable CS8602, CS8604, CS8618, CS1634
 namespace ImageFakeScraper.Qwant
 {
     public class Color

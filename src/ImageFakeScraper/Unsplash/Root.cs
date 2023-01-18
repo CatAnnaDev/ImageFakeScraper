@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-#pragma warning disable8
+#pragma warning disable CS8602, CS8604, CS8618, CS1634
 namespace ImageFakeScraper.Unsplash
 {
     public class Ancestry

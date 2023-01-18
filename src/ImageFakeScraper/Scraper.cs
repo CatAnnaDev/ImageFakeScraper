@@ -1,5 +1,5 @@
 ﻿using System.Threading;
-#pragma warning disable
+#pragma warning disable CS8602, CS8604, CS8618, CS1634, CS1998
 namespace ImageFakeScraper
 {
     public class Scraper
