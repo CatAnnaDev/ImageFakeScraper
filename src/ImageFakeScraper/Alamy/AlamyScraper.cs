@@ -12,7 +12,6 @@ namespace ImageFakeScraper.Alamy
 			double dlspeedreturn = 0;
 			try
 			{
-
 				int page = AlamyMaxPage + 1;
 				for (int i = 1; i < page; i++)
 				{
@@ -62,6 +61,7 @@ namespace ImageFakeScraper.Alamy
 			RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 
 			long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
+			SettingsDll.TotalPushAlamy += result;
 			SettingsDll.nbPushTotal += result;
 
 			if (settings.printLog)

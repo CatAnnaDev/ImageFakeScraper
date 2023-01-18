@@ -55,6 +55,7 @@ namespace ImageFakeScraper.Unsplash
 			RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 
 			long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
+			SettingsDll.TotalPushUnsplash += result;
 			SettingsDll.nbPushTotal += result;
 			if (settings.printLog)
 			{

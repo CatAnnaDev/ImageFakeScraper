@@ -3,14 +3,7 @@
 public class BinImageFakeScraper : Scraper
 {
 
-	private const string uri = "https://www.bing.com/images/search?q={0}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&adlt=off";
-	private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
-	private readonly Queue<string> qword = new();
-
-	// (https:\/\/)?s?:?([^\s(["<,>/]*)(\/)[^\s[",><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s[",><]*)?
-
-	// Regex.Match(url, @"^(?:https?://)?(?:[^@/\n]+@)?(?:www.)?([^:/?\n]+)").Groups[1].Value
-
+	private const string uri = "https://www.bing.com/images/search?q={0}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&adlt=off&cw=2543&ch=1289";
 
 	public async Task<(List<string>, double)> GetImagesAsync(string query, IDatabase redis)
 	{
@@ -22,7 +15,7 @@ public class BinImageFakeScraper : Scraper
 			string[] args = new string[] { query };
 			(HtmlDocument doc, double dlspeed) = await http.Get(uri, args);
 			dlspeedreturn = dlspeed;
-			IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !string.IsNullOrEmpty(s));
+			IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !string.IsNullOrEmpty(s)); // parse url img changer
 
 			HtmlNodeCollection tag = doc.DocumentNode.SelectNodes("//span[@class='suggestion-title']");
 
@@ -31,7 +24,6 @@ public class BinImageFakeScraper : Scraper
 				foreach (HtmlNode? item in tag)
 				{
 					_ = redis.SetAdd("words_list", item.FirstChild.InnerText);
-					//qword.Enqueue(item.FirstChild.InnerText);
 				}
 			}
 
@@ -71,7 +63,9 @@ public class BinImageFakeScraper : Scraper
 		(List<string> urls, double dlspeed) = await GetImagesAsync((string)args[0], (IDatabase)args[4]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
+		SettingsDll.TotalPushBing += result;
 		SettingsDll.nbPushTotal += result;
+
 		if (settings.printLog)
 		{
 			Console.WriteLine("Bing " + result);

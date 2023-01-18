@@ -20,7 +20,7 @@ public class PixelScraper : Scraper
 				(string jsonGet, double dlspeed) = await http.GetJson(uri, args);
 				dlspeedreturn = dlspeed;
 				Root jsonparsed = JsonConvert.DeserializeObject<Root>(jsonGet);
-				if (jsonparsed != null || jsonparsed.images != null || jsonparsed.images.images_0 == null)
+				if (jsonparsed == null || jsonparsed.images == null || jsonparsed.images.images_0 == null)
 				{
 					break;
 				}
@@ -56,6 +56,7 @@ public class PixelScraper : Scraper
 		(List<string> urls, double dlspeed) = await GetImagesAsync((string)args[0], (int)args[1]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
+		SettingsDll.TotalPushPixel += result;
 		SettingsDll.nbPushTotal += result;
 
 		if (settings.printLog)

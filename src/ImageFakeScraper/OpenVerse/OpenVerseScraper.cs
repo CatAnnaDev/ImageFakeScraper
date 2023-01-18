@@ -4,11 +4,7 @@ namespace ImageFakeScraper.OpenVerse;
 
 public class OpenVerseScraper : Scraper
 {
-
-	private readonly SettingsDll settingsDll = new();
-
 	private const string uri = "https://api.openverse.engineering/v1/images/?format=json&q={0}&page={1}&mature=true";
-	private readonly Regex RegexCheck = new(@"^(http|https://):?([^\s([<,>/]*)(\/)[^\s[,><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s[,><]*)?");
 
 	public async Task<(List<string>, double)> GetImagesAsync(string query, int OpenVerseMaxPage)
 	{
@@ -63,6 +59,7 @@ public class OpenVerseScraper : Scraper
 		(List<string> urls, double dlspeed) = await GetImagesAsync((string)args[0], (int)args[1]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
+		SettingsDll.TotalPushOpen += result;
 		SettingsDll.nbPushTotal += result;
 		if (settings.printLog)
 		{

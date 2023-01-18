@@ -6,40 +6,22 @@ namespace ImageFakeScraperExample
 	public class MultiThread
 	{
 		private SettingsDll settings = new();
-
 		private SemaphoreSlim mySemaphoreSlim = new SemaphoreSlim(1, 1);
-
 		private SimpleMovingAverage MovingAverage = new SimpleMovingAverage(30);
-
-		SimpleMovingAverageLong DownloadSpeed = new(15);
-
-
+		private SimpleMovingAverageLong DownloadSpeed = new(15);
 		private AutoResetEvent auto = new(false);
-
 		private Dictionary<string, Scraper> dicoEngine = new();
-
 		private static Object _lock = new();
-
-		ConcurrentQueue<Tuple<string, string>> queue = new();
-
 		private List<Thread> threadList = new();
-
 		private static readonly List<Task> tasks = new();
-
-		int ThreadCount = 0;
-
-		int QueueLimit = 30;
-
-		bool printLog;
-		bool printLogTag;
-
-		DateTime last_time = DateTime.Now;
-
-		int rates = 0;
-		int ratesPrint = 0;
-
-		long ratesSpeed = 0;
-
+		private int ThreadCount = 0;
+		private int QueueLimit = 30;
+		private bool printLog;
+		private bool printLogTag;
+		private DateTime last_time = DateTime.Now;
+		private int rates = 0;
+		private int ratesPrint = 0;
+		private long ratesSpeed = 0;
 		private static readonly Stopwatch uptime = new();
 
 		public MultiThread(bool printLog, bool printLogTag, int nbThread = 8, int QueueLimit = 30)
@@ -93,20 +75,30 @@ namespace ImageFakeScraperExample
 		{
 			while (true)
 			{
+				Thread.Sleep(TimeSpan.FromMinutes(1));
+				Console.Clear();
+				Console.WriteLine(FiggleFonts.Standard.Render("Scraper"));
 				try
 				{
 					string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
 					printData(
 						$"Uptime\t\t{uptimeFormated}\n" +
-						$"Total Tag\t{queue.Count}\n" +
 						$"Thread\t\t{Program.nbThread}\n" +
 						$"Sleep\t\t{Program.waittime}\n" +
 						$"Request/sec\t{Program.requestMaxPerSec}\n" +
-						$"Total Push\t{SettingsDll.nbPushTotal}");
+						$"Total Push\t{SettingsDll.nbPushTotal}\n" +
+						$"Alamy\t\t{SettingsDll.TotalPushAlamy}\n" +
+						$"Bing\t\t{SettingsDll.TotalPushBing}\n" +
+						$"Getty\t\t{SettingsDll.TotalPushGetty}\n" +
+						$"Google\t\t{SettingsDll.TotalPushGoogle}\n" +
+						$"Immerse\t\t{SettingsDll.TotalPushImmerse}\n" +
+						$"Open\t\t{SettingsDll.TotalPushOpen}\n" +
+						$"Pixel\t\t{SettingsDll.TotalPushPixel}\n" +
+						$"Qwant\t\t{SettingsDll.TotalPushQwant}\n" +
+						$"Unsplash\t{SettingsDll.TotalPushUnsplash}\n" +
+						$"Yahoo\t\t{SettingsDll.TotalPushYahoo}");
 				}
 				catch { }
-
-				Thread.Sleep(TimeSpan.FromMinutes(1));
 			}
 		}
 
@@ -130,11 +122,8 @@ namespace ImageFakeScraperExample
 		{
 			while (true)
 			{
-
 				Console.Write($"\rTotal Push {SettingsDll.nbPushTotal}, [ {ratesPrint}/s ] Total DL {ConvertBytes(SettingsDll.downloadTotal)}, [{ConvertBytes(ratesSpeed)}/s] ");
-
 				Thread.Sleep(TimeSpan.FromMilliseconds(100));
-
 			}
 		}
 
@@ -159,9 +148,7 @@ namespace ImageFakeScraperExample
 			{
 				try
 				{
-
 					RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Configs["words_list"].ToString());
-					//Console.WriteLine(keywords);
 					Random rand = new Random();
 					dicoEngine = dicoEngine.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
 
@@ -181,10 +168,9 @@ namespace ImageFakeScraperExample
 					}
 
 					// reset
+					ratesTmp = 0;
 					ratesPrint = 0;
 					ratesSpeed = 0;
-
-					//Console.WriteLine("j'arriv pas queue");
 				}
 				catch (Exception e) { Console.WriteLine(e); }
 
