@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using StackExchange.Redis;
-
+#pragma warning disable
 namespace ImageFakeScraper.Google;
 
 public class GoogleScraper : Scraper

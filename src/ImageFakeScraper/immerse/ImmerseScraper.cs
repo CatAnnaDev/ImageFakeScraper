@@ -1,6 +1,6 @@
 ﻿namespace ImageFakeScraper.immerse;
 
-
+#pragma warning disable
 public class ImmerseScraper : Scraper
 {
 

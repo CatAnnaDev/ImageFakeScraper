@@ -1,5 +1,5 @@
 ﻿namespace ImageFakeScraper.immerse;
-
+#pragma warning disable
 public class Data
 {
     public List<ImageDatum>? imageData { get; set; }

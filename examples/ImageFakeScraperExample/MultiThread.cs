@@ -5,7 +5,7 @@ using Microsoft.VisualBasic;
 using System.Threading;
 using System.Threading.Tasks;
 
-
+#pragma warning disable
 namespace ImageFakeScraperExample
 {
 	public class MultiThread
@@ -36,7 +36,6 @@ namespace ImageFakeScraperExample
 		bool printLogTag;
 
         DateTime last_time = DateAndTime.Now;
-        int totalpushPrint = 0;
 
         int rates = 0;
         int ratesPrint = 0;

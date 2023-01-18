@@ -1,5 +1,5 @@
 ﻿namespace ImageFakeScraperExample.Bloom;
-
+#pragma warning disable
 public class Bloom<T>
 {
     private readonly int _hashFunctionCount;

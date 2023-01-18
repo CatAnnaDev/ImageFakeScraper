@@ -1,5 +1,5 @@
 ﻿namespace ImageFakeScraper.Getty;
-
+#pragma warning disable
 public class GettyScraper : Scraper
 {
 

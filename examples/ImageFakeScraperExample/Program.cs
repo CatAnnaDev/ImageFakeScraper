@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 
 namespace ImageFakeScraperExample;
-
+#pragma warning disable
 internal static class Program
 {
     #region Var

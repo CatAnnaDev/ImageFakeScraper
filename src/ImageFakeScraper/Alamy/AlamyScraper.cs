@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-
+#pragma warning disable
 namespace ImageFakeScraper.Alamy
 {
 	public class AlamyScraper : Scraper

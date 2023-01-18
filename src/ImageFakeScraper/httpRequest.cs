@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net.Http;
-
+#pragma warning disable
 namespace ImageFakeScraper;
 
 public class httpRequest

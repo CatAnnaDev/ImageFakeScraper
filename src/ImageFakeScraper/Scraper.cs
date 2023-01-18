@@ -1,5 +1,5 @@
 ﻿using System.Threading;
-
+#pragma warning disable
 namespace ImageFakeScraper
 {
     public class Scraper

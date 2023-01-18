@@ -1,6 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
-
+#pragma warning disable
 namespace ImageFakeScraper.Alamy
 {
     public class _450v
@@ -52,6 +52,7 @@ namespace ImageFakeScraper.Alamy
 
     public class Renditions
     {
+
         public Comp Comp { get; set; }
         public ZoomLarge ZoomLarge { get; set; }
 

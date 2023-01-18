@@ -1,5 +1,5 @@
 ﻿namespace ImageFakeScraperExample;
-
+#pragma warning disable
 public class Settings
 {
     public Settings() { }

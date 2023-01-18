@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+#pragma warning disable
 namespace ImageFakeScraper.Pixel;
 
 public class PixelScraper : Scraper

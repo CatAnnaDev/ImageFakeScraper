@@ -1,5 +1,5 @@
 ﻿namespace ImageFakeScraperExample.uselessCode;
-
+#pragma warning disable
 internal class Pool
 {
     public static void start(int nbThread = 1)

@@ -1,4 +1,5 @@
 ﻿using System;
+#pragma warning disable
 namespace ImageFakeScraper.Unsplash
 {
 	public class UnsplashScraper : Scraper

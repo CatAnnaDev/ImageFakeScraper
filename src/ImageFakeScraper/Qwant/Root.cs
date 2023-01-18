@@ -1,7 +1,7 @@
 ﻿using System;
+#pragma warning disable
 namespace ImageFakeScraper.Qwant
 {
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     public class Color
     {
         public string label { get; set; }

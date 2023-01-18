@@ -1,4 +1,5 @@
 ﻿namespace ImageFakeScraper.Yahoo;
+#pragma warning disable
 public class YahooScraper : Scraper
 {
 

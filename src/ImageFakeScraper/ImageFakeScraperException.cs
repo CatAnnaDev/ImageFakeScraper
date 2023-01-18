@@ -1,5 +1,5 @@
 ﻿namespace ImageFakeScraper;
-
+#pragma warning disable
 public class ImageFakeScraperException : Exception
 {
     public string Engine { get; } = "Unknown";

@@ -1,4 +1,5 @@
-﻿namespace ImageFakeScraper.Qwant
+﻿#pragma warning disable
+namespace ImageFakeScraper.Qwant
 {
 	public class QwantScraper : Scraper
 	{

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+#pragma warning disable
 namespace ImageFakeScraper.OpenVerse;
 
 public class OpenVerseScraper : Scraper

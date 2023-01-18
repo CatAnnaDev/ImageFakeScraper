@@ -1,4 +1,5 @@
-﻿namespace ImageFakeScraperExample.config
+﻿#pragma warning disable
+namespace ImageFakeScraperExample.config
 {
     internal class jsonConfigFile
     {

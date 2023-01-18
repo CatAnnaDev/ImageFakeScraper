@@ -1,6 +1,6 @@
 ﻿namespace ImageFakeScraper.Bing;
 
-
+#pragma warning disable
 public class BinImageFakeScraper : Scraper
 {
 

@@ -1,5 +1,5 @@
 ﻿namespace ImageFakeScraperExample.function;
-
+#pragma warning disable
 internal class redisConnection
 {
     #region Var

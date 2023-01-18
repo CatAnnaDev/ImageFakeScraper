@@ -1,5 +1,5 @@
 ﻿namespace ImageFakeScraperExample.uselessCode;
-
+#pragma warning disable
 public class ImageDownloader
 {
     public static void DownloadImagesFromUrl(string url, string folderImagesPath = "")

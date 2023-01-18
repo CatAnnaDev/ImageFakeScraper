@@ -1,5 +1,5 @@
 ﻿namespace ImageFakeScraper;
-
+#pragma warning disable
 internal static class ImageFakeScraperGuards
 {
     public static void NotNull<T>(T? obj, string parameterName) where T : class

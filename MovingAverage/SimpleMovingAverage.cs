@@ -1,4 +1,5 @@
-﻿namespace MovingAverage
+﻿#pragma warning disable
+namespace MovingAverage
 {
     public class SimpleMovingAverage
     {
