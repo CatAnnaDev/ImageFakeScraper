@@ -2,6 +2,8 @@
 #pragma warning disable CS8602, CS8604, CS8618, CS1634
 public class SettingsDll
 {
+    public static long downloadTotal { get; set; } = 0;
+
     public static long nbPushTotal { get; set; } = 0;
 
     public bool printLog { get; set; } = false;

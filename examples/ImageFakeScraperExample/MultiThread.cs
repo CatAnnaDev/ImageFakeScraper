@@ -125,10 +125,22 @@ namespace ImageFakeScraperExample
             while (true)
             {
 
-				Console.Write($"\rTotal {SettingsDll.nbPushTotal}, [{ratesPrint}/s]											");
+				Console.Write($"\rTotal Push {SettingsDll.nbPushTotal}, Total DL {ConvertBytes(SettingsDll.downloadTotal)}, [ {ratesPrint}/s ]		");
 
 				Thread.Sleep(TimeSpan.FromMilliseconds(100));
 			}
+        }
+
+        public static string ConvertBytes(long bytes)
+        {
+            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+            int order = 0;
+            while (bytes >= 1024 && order < sizes.Length - 1)
+            {
+                order++;
+                bytes = bytes / 1024;
+            }
+            return String.Format("{0:0.##} {1}", bytes, sizes[order]);
         }
 
         private async void Worker()
