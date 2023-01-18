@@ -20,7 +20,7 @@ public class GettyScraper : Scraper
 			for (int i = 1; i < GettyMaxPage + 1; i++)
 			{
 				object[] args = new object[] { query, query, i.ToString() };
-				var (doc, dlspeed) = await http.Get(uri, args);
+				(HtmlDocument doc, double dlspeed) = await http.Get(uri, args);
 				dlspeedreturn = dlspeed;
 				IEnumerable<string> urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !string.IsNullOrEmpty(s));
 
@@ -53,10 +53,10 @@ public class GettyScraper : Scraper
 	{
 		if (!await redisCheckCount())
 		{
-			return (0,0);
+			return (0, 0);
 		}
 
-		var (urls, dlspeed) = await GetImagesAsync((string)args[0], (int)args[1]);
+		(List<string> urls, double dlspeed) = await GetImagesAsync((string)args[0], (int)args[1]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;

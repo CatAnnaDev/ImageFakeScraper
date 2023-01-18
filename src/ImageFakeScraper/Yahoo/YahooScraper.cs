@@ -13,7 +13,7 @@ public class YahooScraper : Scraper
 		try
 		{
 			string[] args = new string[] { query };
-			var (doc, dlspeed) = await http.Get(uri, args);
+			(HtmlDocument doc, double dlspeed) = await http.Get(uri, args);
 			dlspeedreturn = dlspeed;
 			IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("data-src", null)).Where(s => !string.IsNullOrEmpty(s));
 
@@ -48,10 +48,10 @@ public class YahooScraper : Scraper
 	{
 		if (!await redisCheckCount())
 		{
-			return (0,0);
+			return (0, 0);
 		}
 
-		var (urls, dlspeed) = await GetImagesAsync((string)args[0]);
+		(List<string> urls, double dlspeed) = await GetImagesAsync((string)args[0]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;

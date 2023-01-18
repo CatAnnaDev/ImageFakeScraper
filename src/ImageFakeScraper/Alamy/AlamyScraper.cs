@@ -17,7 +17,7 @@ namespace ImageFakeScraper.Alamy
 				for (int i = 1; i < page; i++)
 				{
 					string[] args = new string[] { query, i.ToString(), AlamyMaxResult.ToString() };
-					var (jsonGet, dlspeed) = await http.GetJson(uri, args);
+					(string jsonGet, double dlspeed) = await http.GetJson(uri, args);
 
 					dlspeedreturn += dlspeed;
 
@@ -47,7 +47,7 @@ namespace ImageFakeScraper.Alamy
 
 			}
 			catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } if (settings.printErrorLog) { Console.WriteLine("Alamy" + e); } }
-			return (tmp, dlspeedreturn / (AlamyMaxPage+1));
+			return (tmp, dlspeedreturn / (AlamyMaxPage + 1));
 		}
 
 		public override async Task<(int, double)> GetImages(AsyncCallback ac, params object[] args)
@@ -58,7 +58,7 @@ namespace ImageFakeScraper.Alamy
 				return (0, 0);
 			}
 
-			var  (urls, dlspeed) = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2], (bool)args[3]);
+			(List<string> urls, double dlspeed) = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2], (bool)args[3]);
 			RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 
 			long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);

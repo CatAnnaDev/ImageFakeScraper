@@ -11,7 +11,7 @@ namespace ImageFakeScraperExample
 
 		private SimpleMovingAverage MovingAverage = new SimpleMovingAverage(30);
 
-		SimpleMovingAverageLong DownloadSpeed = new(30);
+		SimpleMovingAverageLong DownloadSpeed = new(15);
 
 
 		private AutoResetEvent auto = new(false);
@@ -131,7 +131,7 @@ namespace ImageFakeScraperExample
 			while (true)
 			{
 
-				Console.Write($"\rTotal Push {SettingsDll.nbPushTotal}, [ {ratesPrint}/s ] Total DL {ConvertBytes(SettingsDll.downloadTotal)}, [{ConvertBytes(ratesSpeed)}/ s] ");
+				Console.Write($"\rTotal Push {SettingsDll.nbPushTotal}, [ {ratesPrint}/s ] Total DL {ConvertBytes(SettingsDll.downloadTotal)}, [{ConvertBytes(ratesSpeed)}/s] ");
 
 				Thread.Sleep(TimeSpan.FromMilliseconds(100));
 

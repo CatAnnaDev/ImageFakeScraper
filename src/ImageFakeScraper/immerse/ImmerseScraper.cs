@@ -23,7 +23,7 @@ public class ImmerseScraper : Scraper
 				};
 
 				string jsonString = JsonSerializer.Serialize(json);
-				var (doc, dlspeed) = await http.PostJson(uri, jsonString);
+				(string doc, double dlspeed) = await http.PostJson(uri, jsonString);
 				dlspeedreturn = dlspeed;
 				Root jsonparsed = Newtonsoft.Json.JsonConvert.DeserializeObject<Root>(doc);
 
@@ -77,7 +77,7 @@ public class ImmerseScraper : Scraper
 			return (0, 0);
 		}
 
-		var (urls, dlspeed) = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2]);
+		(List<string> urls, double dlspeed) = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;

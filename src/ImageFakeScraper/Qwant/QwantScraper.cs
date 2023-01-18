@@ -13,11 +13,11 @@ namespace ImageFakeScraper.Qwant
 			try
 			{
 				string[] args = new string[] { query.Replace(" ", "%20") };
-				var( jsonGet, dlspeed) = await http.GetJson(uri, args);
+				(string jsonGet, double dlspeed) = await http.GetJson(uri, args);
 				dlspeedreturn = dlspeed;
 				Root jsonparsed = Newtonsoft.Json.JsonConvert.DeserializeObject<Root>(jsonGet);
 
-				if (jsonparsed == null || jsonparsed.data.result == null || jsonparsed.data.result.items.Count == 0)
+				if (jsonparsed == null || jsonparsed.data == null || jsonparsed.data.result == null || jsonparsed.data.result.items.Count == 0)
 				{
 					return (tmp, 0);
 				}
@@ -47,10 +47,10 @@ namespace ImageFakeScraper.Qwant
 
 			if (!await redisCheckCount())
 			{
-				return (0,0);
+				return (0, 0);
 			}
 
-			var (urls, dlspeed) = await GetImagesAsync((string)args[0]);
+			(List<string> urls, double dlspeed) = await GetImagesAsync((string)args[0]);
 			RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 
 			long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);

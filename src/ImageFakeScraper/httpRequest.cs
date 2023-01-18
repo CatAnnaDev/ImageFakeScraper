@@ -14,17 +14,17 @@ public class httpRequest
 		downloadSpeed = movingAverageDL;
 	}
 
-	public async Task<(HtmlDocument , double)> Get(string uri, params object[] query)
+	public async Task<(HtmlDocument, double)> Get(string uri, params object[] query)
 	{
 		HttpClient client = new();
 		HtmlDocument doc = new();
-		var dlSpeed = 0.0;
+		double dlSpeed = 0.0;
 		try
 		{
 			Uri url = new(string.Format(uri, query));
 			client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15");
 
-			var stopwatch = new Stopwatch();
+			Stopwatch stopwatch = new();
 			stopwatch.Start();
 
 			HttpResponseMessage resp = await client.GetAsync(url);
@@ -34,7 +34,7 @@ public class httpRequest
 				Console.WriteLine("TooManyRequests GetAsync (429) " + url);
 				Console.ResetColor();
 			}
-			var bytes = await resp.Content.ReadAsByteArrayAsync();
+			byte[] bytes = await resp.Content.ReadAsByteArrayAsync();
 
 			stopwatch.Stop();
 
@@ -53,13 +53,13 @@ public class httpRequest
 
 	public async Task<(string, double)> GetJson(string uri, params object[] query)
 	{
-		var dlSpeed = 0.0;
+		double dlSpeed = 0.0;
 		HttpClient client = new();
 		client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15");
 
 		string url = string.Format(uri, query);
 
-		var stopwatch = new Stopwatch();
+		Stopwatch stopwatch = new();
 		stopwatch.Start();
 
 
@@ -71,7 +71,7 @@ public class httpRequest
 			Console.ResetColor();
 		}
 
-		var bytes = await resp.Content.ReadAsByteArrayAsync();
+		byte[] bytes = await resp.Content.ReadAsByteArrayAsync();
 
 		stopwatch.Stop();
 
@@ -87,13 +87,13 @@ public class httpRequest
 
 	public async Task<(string, double)> PostJson(string uri, string json)
 	{
-		var dlSpeed = 0.0;
+		double dlSpeed = 0.0;
 		HttpClient client = new();
 		client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15");
 
 		StringContent content = new(json, Encoding.UTF8, "application/json");
 
-		var stopwatch = new Stopwatch();
+		Stopwatch stopwatch = new();
 		stopwatch.Start();
 
 		HttpResponseMessage resp = await client.PostAsync(uri, content);
@@ -104,7 +104,7 @@ public class httpRequest
 			Console.ResetColor();
 		}
 
-		var bytes = await resp.Content.ReadAsByteArrayAsync();
+		byte[] bytes = await resp.Content.ReadAsByteArrayAsync();
 
 		stopwatch.Stop();
 

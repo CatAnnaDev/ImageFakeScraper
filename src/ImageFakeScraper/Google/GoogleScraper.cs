@@ -13,7 +13,7 @@ public class GoogleScraper : Scraper
 		try
 		{
 			string[] args = new string[] { query };
-			var (jsonGet, dlspeed) = await http.GetJson(uri, args);
+			(string jsonGet, double dlspeed) = await http.GetJson(uri, args);
 			dlspeedreturn = dlspeed;
 			string jspnUpdate = jsonGet[5..];
 
@@ -43,10 +43,10 @@ public class GoogleScraper : Scraper
 	{
 		if (!await redisCheckCount())
 		{
-			return (0,0) ;
+			return (0, 0);
 		}
 
-		var ( urls, dlspeed) = await GetImagesAsync((string)args[0]);
+		(List<string> urls, double dlspeed) = await GetImagesAsync((string)args[0]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;

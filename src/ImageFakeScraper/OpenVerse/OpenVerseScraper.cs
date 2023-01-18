@@ -21,7 +21,7 @@ public class OpenVerseScraper : Scraper
 			for (int i = 1; i < page; i++)
 			{
 				string[] args = new string[] { query, i.ToString() };
-				var (jsonGet, dlspeed) = await http.GetJson(uri, args);
+				(string jsonGet, double dlspeed) = await http.GetJson(uri, args);
 				dlspeedreturn = dlspeed;
 				Root jsonparsed = JsonConvert.DeserializeObject<Root>(jsonGet);
 				if (jsonparsed == null || jsonparsed.results == null)
@@ -60,7 +60,7 @@ public class OpenVerseScraper : Scraper
 			return (0, 0);
 		}
 
-		var (urls, dlspeed) = await GetImagesAsync((string)args[0], (int)args[1]);
+		(List<string> urls, double dlspeed) = await GetImagesAsync((string)args[0], (int)args[1]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
@@ -69,6 +69,6 @@ public class OpenVerseScraper : Scraper
 			Console.WriteLine("Open " + result);
 		}
 
-		return ((int)result, dlspeed) ;
+		return ((int)result, dlspeed);
 	}
 }

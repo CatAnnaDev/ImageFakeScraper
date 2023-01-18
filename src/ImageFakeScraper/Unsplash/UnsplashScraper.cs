@@ -1,5 +1,4 @@
 ﻿#pragma warning disable CS8602, CS8604, CS8618, CS1634, CS8600
-using System.Runtime.InteropServices;
 
 namespace ImageFakeScraper.Unsplash
 {
@@ -14,13 +13,13 @@ namespace ImageFakeScraper.Unsplash
 			try
 			{
 				string[] args = new string[] { query };
-				var (jsonGet, dlspeed) = await http.GetJson(uri, args);
+				(string jsonGet, double dlspeed) = await http.GetJson(uri, args);
 				dlspeedreturn = dlspeed;
 				Root jsonparsed = Newtonsoft.Json.JsonConvert.DeserializeObject<Root>(jsonGet);
 
 				if (jsonparsed == null || jsonparsed.results == null || jsonparsed.results.Count == 0)
 				{
-					return (tmp,0);
+					return (tmp, 0);
 				}
 
 				for (int i = 0; i < jsonparsed.results.Count; i++)
@@ -41,7 +40,7 @@ namespace ImageFakeScraper.Unsplash
 				if (e.GetType().Name != "UriFormatException") { }
 				if (settings.printErrorLog) { Console.WriteLine("Unsplash" + e); }
 			}
-			return (tmp, dlspeedreturn); 
+			return (tmp, dlspeedreturn);
 		}
 
 		public override async Task<(int, double)> GetImages(AsyncCallback ac, params object[] args)
@@ -49,10 +48,10 @@ namespace ImageFakeScraper.Unsplash
 
 			if (!await redisCheckCount())
 			{
-				return (0, 0) ;
+				return (0, 0);
 			}
 
-			var (urls, dlspeed) = await GetImagesAsync((string)args[0]);
+			(List<string> urls, double dlspeed) = await GetImagesAsync((string)args[0]);
 			RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 
 			long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
