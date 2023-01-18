@@ -7,17 +7,18 @@ public class PixelScraper : Scraper
 	private const string uri = "https://www.everypixel.com/search/search?q={0}&limit=20000&json=1&page={1}";
 	private readonly Regex RegexCheck = new(@"^(http|https:\/\/):?([^\s([<,>\/]*)(\/)[^\s[,><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s[,><]*)?");
 
-	public async Task<List<string>> GetImagesAsync(string query, int EveryPixelMaxPage)
+	public async Task<(List<string>, double)> GetImagesAsync(string query, int EveryPixelMaxPage)
 	{
 		List<string> tmp = new();
-
+		double dlspeedreturn = 0;
 		try
 		{
 
 			for (int i = 1; i < EveryPixelMaxPage + 1; i++)
 			{
 				string[] args = new string[] { query, i.ToString() };
-				string jsonGet = await http.GetJson(uri, args);
+				var (jsonGet, dlspeed) = await http.GetJson(uri, args);
+				dlspeedreturn = dlspeed;
 				Root jsonparsed = JsonConvert.DeserializeObject<Root>(jsonGet);
 				if (jsonparsed != null || jsonparsed.images != null || jsonparsed.images.images_0 == null)
 				{
@@ -42,17 +43,17 @@ public class PixelScraper : Scraper
 			if (e.GetType().Name != "UriFormatException") { }
 			if (settings.printErrorLog) { Console.WriteLine("Pixel" + e); }
 		}
-		return tmp;
+		return (tmp, dlspeedreturn);
 	}
 
-	public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
+	public override async Task<(int, double)> GetImages(AsyncCallback ac, params object[] args)
 	{
 		if (!await redisCheckCount())
 		{
-			return 0;
+			return (0, 0);
 		}
 
-		List<string> urls = await GetImagesAsync((string)args[0], (int)args[1]);
+		var (urls, dlspeed) = await GetImagesAsync((string)args[0], (int)args[1]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
@@ -62,6 +63,6 @@ public class PixelScraper : Scraper
 			Console.WriteLine("Pixel " + result);
 		}
 
-		return (int)result;
+		return ((int)result, dlspeed);
 	}
 }

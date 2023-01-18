@@ -2,8 +2,6 @@
 
 public class SettingsDll
 {
-	public static long downloadSpeed { get; set; } = 0;
-
 	public static long downloadTotal { get; set; } = 0;
 
 	public static long nbPushTotal { get; set; } = 0;

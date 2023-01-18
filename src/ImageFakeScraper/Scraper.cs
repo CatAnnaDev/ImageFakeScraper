@@ -10,7 +10,7 @@ namespace ImageFakeScraper
         public httpRequest http = new();
         protected SettingsDll settings = new();
 
-        public virtual async Task<int> GetImages(AsyncCallback ac, params object[] args) { return 0; }
+        public virtual async Task<(int, double)> GetImages(AsyncCallback ac, params object[] args) { return (0, 0); }
 
         public async Task<bool> redisCheckCount()
         {

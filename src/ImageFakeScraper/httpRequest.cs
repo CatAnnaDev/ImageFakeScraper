@@ -14,15 +14,18 @@ public class httpRequest
 		downloadSpeed = movingAverageDL;
 	}
 
-	public async Task<HtmlDocument> Get(string uri, params object[] query)
+	public async Task<(HtmlDocument , double)> Get(string uri, params object[] query)
 	{
 		HttpClient client = new();
 		HtmlDocument doc = new();
-
+		var dlSpeed = 0.0;
 		try
 		{
 			Uri url = new(string.Format(uri, query));
 			client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15");
+
+			var stopwatch = new Stopwatch();
+			stopwatch.Start();
 
 			HttpResponseMessage resp = await client.GetAsync(url);
 			if (resp.StatusCode == HttpStatusCode.TooManyRequests && settings.printErrorLog)
@@ -31,27 +34,35 @@ public class httpRequest
 				Console.WriteLine("TooManyRequests GetAsync (429) " + url);
 				Console.ResetColor();
 			}
-			string data = await resp.Content.ReadAsStringAsync();
+			var bytes = await resp.Content.ReadAsByteArrayAsync();
+
+			stopwatch.Stop();
+
+			dlSpeed += bytes.Length / stopwatch.Elapsed.TotalSeconds;
+
 			try
 			{
-				long wait = (long)resp.Content.Headers.ContentLength;
-				SettingsDll.downloadSpeed += (long)downloadSpeed.Update(wait);
-				SettingsDll.downloadTotal += wait;
-
+				SettingsDll.downloadTotal += bytes.Length;
 			}
 			catch { }
-			doc.LoadHtml(data);
+			doc.LoadHtml(Encoding.UTF8.GetString(bytes));
 		}
 		catch { }
-		return doc;
+		return (doc, dlSpeed);
 	}
 
-	public async Task<string> GetJson(string uri, params object[] query)
+	public async Task<(string, double)> GetJson(string uri, params object[] query)
 	{
+		var dlSpeed = 0.0;
 		HttpClient client = new();
 		client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15");
 
 		string url = string.Format(uri, query);
+
+		var stopwatch = new Stopwatch();
+		stopwatch.Start();
+
+
 		HttpResponseMessage resp = await client.GetAsync(url);
 		if (resp.StatusCode == HttpStatusCode.TooManyRequests && settings.printErrorLog)
 		{
@@ -59,24 +70,32 @@ public class httpRequest
 			Console.WriteLine("TooManyRequests GetJson (429) " + url);
 			Console.ResetColor();
 		}
-		string data = await resp.Content.ReadAsStringAsync();
+
+		var bytes = await resp.Content.ReadAsByteArrayAsync();
+
+		stopwatch.Stop();
+
+		dlSpeed += bytes.Length / stopwatch.Elapsed.TotalSeconds;
+
 		try
 		{
-			long wait = (long)resp.Content.Headers.ContentLength;
-
-			SettingsDll.downloadSpeed += (long)downloadSpeed.Update(wait);
-			SettingsDll.downloadTotal += wait;
+			SettingsDll.downloadTotal += bytes.Length;
 		}
 		catch { }
-		return data;
+		return (Encoding.UTF8.GetString(bytes), dlSpeed);
 	}
 
-	public async Task<string> PostJson(string uri, string json)
+	public async Task<(string, double)> PostJson(string uri, string json)
 	{
+		var dlSpeed = 0.0;
 		HttpClient client = new();
 		client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15");
 
 		StringContent content = new(json, Encoding.UTF8, "application/json");
+
+		var stopwatch = new Stopwatch();
+		stopwatch.Start();
+
 		HttpResponseMessage resp = await client.PostAsync(uri, content);
 		if (resp.StatusCode == HttpStatusCode.TooManyRequests && settings.printErrorLog)
 		{
@@ -84,14 +103,17 @@ public class httpRequest
 			Console.WriteLine("TooManyRequests PostJson (429) " + uri);
 			Console.ResetColor();
 		}
-		string data = await resp.Content.ReadAsStringAsync();
+
+		var bytes = await resp.Content.ReadAsByteArrayAsync();
+
+		stopwatch.Stop();
+
+		dlSpeed += bytes.Length / stopwatch.Elapsed.TotalSeconds;
 		try
 		{
-			long wait = (long)resp.Content.Headers.ContentLength;
-			SettingsDll.downloadSpeed += (long)downloadSpeed.Update(wait);
-			SettingsDll.downloadTotal += wait;
+			SettingsDll.downloadTotal += bytes.Length;
 		}
 		catch { }
-		return data;
+		return (Encoding.UTF8.GetString(bytes), dlSpeed);
 	}
 }

@@ -11,16 +11,17 @@ public class GettyScraper : Scraper
 	/// </summary>
 	/// <param name="query">string param</param>
 	/// <returns></returns>
-	public async Task<List<string>> GetImagesAsync(string query, int GettyMaxPage)
+	public async Task<(List<string>, double)> GetImagesAsync(string query, int GettyMaxPage)
 	{
 		List<string> tmp = new();
-
+		double dlspeedreturn = 0;
 		try
 		{
 			for (int i = 1; i < GettyMaxPage + 1; i++)
 			{
 				object[] args = new object[] { query, query, i.ToString() };
-				HtmlDocument doc = await http.Get(uri, args);
+				var (doc, dlspeed) = await http.Get(uri, args);
+				dlspeedreturn = dlspeed;
 				IEnumerable<string> urls = doc.DocumentNode.Descendants("source").Select(e => e.GetAttributeValue("srcSet", null)).Where(s => !string.IsNullOrEmpty(s));
 
 				if (urls.Count() == 0)
@@ -45,17 +46,17 @@ public class GettyScraper : Scraper
 			if (e.GetType().Name != "UriFormatException") { }
 			if (settings.printErrorLog) { Console.WriteLine("Getty" + e); }
 		}
-		return tmp;
+		return (tmp, dlspeedreturn);
 	}
 
-	public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
+	public override async Task<(int, double)> GetImages(AsyncCallback ac, params object[] args)
 	{
 		if (!await redisCheckCount())
 		{
-			return 0;
+			return (0,0);
 		}
 
-		List<string> urls = await GetImagesAsync((string)args[0], (int)args[1]);
+		var (urls, dlspeed) = await GetImagesAsync((string)args[0], (int)args[1]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
@@ -64,6 +65,6 @@ public class GettyScraper : Scraper
 			Console.WriteLine("Getty " + result);
 		}
 
-		return (int)result;
+		return ((int)result, dlspeed);
 	}
 }

@@ -7,10 +7,10 @@ public class ImmerseScraper : Scraper
 	private const string uri = "https://www.immerse.zone/api/immerse/search";
 	private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
 
-	public async Task<List<string>> GetImagesAsync(string query, int pageSize, int ImmerseMaxPage)
+	public async Task<(List<string>, double)> GetImagesAsync(string query, int pageSize, int ImmerseMaxPage)
 	{
 		List<string> tmp = new();
-
+		double dlspeedreturn = 0;
 		try
 		{
 			for (int i = 1; i < ImmerseMaxPage + 1; i++)
@@ -23,7 +23,8 @@ public class ImmerseScraper : Scraper
 				};
 
 				string jsonString = JsonSerializer.Serialize(json);
-				string doc = await http.PostJson(uri, jsonString);
+				var (doc, dlspeed) = await http.PostJson(uri, jsonString);
+				dlspeedreturn = dlspeed;
 				Root jsonparsed = Newtonsoft.Json.JsonConvert.DeserializeObject<Root>(doc);
 
 				if (jsonparsed != null)
@@ -66,17 +67,17 @@ public class ImmerseScraper : Scraper
 			if (e.GetType().Name != "UriFormatException") { }
 			if (settings.printErrorLog) { Console.WriteLine("Immerse" + e); }
 		}
-		return tmp;
+		return (tmp, dlspeedreturn);
 	}
 
-	public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
+	public override async Task<(int, double)> GetImages(AsyncCallback ac, params object[] args)
 	{
 		if (!await redisCheckCount())
 		{
-			return 0;
+			return (0, 0);
 		}
 
-		List<string> urls = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2]);
+		var (urls, dlspeed) = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.nbPushTotal += result;
@@ -85,7 +86,7 @@ public class ImmerseScraper : Scraper
 			Console.WriteLine("Immerse " + result);
 		}
 
-		return (int)result;
+		return ((int)result, dlspeed);
 	}
 }
 

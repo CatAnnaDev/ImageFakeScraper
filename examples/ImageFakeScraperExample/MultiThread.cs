@@ -131,7 +131,7 @@ namespace ImageFakeScraperExample
 			while (true)
 			{
 
-				Console.Write($"\rTotal Push {SettingsDll.nbPushTotal}, [ {ratesPrint}/s ] Total DL {ConvertBytes(SettingsDll.downloadTotal)}, [{ConvertBytes(SettingsDll.downloadSpeed)}/s] ");
+				Console.Write($"\rTotal Push {SettingsDll.nbPushTotal}, [ {ratesPrint}/s ] Total DL {ConvertBytes(SettingsDll.downloadTotal)}, [{ConvertBytes(ratesSpeed)}/ s] ");
 
 				Thread.Sleep(TimeSpan.FromMilliseconds(100));
 
@@ -152,7 +152,8 @@ namespace ImageFakeScraperExample
 
 		private async void Worker()
 		{
-
+			var ratesTmp = 0;
+			var ratesDLTmp = 0.0;
 
 			while (true)
 			{
@@ -163,16 +164,26 @@ namespace ImageFakeScraperExample
 					//Console.WriteLine(keywords);
 					Random rand = new Random();
 					dicoEngine = dicoEngine.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
+
 					for (int i = 0; i < dicoEngine.Count; i++)
 					{
 						object[] args = new object[] { keywords.ToString(), 1, 1_500, false, redisConnection.GetDatabase };
 						AsyncCallback callBack = new AsyncCallback(onRequestFinih);
-						rates += dicoEngine.ElementAt(i).Value.GetImages(callBack, args).Result;
-						ratesPrint = rates;
+						var (rate, dlspeed) = dicoEngine.ElementAt(i).Value.GetImages(callBack, args).Result;
+
+						ratesTmp += rate;
+						//ratesDLTmp += dlspeed;
+						// set
+						ratesPrint = (int)MovingAverage.Update(ratesTmp);
+						ratesSpeed = (long)DownloadSpeed.Update((long)dlspeed);
+
 						Thread.Sleep(TimeSpan.FromSeconds(Program.waittime));
 					}
 
-					rates = 0;
+					// reset
+					ratesPrint = 0;
+					ratesSpeed = 0;
+
 					//Console.WriteLine("j'arriv pas queue");
 				}
 				catch (Exception e) { Console.WriteLine(e); }

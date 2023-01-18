@@ -6,9 +6,10 @@ namespace ImageFakeScraper.Alamy
 	{
 		private const string uri = "https://www.alamy.com/search-api/search/?qt={0}&sortBy=relevant&ispartial=false&type=picture&geo=FR&pn={1}&ps={2}"; // qt query, pn page numb, ps page size
 
-		public async Task<List<string>> GetImagesAsync(string query, int AlamyMaxPage, int AlamyMaxResult, bool UnlimitedCrawlPage)
+		public async Task<(List<string>, double)> GetImagesAsync(string query, int AlamyMaxPage, int AlamyMaxResult, bool UnlimitedCrawlPage)
 		{
 			List<string> tmp = new();
+			double dlspeedreturn = 0;
 			try
 			{
 
@@ -16,7 +17,10 @@ namespace ImageFakeScraper.Alamy
 				for (int i = 1; i < page; i++)
 				{
 					string[] args = new string[] { query, i.ToString(), AlamyMaxResult.ToString() };
-					string jsonGet = await http.GetJson(uri, args);
+					var (jsonGet, dlspeed) = await http.GetJson(uri, args);
+
+					dlspeedreturn += dlspeed;
+
 					Root jsonparsed = JsonConvert.DeserializeObject<Root>(jsonGet);
 
 					if (jsonparsed == null || jsonparsed.Items == null || jsonparsed.Items.Count == 0)
@@ -43,18 +47,18 @@ namespace ImageFakeScraper.Alamy
 
 			}
 			catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } if (settings.printErrorLog) { Console.WriteLine("Alamy" + e); } }
-			return tmp;
+			return (tmp, dlspeedreturn / (AlamyMaxPage+1));
 		}
 
-		public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
+		public override async Task<(int, double)> GetImages(AsyncCallback ac, params object[] args)
 		{
 
 			if (!await redisCheckCount())
 			{
-				return 0;
+				return (0, 0);
 			}
 
-			List<string> urls = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2], (bool)args[3]);
+			var  (urls, dlspeed) = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2], (bool)args[3]);
 			RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 
 			long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
@@ -65,7 +69,7 @@ namespace ImageFakeScraper.Alamy
 				Console.WriteLine("alamy " + result);
 			}
 
-			return (int)result;
+			return ((int)result, dlspeed);
 		}
 	}
 }
