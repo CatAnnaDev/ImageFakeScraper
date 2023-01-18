@@ -4,7 +4,7 @@ using ImageFakeScraper.Unsplash;
 using Microsoft.VisualBasic;
 using System.Threading;
 using System.Threading.Tasks;
-using static Prometheus.MetricServerMiddleware;
+
 
 namespace ImageFakeScraperExample
 {
@@ -57,28 +57,28 @@ namespace ImageFakeScraperExample
 			Dictionary<string, object> options = new()
 			{
 				{"redis_push_key", Program.key },
-				{"redis_queue_limit_name", Program.ConfigFile.Config.to_download },
-				{"redis_queue_limit_count",  Program.ConfigFile.Config.settings.stopAfter }
+				{"redis_queue_limit_name", Program.ConfigFile.Configs["to_download"] },
+				{"redis_queue_limit_count",  Program.ConfigFile.Configs["settings"]["stopAfter"] }
 			};
-			if (Program.ConfigFile.Config.settings.BingRun)
+			if ((bool)Program.ConfigFile.Configs["settings"]["BingRun"])
 				dicoEngine.Add("Bing", new BinImageFakeScraper());
-            if (Program.ConfigFile.Config.settings.QwantRun)
+            if ((bool)Program.ConfigFile.Configs["settings"]["QwantRun"])
                 dicoEngine.Add("Qwant", new QwantScraper());
-            if (Program.ConfigFile.Config.settings.UnsplashRun)
+            if ((bool)Program.ConfigFile.Configs["settings"]["UnsplashRun"])
                 dicoEngine.Add("Unsplash", new UnsplashScraper());
-            if (Program.ConfigFile.Config.settings.GoogleRun)
+            if ((bool)Program.ConfigFile.Configs["settings"]["GoogleRun"])
 				dicoEngine.Add("Google", new GoogleScraper());
-			if (Program.ConfigFile.Config.settings.AlamyRun)
+			if ((bool)Program.ConfigFile.Configs["settings"]["AlamyRun"])
 				dicoEngine.Add("Alamy", new AlamyScraper());
-			if (Program.ConfigFile.Config.settings.OpenVerseRun)
+			if ((bool)Program.ConfigFile.Configs["settings"]["OpenVerseRun"])
 				dicoEngine.Add("Open", new OpenVerseScraper());
-			if (Program.ConfigFile.Config.settings.YahooRun)
+			if ((bool)Program.ConfigFile.Configs["settings"]["YahooRun"])
 				dicoEngine.Add("Yahoo", new YahooScraper());
-			if (Program.ConfigFile.Config.settings.GettyImageRun)
+			if ((bool)Program.ConfigFile.Configs["settings"]["GettyImageRun"])
 				dicoEngine.Add("Getty", new GettyScraper());
-			if (Program.ConfigFile.Config.settings.EveryPixelRun)
+			if ((bool)Program.ConfigFile.Configs["settings"]["EveryPixelRun"])
 				dicoEngine.Add("Pixel", new PixelScraper());
-			if (Program.ConfigFile.Config.settings.ImmerseRun)
+			if ((bool)Program.ConfigFile.Configs["settings"]["ImmerseRun"])
 				dicoEngine.Add("Immerse", new ImmerseScraper());
 
 			foreach(var engine in dicoEngine)
@@ -146,7 +146,7 @@ namespace ImageFakeScraperExample
 				try
 				{
 
-                    RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Config.words_list);
+                    RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Configs["words_list"].ToString());
 					//Console.WriteLine(keywords);
                     Random rand = new Random();
 					dicoEngine = dicoEngine.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
@@ -174,80 +174,6 @@ namespace ImageFakeScraperExample
 
 		}
 
-		private static async Task RedisPush(List<string> urls, string moteur, bool printLog)
-		{
-			try
-			{
-
-				RedisValue img_job_ = await redisConnection.GetDatabase.SetLengthAsync(Program.ConfigFile.Config.images_jobs);
-				int img_job_count = int.Parse(img_job_.ToString());
-
-				RedisValue to_dl = await redisConnection.GetDatabase.SetLengthAsync(Program.ConfigFile.Config.to_download);
-				int to_dl_count = int.Parse(to_dl.ToString());
-
-				if (img_job_count < Program.ConfigFile.Config.settings.stopAfter && to_dl_count < Program.ConfigFile.Config.settings.stopAfter)
-				{
-					RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
-
-					await redisConnection.GetDatabase.SetAddAsync(Program.key, push);
-
-					lock (_lock)
-					{
-						if (printLog)
-						{
-							Console.ForegroundColor = ConsoleColor.Green;
-							if (moteur.Contains("Immerse"))
-							{
-								Console.WriteLine($"{moteur}:\t{urls.Count}");
-
-							}
-							else
-							{
-								Console.WriteLine($"{moteur}:\t\t{urls.Count}");
-							}
-							Console.ResetColor();
-						}
-					}
-				}
-				else
-				{
-					while (true)
-					{
-						RedisValue img_job_check = await redisConnection.GetDatabase.SetLengthAsync(Program.ConfigFile.Config.images_jobs);
-						int img_job_count_check = int.Parse(img_job_check.ToString());
-
-						RedisValue to_dl_check = await redisConnection.GetDatabase.SetLengthAsync(Program.ConfigFile.Config.to_download);
-						int to_dl_count_check = int.Parse(to_dl_check.ToString());
-
-						if (img_job_count < Program.ConfigFile.Config.settings.stopAfter && to_dl_count < Program.ConfigFile.Config.settings.stopAfter)
-							break;
-
-						Console.ForegroundColor = ConsoleColor.Green;
-						Console.WriteLine($" Wait Redis full");
-						Console.ResetColor();
-						for (int a = 60; a >= 0; a--)
-						{
-							Thread.Sleep(1000);
-							Console.Write($"\rWait after retry {TimeSpan.FromMinutes(a)}, img_job_count: {img_job_count_check}, to_dl_count: {to_dl_count_check}");
-						}
-
-						Console.ForegroundColor = ConsoleColor.Green;
-						Console.Write($"\n\rWait Redis full retry! {DateTime.Now.ToString("G")}");
-						Console.ResetColor();
-
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				lock (_lock)
-				{
-					Console.ForegroundColor = ConsoleColor.Red;
-					Console.WriteLine($"/!\\ Fail upload redis {moteur} ! /!\\" + e.Message);
-					Console.ResetColor();
-				}
-			}
-		}
 
 		private static void printData(string text)
 		{

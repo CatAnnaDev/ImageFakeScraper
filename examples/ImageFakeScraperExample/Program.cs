@@ -26,13 +26,13 @@ internal static class Program
         ConfigFile = new();
         await InitializeGlobalDataAsync();
 
-        Credential = ConfigFile.Config.Credential;
-		requestMaxPerSec = ConfigFile.Config.requestMaxPerSec;
-        nbThread = ConfigFile.Config.nbThread;
+        Credential = ConfigFile.Configs["Credential"].ToString();
+		requestMaxPerSec = (int)ConfigFile.Configs["requestMaxPerSec"];
+        nbThread = (int)ConfigFile.Configs["nbThread"];
 		waittime = (1.0 / (double)requestMaxPerSec) * nbThread;
-		QueueLimit = ConfigFile.Config.QueueLimit;
-        key = ConfigFile.Config.images_jobs;
-        key_to_dl = ConfigFile.Config.to_download;
+		QueueLimit = (int)ConfigFile.Configs["QueueLimit"];
+        key = ConfigFile.Configs["images_jobs"].ToString();
+        key_to_dl = ConfigFile.Configs["to_download"].ToString();
 
         if (Credential == "Redis Login")
         {
@@ -51,7 +51,7 @@ internal static class Program
             Console.WriteLine("Redis Connected");
             Console.ResetColor();
 
-            MultiThread multi = new(ConfigFile.Config.settings.PrintLog, ConfigFile.Config.settings.PrintLogTag, nbThread, QueueLimit);
+            MultiThread multi = new((bool)ConfigFile.Configs["settings"]["PrintLog"], (bool)ConfigFile.Configs["settings"]["PrintLogTag"], nbThread, QueueLimit);
 
             Console.WriteLine("InitMultiThread");
             multi.InitMultiThread();
@@ -72,7 +72,7 @@ internal static class Program
     {
         try
         {
-            return await redis.ListLeftPopAsync(ConfigFile.Config.words_list);
+            return await redis.ListLeftPopAsync(ConfigFile.Configs["words_list"].ToString());
         }
         catch { return RedisValue.Null; }
     }

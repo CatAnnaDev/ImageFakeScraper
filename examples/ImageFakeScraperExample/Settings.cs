@@ -37,5 +37,4 @@ public class Settings
     public int stopAfter { get; set; }
     public bool PrintLog { get; set; }
     public bool PrintLogTag { get; set; }
-
 }
