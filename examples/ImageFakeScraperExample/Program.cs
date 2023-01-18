@@ -47,21 +47,12 @@ internal static class Program
         {
             Console.Clear();
             Console.WriteLine(FiggleFonts.Standard.Render("Scraper"));
-            Console.ForegroundColor = ConsoleColor.Green;
-            //Console.WriteLine("Powered by Image Fake Scraper");
             Console.WriteLine("Redis Connected");
-            Console.ResetColor();
 
             MultiThread multi = new((bool)ConfigFile.Configs["settings"]["PrintLog"], (bool)ConfigFile.Configs["settings"]["PrintLogTag"], nbThread, QueueLimit);
 
-            Console.WriteLine("InitMultiThread");
             multi.InitMultiThread();
-            //Console.WriteLine("Search");
-            //multi.Search(await redisGetNewTag(redisConnection.GetDatabase));
-            Console.WriteLine("SpawnThreads");
             multi.SpawnThreads();
-/*            Console.WriteLine("Wait");
-            Console.Read();*/
 
         }
         Console.WriteLine("Done");

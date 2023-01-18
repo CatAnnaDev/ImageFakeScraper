@@ -15,10 +15,18 @@
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <PackageTags>gscraper;scraping;web-scraping;google;google-images;duckduckgo;brave</PackageTags>
-    <Description>A collection of search engine image scrapers (Google Images, DuckDuckGo and Brave).</Description>
+    <Description>A collection of search engine image scrapers (Google Images, Qwant and Unsplash).</Description>
     <PackageReleaseNotes>https://github.com/PsykoDev/ImageFakeScraper/releases</PackageReleaseNotes>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <LangVersion>preview</LangVersion>
+    <DebugType></DebugType>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' != 'net7.0'">
     <PackageReference Include="System.Text.Json" Version="7.0.1" />
   </ItemGroup>
