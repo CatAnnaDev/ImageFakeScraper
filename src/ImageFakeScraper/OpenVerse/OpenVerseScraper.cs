@@ -12,7 +12,6 @@ public class OpenVerseScraper : Scraper
 		double dlspeedreturn = 0;
 		try
 		{
-
 			int page = OpenVerseMaxPage + 1;
 			for (int i = 1; i < page; i++)
 			{
@@ -38,7 +37,6 @@ public class OpenVerseScraper : Scraper
 					tmp.Add(jsonparsed.results[j].url);
 
 				}
-
 			}
 		}
 		catch (Exception e)

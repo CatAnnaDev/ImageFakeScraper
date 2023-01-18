@@ -3,7 +3,6 @@ namespace ImageFakeScraper.Qwant
 {
 	public class QwantScraper : Scraper
 	{
-
 		private const string uri = "https://api.qwant.com/v3/search/images?q={0}&count=250&offset=0&locale=fr_fr&s=0";
 
 		public async Task<(List<string>, double)> GetImagesAsync(string query)
@@ -32,7 +31,6 @@ namespace ImageFakeScraper.Qwant
 
 					tmp.Add(jsonparsed.data.result.items[j].media);
 				}
-
 			}
 			catch (Exception e)
 			{

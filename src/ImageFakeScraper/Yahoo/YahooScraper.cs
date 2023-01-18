@@ -4,7 +4,6 @@ public class YahooScraper : Scraper
 {
 
 	private const string uri = "https://images.search.yahoo.com/search/images?ei=UTF-8&p={0}&fr2=p%3As%2Cv%3Ai&.bcrumb=4N2SA8f4BZT&save=0";
-	private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
 
 	public async Task<(List<string>, double)> GetImagesAsync(string query)
 	{
@@ -24,7 +23,6 @@ public class YahooScraper : Scraper
 
 			for (int i = 0; i < urls.Count(); i++)
 			{
-
 				string cleanUrl = Regex.Replace(urls.ElementAt(i), @"&pid=Api&P=0&w=300&h=300", "");
 				if (cleanUrl.EndsWith("th") || urls.ElementAt(i).Contains("th?id="))
 				{

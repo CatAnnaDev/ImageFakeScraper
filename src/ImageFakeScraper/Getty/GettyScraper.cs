@@ -2,15 +2,8 @@
 
 public class GettyScraper : Scraper
 {
-
 	private const string uri = "https://www.gettyimages.fr/photos/{0}?assettype=image&excludenudity=false&license=rf&family=creative&phrase={1}&sort=mostpopular&page={2}";
-	private readonly Regex RegexCheck = new(@"^(https:\/\/)?s?:?([^\s([""<,>\/]*)(\/)[^\s["",><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s["",><]*)?");
 
-	/// <summary>
-	/// GetImagesAsync for Getty
-	/// </summary>
-	/// <param name="query">string param</param>
-	/// <returns></returns>
 	public async Task<(List<string>, double)> GetImagesAsync(string query, int GettyMaxPage)
 	{
 		List<string> tmp = new();

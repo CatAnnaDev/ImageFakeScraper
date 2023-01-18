@@ -88,7 +88,10 @@ public class httpRequest
 	public async Task<(string, double)> PostJson(string uri, string json)
 	{
 		double dlSpeed = 0.0;
-		HttpClient client = new();
+		HttpClient client = new()
+		{
+			Timeout = TimeSpan.FromSeconds(8)
+		};
 		client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15");
 
 		StringContent content = new(json, Encoding.UTF8, "application/json");

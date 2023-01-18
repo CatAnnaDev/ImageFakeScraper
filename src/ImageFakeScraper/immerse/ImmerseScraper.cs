@@ -3,11 +3,9 @@
 #pragma warning disable CS8602, CS8604, CS8618, CS1634, CS8600, IL2026
 public class ImmerseScraper : Scraper
 {
-
 	private const string uri = "https://www.immerse.zone/api/immerse/search";
-	private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
 
-	public async Task<(List<string>, double)> GetImagesAsync(string query, int pageSize, int ImmerseMaxPage)
+	public async Task<(List<string>, double)> GetImagesAsync(string query, int ImmerseMaxPage)
 	{
 		List<string> tmp = new();
 		double dlspeedreturn = 0;
@@ -17,9 +15,7 @@ public class ImmerseScraper : Scraper
 			{
 				JsonCreatePush json = new()
 				{
-					searchText = query,
-					pageNum = i,
-					pageSize = pageSize
+					searchText = query
 				};
 
 				string jsonString = JsonSerializer.Serialize(json);
@@ -27,38 +23,22 @@ public class ImmerseScraper : Scraper
 				dlspeedreturn = dlspeed;
 				Root jsonparsed = Newtonsoft.Json.JsonConvert.DeserializeObject<Root>(doc);
 
-				if (jsonparsed != null)
+				if (jsonparsed == null || jsonparsed.data == null || jsonparsed.data.imageData == null)
 				{
-					if (jsonparsed.data != null)
+					break;
+				}
+
+				for (int j = 0; j < jsonparsed.data.imageData.Count; j++)
+				{
+					if (jsonparsed.data.imageData[j].sourceImageUrl.Contains("images.unsplash.com"))
 					{
-						if (jsonparsed.data.imageData != null)
-						{
-							for (int j = 0; j < jsonparsed.data.imageData.Count; j++)
-							{
-								if (!jsonparsed.data.imageData[j].sourceImageUrl.Contains("images.unsplash.com"))
-								{
-									tmp.Add(jsonparsed.data.imageData[j].sourceImageUrl);
-								}
-								//else
-								//{
-								//	string cleanUrl = Regex.Replace(jsonparsed.data.imageData[j].sourceImageUrl, @"[?&][^?&]+=[^?&]+", "");
-								//	tmp.Add(cleanUrl);
-								//}
-							}
-						}
-						else
-						{
-							break;
-						}
+						string cleanUrl = Regex.Replace(jsonparsed.data.imageData[j].sourceImageUrl, @"[?&][^?&]+=[^?&]+", "");
+						tmp.Add(cleanUrl);
 					}
 					else
 					{
-						break;
+						tmp.Add(jsonparsed.data.imageData[j].sourceImageUrl);
 					}
-				}
-				else
-				{
-					break;
 				}
 			}
 		}
@@ -77,7 +57,7 @@ public class ImmerseScraper : Scraper
 			return (0, 0);
 		}
 
-		(List<string> urls, double dlspeed) = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2]);
+		(List<string> urls, double dlspeed) = await GetImagesAsync((string)args[0], (int)args[1]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
 		SettingsDll.TotalPushImmerse += result;
@@ -97,6 +77,6 @@ public class JsonCreatePush
 	public string? searchText { get; set; }
 	public string imageUrl { get; set; } = "";
 	public int? pageNum { get; set; } = 1;
-	public int? pageSize { get; set; }
+	public int? pageSize { get; set; } = 100;
 	public string searchType { get; set; } = "image";
 }

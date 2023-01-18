@@ -4,7 +4,7 @@ namespace ImageFakeScraper.Unsplash
 {
 	public class UnsplashScraper : Scraper
 	{
-		private const string uri = "https://unsplash.com/napi/search/photos?query={0}&page=1&per_page=10000";
+		private const string uri = "https://unsplash.com/napi/search/photos?query={0}&page=1&per_page=100000";
 
 		public async Task<(List<string>, double)> GetImagesAsync(string query)
 		{
@@ -33,7 +33,6 @@ namespace ImageFakeScraper.Unsplash
 
 					tmp.Add(cleanUrl);
 				}
-
 			}
 			catch (Exception e)
 			{

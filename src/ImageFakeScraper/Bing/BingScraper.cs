@@ -2,7 +2,6 @@
 
 public class BinImageFakeScraper : Scraper
 {
-
 	private const string uri = "https://www.bing.com/images/search?q={0}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&adlt=off&cw=2543&ch=1289";
 
 	public async Task<(List<string>, double)> GetImagesAsync(string query, IDatabase redis)
@@ -11,7 +10,6 @@ public class BinImageFakeScraper : Scraper
 		double dlspeedreturn = 0;
 		try
 		{
-
 			string[] args = new string[] { query };
 			(HtmlDocument doc, double dlspeed) = await http.Get(uri, args);
 			dlspeedreturn = dlspeed;
@@ -29,7 +27,6 @@ public class BinImageFakeScraper : Scraper
 
 			for (int i = 0; i < urls.Count(); i++)
 			{
-
 				string cleanUrl = Regex.Replace(urls.ElementAt(i), @"[?&][^?&]+=[^?&]+", "");
 				if (cleanUrl.EndsWith("th") || urls.ElementAt(i).Contains("th?id="))
 				{
