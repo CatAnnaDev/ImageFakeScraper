@@ -46,34 +46,47 @@ public class ImmerseScraper : Scraper
 							}
 						}
 						else
+						{
 							break;
+						}
 					}
 					else
+					{
 						break;
+					}
 				}
 				else
+				{
 					break;
+				}
 			}
 		}
-		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { }
-			if (settings.printErrorLog) { Console.WriteLine("Immerse" + e); } }
+		catch (Exception e)
+		{
+			if (e.GetType().Name != "UriFormatException") { }
+			if (settings.printErrorLog) { Console.WriteLine("Immerse" + e); }
+		}
 		return tmp;
 	}
 
 	public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
 	{
 		if (!await redisCheckCount())
+		{
 			return 0;
+		}
 
-		var urls = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2]);
+		List<string> urls = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
-		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
-        SettingsDll.nbPushTotal += result;
-        if (settings.printLog)
-            Console.WriteLine("Immerse " + result);
+		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
+		SettingsDll.nbPushTotal += result;
+		if (settings.printLog)
+		{
+			Console.WriteLine("Immerse " + result);
+		}
 
-        return (int)result;
-    }
+		return (int)result;
+	}
 }
 
 public class JsonCreatePush

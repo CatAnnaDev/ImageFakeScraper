@@ -1,11 +1,11 @@
 ﻿namespace ImageFakeScraper.Bing;
-#pragma warning disable CS8602, CS8604, CS8618, CS1634
+
 public class BinImageFakeScraper : Scraper
 {
 
 	private const string uri = "https://www.bing.com/images/search?q={0}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&adlt=off";
 	private readonly Regex RegexCheck = new(@"^(http|https:):?([^\s([<,>]*)(\/)[^\s[,><]*(\?[^\s[,><]*)?");
-	private Queue<string> qword = new Queue<string>();
+	private readonly Queue<string> qword = new();
 
 	// (https:\/\/)?s?:?([^\s(["<,>/]*)(\/)[^\s[",><]*(.png|.jpg|.jpeg|.gif|.avif|.webp)(\?[^\s[",><]*)?
 
@@ -28,7 +28,7 @@ public class BinImageFakeScraper : Scraper
 			{
 				foreach (HtmlNode? item in tag)
 				{
-					redis.SetAdd("words_list", item.FirstChild.InnerText);
+					_ = redis.SetAdd("words_list", item.FirstChild.InnerText);
 					//qword.Enqueue(item.FirstChild.InnerText);
 				}
 			}
@@ -38,30 +38,43 @@ public class BinImageFakeScraper : Scraper
 
 				string cleanUrl = Regex.Replace(urls.ElementAt(i), @"[?&][^?&]+=[^?&]+", "");
 				if (cleanUrl.EndsWith("th") || urls.ElementAt(i).Contains("th?id="))
+				{
 					continue;
+				}
 
-				var truc = new Uri(cleanUrl);
+				Uri truc = new(cleanUrl);
 				if (truc == null)
+				{
 					continue;
+				}
+
 				tmp.Add(cleanUrl);
 			}
 		}
-		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { }
-			if (settings.printErrorLog) { Console.WriteLine("Bing" + e); } }
+		catch (Exception e)
+		{
+			if (e.GetType().Name != "UriFormatException") { }
+			if (settings.printErrorLog) { Console.WriteLine("Bing" + e); }
+		}
 		return tmp;
 	}
 
 	public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
 	{
 		if (!await redisCheckCount())
+		{
 			return 0;
+		}
 
-		var urls = await GetImagesAsync((string)args[0], (IDatabase)args[4]);
+		List<string> urls = await GetImagesAsync((string)args[0], (IDatabase)args[4]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
-		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
-        SettingsDll.nbPushTotal += result;
-        if (settings.printLog)
-            Console.WriteLine("Bing " + result);
-        return (int)result;
-    }
+		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
+		SettingsDll.nbPushTotal += result;
+		if (settings.printLog)
+		{
+			Console.WriteLine("Bing " + result);
+		}
+
+		return (int)result;
+	}
 }

@@ -9,9 +9,12 @@ namespace ImageFakeScraperExample
 
 		private SemaphoreSlim mySemaphoreSlim = new SemaphoreSlim(1, 1);
 
-        private SimpleMovingAverage MovingAverage = new SimpleMovingAverage(30);
+		private SimpleMovingAverage MovingAverage = new SimpleMovingAverage(30);
 
-        private AutoResetEvent auto = new(false);
+		SimpleMovingAverageLong DownloadSpeed = new(30);
+
+
+		private AutoResetEvent auto = new(false);
 
 		private Dictionary<string, Scraper> dicoEngine = new();
 
@@ -30,12 +33,14 @@ namespace ImageFakeScraperExample
 		bool printLog;
 		bool printLogTag;
 
-        DateTime last_time = DateTime.Now;
+		DateTime last_time = DateTime.Now;
 
-        int rates = 0;
-        int ratesPrint = 0;
+		int rates = 0;
+		int ratesPrint = 0;
 
-        private static readonly Stopwatch uptime = new();
+		long ratesSpeed = 0;
+
+		private static readonly Stopwatch uptime = new();
 
 		public MultiThread(bool printLog, bool printLogTag, int nbThread = 8, int QueueLimit = 30)
 		{
@@ -56,11 +61,11 @@ namespace ImageFakeScraperExample
 			};
 			if ((bool)Program.ConfigFile.Configs["settings"]["BingRun"])
 				dicoEngine.Add("Bing", new BinImageFakeScraper());
-            if ((bool)Program.ConfigFile.Configs["settings"]["QwantRun"])
-                dicoEngine.Add("Qwant", new QwantScraper());
-            if ((bool)Program.ConfigFile.Configs["settings"]["UnsplashRun"])
-                dicoEngine.Add("Unsplash", new UnsplashScraper());
-            if ((bool)Program.ConfigFile.Configs["settings"]["GoogleRun"])
+			if ((bool)Program.ConfigFile.Configs["settings"]["QwantRun"])
+				dicoEngine.Add("Qwant", new QwantScraper());
+			if ((bool)Program.ConfigFile.Configs["settings"]["UnsplashRun"])
+				dicoEngine.Add("Unsplash", new UnsplashScraper());
+			if ((bool)Program.ConfigFile.Configs["settings"]["GoogleRun"])
 				dicoEngine.Add("Google", new GoogleScraper());
 			if ((bool)Program.ConfigFile.Configs["settings"]["AlamyRun"])
 				dicoEngine.Add("Alamy", new AlamyScraper());
@@ -75,12 +80,13 @@ namespace ImageFakeScraperExample
 			if ((bool)Program.ConfigFile.Configs["settings"]["ImmerseRun"])
 				dicoEngine.Add("Immerse", new ImmerseScraper());
 
-			foreach(var engine in dicoEngine)
+			foreach (var engine in dicoEngine)
 			{
 				engine.Value.setRedis(redisConnection.GetDatabase);
 				engine.Value.setOptions(options);
 				engine.Value.setMovingAverage(MovingAverage);
-            }
+				engine.Value.setMovingAverageDownloadSpeed(DownloadSpeed);
+			}
 		}
 
 		private void LogPrintData()
@@ -95,7 +101,7 @@ namespace ImageFakeScraperExample
 						$"Total Tag\t{queue.Count}\n" +
 						$"Thread\t\t{Program.nbThread}\n" +
 						$"Sleep\t\t{Program.waittime}\n" +
-						$"Request/sec\t{Program.requestMaxPerSec}\n"+
+						$"Request/sec\t{Program.requestMaxPerSec}\n" +
 						$"Total Push\t{SettingsDll.nbPushTotal}");
 				}
 				catch { }
@@ -113,62 +119,62 @@ namespace ImageFakeScraperExample
 				thread1.Start();
 			}
 
-            Thread poll = new Thread(PrintTotalpersec);
+			Thread poll = new Thread(PrintTotalpersec);
 			poll.Start();
 
 			Thread GlobalLog = new Thread(LogPrintData);
 			GlobalLog.Start();
 		}
 
-        private void PrintTotalpersec(object? obj)
-        {
-            while (true)
-            {
+		private void PrintTotalpersec(object? obj)
+		{
+			while (true)
+			{
 
-				Console.Write($"\rTotal Push {SettingsDll.nbPushTotal}, Total DL {ConvertBytes(SettingsDll.downloadTotal)}, [ {ratesPrint}/s ]		");
+				Console.Write($"\rTotal Push {SettingsDll.nbPushTotal}, [ {ratesPrint}/s ] Total DL {ConvertBytes(SettingsDll.downloadTotal)}, [{ConvertBytes(SettingsDll.downloadSpeed)}/s] ");
 
 				Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
 			}
-        }
+		}
 
-        public static string ConvertBytes(long bytes)
-        {
-            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
-            int order = 0;
-            while (bytes >= 1024 && order < sizes.Length - 1)
-            {
-                order++;
-                bytes = bytes / 1024;
-            }
-            return String.Format("{0:0.##} {1}", bytes, sizes[order]);
-        }
+		public static string ConvertBytes(long bytes)
+		{
+			string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+			int order = 0;
+			while (bytes >= 1024 && order < sizes.Length - 1)
+			{
+				order++;
+				bytes = bytes / 1024;
+			}
+			return String.Format("{0:0.##} {1}", bytes, sizes[order]);
+		}
 
-        private async void Worker()
+		private async void Worker()
 		{
 
 
 			while (true)
-			{	
+			{
 				try
 				{
 
-                    RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Configs["words_list"].ToString());
+					RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Configs["words_list"].ToString());
 					//Console.WriteLine(keywords);
-                    Random rand = new Random();
+					Random rand = new Random();
 					dicoEngine = dicoEngine.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
 					for (int i = 0; i < dicoEngine.Count; i++)
 					{
 						object[] args = new object[] { keywords.ToString(), 1, 1_500, false, redisConnection.GetDatabase };
 						AsyncCallback callBack = new AsyncCallback(onRequestFinih);
 						rates += dicoEngine.ElementAt(i).Value.GetImages(callBack, args).Result;
-						ratesPrint = (int)MovingAverage.Update(rates);
-
-                        Thread.Sleep(TimeSpan.FromSeconds(Program.waittime));
+						ratesPrint = rates;
+						Thread.Sleep(TimeSpan.FromSeconds(Program.waittime));
 					}
 
-                    rates = 0;
-                    //Console.WriteLine("j'arriv pas queue");
-                }
+					rates = 0;
+					//Console.WriteLine("j'arriv pas queue");
+				}
 				catch (Exception e) { Console.WriteLine(e); }
 
 
@@ -186,7 +192,7 @@ namespace ImageFakeScraperExample
 			lock (_lock)
 			{
 				string line = string.Concat(Enumerable.Repeat("=", Console.WindowWidth));
-				Console.WriteLine("\n"+line);
+				Console.WriteLine("\n" + line);
 				Console.WriteLine(text);
 				Console.WriteLine(line);
 			}

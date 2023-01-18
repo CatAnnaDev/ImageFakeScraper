@@ -13,21 +13,26 @@ public class GoogleScraper : Scraper
 		{
 			string[] args = new string[] { query };
 			string jsonGet = await http.GetJson(uri, args);
-			var jspnUpdate = jsonGet.Substring(5);
+			string jspnUpdate = jsonGet[5..];
 
 			Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(jspnUpdate);
-			foreach (var metadata in myDeserializedClass.ischj.metadata)
+			foreach (Metadata metadata in myDeserializedClass.ischj.metadata)
 			{
-				var truc = new Uri(metadata.original_image.url);
+				Uri truc = new(metadata.original_image.url);
 				if (truc == null)
+				{
 					continue;
+				}
 
 				tmp.Add(metadata.original_image.url);
 			}
 
 		}
-		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { }
-			if (settings.printErrorLog) { Console.WriteLine("Google" + e); } }
+		catch (Exception e)
+		{
+			if (e.GetType().Name != "UriFormatException") { }
+			if (settings.printErrorLog) { Console.WriteLine("Google" + e); }
+		}
 
 		return tmp;
 	}
@@ -35,15 +40,19 @@ public class GoogleScraper : Scraper
 	public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
 	{
 		if (!await redisCheckCount())
+		{
 			return 0;
+		}
 
-		var urls = await GetImagesAsync((string)args[0]);
+		List<string>? urls = await GetImagesAsync((string)args[0]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
-		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
-        SettingsDll.nbPushTotal += result;
-        if (settings.printLog)
-            Console.WriteLine("Google " + result);
+		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
+		SettingsDll.nbPushTotal += result;
+		if (settings.printLog)
+		{
+			Console.WriteLine("Google " + result);
+		}
 
-        return (int)result;
-    }
+		return (int)result;
+	}
 }

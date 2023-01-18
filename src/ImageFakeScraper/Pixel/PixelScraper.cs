@@ -20,37 +20,48 @@ public class PixelScraper : Scraper
 				string jsonGet = await http.GetJson(uri, args);
 				Root jsonparsed = JsonConvert.DeserializeObject<Root>(jsonGet);
 				if (jsonparsed != null || jsonparsed.images != null || jsonparsed.images.images_0 == null)
+				{
 					break;
+				}
 
 				for (int j = 0; j < jsonparsed.images.images_0.Count; j++)
 				{
-					var truc = new Uri(jsonparsed.images.images_0[j].url);
+					Uri truc = new(jsonparsed.images.images_0[j].url);
 					if (truc == null)
+					{
 						continue;
+					}
 
 					tmp.Add(jsonparsed.images.images_0[j].url);
 
 				}
 			}
 		}
-		catch (Exception e) { if (e.GetType().Name != "UriFormatException") { }
-			if (settings.printErrorLog) { Console.WriteLine("Pixel" + e); } }
+		catch (Exception e)
+		{
+			if (e.GetType().Name != "UriFormatException") { }
+			if (settings.printErrorLog) { Console.WriteLine("Pixel" + e); }
+		}
 		return tmp;
 	}
 
 	public override async Task<int> GetImages(AsyncCallback ac, params object[] args)
 	{
 		if (!await redisCheckCount())
+		{
 			return 0;
+		}
 
-		var urls = await GetImagesAsync((string)args[0], (int)args[1]);
+		List<string> urls = await GetImagesAsync((string)args[0], (int)args[1]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
-		var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
-        SettingsDll.nbPushTotal += result;
+		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
+		SettingsDll.nbPushTotal += result;
 
-        if (settings.printLog)
-            Console.WriteLine("Pixel " + result);
+		if (settings.printLog)
+		{
+			Console.WriteLine("Pixel " + result);
+		}
 
-        return (int)result;
-    }
+		return (int)result;
+	}
 }

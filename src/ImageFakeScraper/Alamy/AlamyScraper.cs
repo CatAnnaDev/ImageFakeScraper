@@ -20,19 +20,25 @@ namespace ImageFakeScraper.Alamy
 					Root jsonparsed = JsonConvert.DeserializeObject<Root>(jsonGet);
 
 					if (jsonparsed == null || jsonparsed.Items == null || jsonparsed.Items.Count == 0)
+					{
 						break;
+					}
 
 					for (int j = 0; j < jsonparsed.Items.Count; j++)
 					{
-						var truc = new Uri(jsonparsed.Items[j].Renditions.Comp.Href);
+						Uri truc = new(jsonparsed.Items[j].Renditions.Comp.Href);
 						if (truc == null)
+						{
 							continue;
+						}
 
 						tmp.Add(jsonparsed.Items[j].Renditions.Comp.Href);
 					}
 
 					if (UnlimitedCrawlPage)
+					{
 						page++;
+					}
 				}
 
 			}
@@ -44,19 +50,23 @@ namespace ImageFakeScraper.Alamy
 		{
 
 			if (!await redisCheckCount())
+			{
 				return 0;
+			}
 
-			var urls = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2], (bool)args[3]);
+			List<string> urls = await GetImagesAsync((string)args[0], (int)args[1], (int)args[2], (bool)args[3]);
 			RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 
-			var result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
-            SettingsDll.nbPushTotal += result;
+			long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
+			SettingsDll.nbPushTotal += result;
 
-            if (settings.printLog)
+			if (settings.printLog)
+			{
 				Console.WriteLine("alamy " + result);
+			}
 
 			return (int)result;
-        }
+		}
 	}
 }
 
