@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-#pragma warning disable CS8602, CS8604, CS8618, CS1634
+﻿#pragma warning disable CS8602, CS8604, CS8618, CS1634
 namespace ImageFakeScraper.Google
 {
 	public class Gsa

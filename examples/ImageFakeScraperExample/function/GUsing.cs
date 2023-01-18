@@ -1,11 +1,13 @@
 ﻿global using HtmlAgilityPack;
 
 global using ImageFakeScraper;
+global using ImageFakeScraper.OpenVerse;
+global using ImageFakeScraper.Qwant;
+global using ImageFakeScraper.Unsplash;
 global using ImageFakeScraper.Bing;
 global using ImageFakeScraper.Getty;
 global using ImageFakeScraper.Google;
 global using ImageFakeScraper.immerse;
-global using ImageFakeScraper.OpenVerse;
 global using ImageFakeScraper.Pixel;
 global using ImageFakeScraper.Yahoo;
 global using ImageFakeScraper.Alamy;

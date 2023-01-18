@@ -1,5 +1,4 @@
-﻿using ImageFakeScraper;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 #pragma warning disable
 namespace ImageFakeScraperExample.config

@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace ImageFakeScraperExample;
+﻿namespace ImageFakeScraperExample;
 #pragma warning disable CS8602, CS8604, CS8618, CS1634
 internal static class Program
 {

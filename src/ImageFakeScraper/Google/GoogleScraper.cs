@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using StackExchange.Redis;
 #pragma warning disable CS8602, CS8604, CS8618, CS1634, CS8600
 namespace ImageFakeScraper.Google;
 

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net.Http;
-#pragma warning disable CS8602, CS8604, CS8618, CS1634
+﻿#pragma warning disable CS8602, CS8604, CS8618, CS1634
 namespace ImageFakeScraper;
 
 public class httpRequest

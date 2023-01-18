@@ -1,9 +1,4 @@
-﻿using ImageFakeScraper.OpenVerse;
-using ImageFakeScraper.Qwant;
-using ImageFakeScraper.Unsplash;
-using Microsoft.VisualBasic;
-using System.Threading;
-using System.Threading.Tasks;
+﻿
 
 #pragma warning disable
 namespace ImageFakeScraperExample
@@ -35,7 +30,7 @@ namespace ImageFakeScraperExample
 		bool printLog;
 		bool printLogTag;
 
-        DateTime last_time = DateAndTime.Now;
+        DateTime last_time = DateTime.Now;
 
         int rates = 0;
         int ratesPrint = 0;
