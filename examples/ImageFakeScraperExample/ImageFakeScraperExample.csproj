@@ -17,10 +17,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
-    <PackageReference Include="MongoDB.Driver" Version="2.18.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageReference Include="prometheus-net" Version="7.0.0" />
-    <PackageReference Include="prometheus-net.AspNetCore" Version="7.0.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.6.90" />
     <PackageReference Include="Figgle" Version="0.5.1" />
   </ItemGroup>
