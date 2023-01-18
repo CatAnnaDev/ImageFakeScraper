@@ -23,11 +23,6 @@ namespace ImageFakeScraperExample.config
 
                 JObject defaultConf = JObject.Parse(jsonDefault);
 
-                //userConf.Merge(defaultConf, new JsonMergeSettings
-                //{
-                //    MergeArrayHandling = MergeArrayHandling.Union
-                //});
-
                 Configs = new JObject();
 
                 Configs.Merge(defaultConf);

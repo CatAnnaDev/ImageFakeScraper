@@ -46,8 +46,9 @@ internal static class Program
         if (redis.IsConnected)
         {
             Console.Clear();
+            Console.WriteLine(FiggleFonts.Standard.Render("Scraper"));
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Powered by Image Fake Scraper");
+            //Console.WriteLine("Powered by Image Fake Scraper");
             Console.WriteLine("Redis Connected");
             Console.ResetColor();
 
