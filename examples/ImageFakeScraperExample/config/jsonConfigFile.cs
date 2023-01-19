@@ -12,6 +12,7 @@ namespace ImageFakeScraperExample.config
 		public string? images_jobs { get; set; }
 		public string? to_download { get; set; }
 		public Settings? settings { get; set; }
+		public Engines? Engines { get; set; }
 		public SettingsDll settingsDLL { get; set; }
 
 	}

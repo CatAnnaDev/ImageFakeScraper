@@ -3,44 +3,24 @@
 public class Settings
 {
 	public Settings() { }
-	// Google
-	public bool GoogleRun { get; set; }
-
-	// UnsplashRun
-	public bool UnsplashRun { get; set; }
-
-	// QwantRun
-	public bool QwantRun { get; set; }
-
-	// Shutterstock
-	public bool ShutterstockRun { get; set; }
-
-	// OpenVerse
-	public bool OpenVerseRun { get; set; }
-
-	// Alamy
-	public bool AlamyRun { get; set; }
-
-	// Bing
-	public bool BingRun { get; set; }
-
-	// Yahoo
-	public bool YahooRun { get; set; }
-
-	// GettyImage
-	public bool GettyImageRun { get; set; }
-
-	// Immerse
-	public bool ImmerseRun { get; set; }
-
-	// EveryPixel
-	public bool EveryPixelRun { get; set; }
-
-
-
-
-	// Redis image push
 	public int stopAfter { get; set; }
 	public bool PrintLog { get; set; }
 	public bool PrintLogTag { get; set; }
+}
+
+public class Engines
+{
+	public Engines() { }
+	public bool Google { get; set; }
+	public bool UnsNapi { get; set; }
+	public bool UnsNge { get; set; }
+	public bool Qwant { get; set; }
+	public bool Shutter { get; set; }
+	public bool Open { get; set; }
+	public bool Alamy { get; set; }
+	public bool Bing { get; set; }
+	public bool Yahoo { get; set; }
+	public bool Getty { get; set; }
+	public bool Immerse { get; set; }
+	public bool Pixel { get; set; }
 }

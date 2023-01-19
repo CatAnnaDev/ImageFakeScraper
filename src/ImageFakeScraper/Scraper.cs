@@ -1,8 +1,20 @@
 ﻿#pragma warning disable CS8602, CS8604, CS8618, CS1634, CS1998
 namespace ImageFakeScraper
 {
-    public class Scraper
+	public enum State
+	{
+		Enabled,
+		Error,
+		Disabled
+	}
+
+	public class Scraper
     {
+		public long TotalPush { get; set; } = 0;
+
+        public State EngineState { get; set; } = State.Disabled;
+
+
         protected IDatabase redis;
         protected Dictionary<string, object> Options;
         protected SimpleMovingAverage movingAverage;
@@ -45,4 +57,5 @@ namespace ImageFakeScraper
             http.setMovingAverageDownloadSpeed(movingAverageDL);
         }
     }
+
 }

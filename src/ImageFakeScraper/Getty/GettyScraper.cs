@@ -52,7 +52,7 @@ public class GettyScraper : Scraper
 		(List<string> urls, double dlspeed) = await GetImagesAsync((string)args[0], (int)args[1]);
 		RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 		long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
-		SettingsDll.TotalPushGetty += result;
+		TotalPush += result;
 		SettingsDll.nbPushTotal += result;
 		if (settings.printLog)
 		{

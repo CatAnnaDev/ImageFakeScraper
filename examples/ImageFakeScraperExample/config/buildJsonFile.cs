@@ -50,20 +50,23 @@ namespace ImageFakeScraperExample.config
 				words_list = "words_list",
 				images_jobs = "image_jobs",
 				to_download = "to_download",
-
+				Engines = new()
+				{
+					Google = false,
+					UnsNapi = false,
+					UnsNge = false,
+					Qwant = false,
+					Shutter = false,
+					Alamy = false,
+					Open = false,
+					Bing = false,
+					Yahoo = false,
+					Getty = false,
+					Immerse = false,
+					Pixel = false,
+				},
 				settings = new()
 				{
-					GoogleRun = true,
-					UnsplashRun = true,
-					QwantRun = true,
-					ShutterstockRun = true,
-					AlamyRun = true,
-					OpenVerseRun = true,
-					BingRun = true,
-					YahooRun = true,
-					GettyImageRun = true,
-					ImmerseRun = true,
-					EveryPixelRun = true,
 					stopAfter = 8000000,
 					PrintLogTag = true,
 					PrintLog = true

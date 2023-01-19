@@ -52,7 +52,7 @@ namespace ImageFakeScraper.Qwant
 			RedisValue[] push = Array.ConvertAll(urls.ToArray(), item => (RedisValue)item);
 
 			long result = await redis.SetAddAsync(Options["redis_push_key"].ToString(), push);
-			SettingsDll.TotalPushQwant += result;
+			TotalPush += result;
 			SettingsDll.nbPushTotal += result;
 			if (settings.printLog)
 			{

@@ -1,6 +1,10 @@
 ﻿
 
 #pragma warning disable
+using Newtonsoft.Json.Linq;
+using System.Linq;
+using System.Text;
+
 namespace ImageFakeScraperExample
 {
 	public class MultiThread
@@ -44,79 +48,83 @@ namespace ImageFakeScraperExample
 
 			// if ((bool)Program.ConfigFile.Configs["settings"]["DepositphotosRun"]) 
 			// 	dicoEngine.Add("Deposit", new DepositphotosScraper());
-
-			if ((bool)Program.ConfigFile.Configs["settings"]["ShutterstockRun"]) 
-				dicoEngine.Add("Shutterstock", new ShutterstockScraper());
-
-			if ((bool)Program.ConfigFile.Configs["settings"]["BingRun"])
-				dicoEngine.Add("Bing", new BingImageFakeScraper());
-
-			if ((bool)Program.ConfigFile.Configs["settings"]["QwantRun"])
-				dicoEngine.Add("Qwant", new QwantScraper());
-			
-			if ((bool)Program.ConfigFile.Configs["settings"]["UnsplashRun"])
-				dicoEngine.Add("UnsplashNapi", new UnsplashNapiScraper());
-			
-			if ((bool)Program.ConfigFile.Configs["settings"]["UnsplashRun"])
-				dicoEngine.Add("UnsplashNgetty", new UnsplashScraperngetty());
-			
-			if ((bool)Program.ConfigFile.Configs["settings"]["GoogleRun"])
-				dicoEngine.Add("Google", new GoogleScraper());
-			
-			if ((bool)Program.ConfigFile.Configs["settings"]["AlamyRun"])
-				dicoEngine.Add("Alamy", new AlamyScraper());
-			
-			if ((bool)Program.ConfigFile.Configs["settings"]["OpenVerseRun"])
-				dicoEngine.Add("Open", new OpenVerseScraper());
-			
-			if ((bool)Program.ConfigFile.Configs["settings"]["YahooRun"])
-				dicoEngine.Add("Yahoo", new YahooScraper());
-			
-			if ((bool)Program.ConfigFile.Configs["settings"]["GettyImageRun"])
-				dicoEngine.Add("Getty", new GettyScraper());
-			
-			if ((bool)Program.ConfigFile.Configs["settings"]["EveryPixelRun"])
-				dicoEngine.Add("Pixel", new PixelScraper());
-			
-			if ((bool)Program.ConfigFile.Configs["settings"]["ImmerseRun"])
-				dicoEngine.Add("Immerse", new ImmerseScraper());
+			dicoEngine.Add("Google", new GoogleScraper());
+			dicoEngine.Add("UnsNapi", new UnsplashNapiScraper());
+			dicoEngine.Add("UnsNge", new UnsplashScraperngetty());
+			dicoEngine.Add("Qwant", new QwantScraper());
+			dicoEngine.Add("Shutter", new ShutterstockScraper());
+			dicoEngine.Add("Open", new OpenVerseScraper());
+			dicoEngine.Add("Alamy", new AlamyScraper());
+			dicoEngine.Add("Bing", new BingImageFakeScraper());
+			dicoEngine.Add("Pixel", new PixelScraper());
+			dicoEngine.Add("Getty", new GettyScraper());
+			dicoEngine.Add("Immerse", new ImmerseScraper());
+			dicoEngine.Add("Yahoo", new YahooScraper());
 
 			foreach (var engine in dicoEngine)
 			{
-				engine.Value.setRedis(redisConnection.GetDatabase);
-				engine.Value.setOptions(options);
-				engine.Value.setMovingAverage(MovingAverage);
-				engine.Value.setMovingAverageDownloadSpeed(DownloadSpeed);
+				if (Program.ConfigFile.Configs["Engines"][engine.Key] != null)
+				{
+					if ((bool)Program.ConfigFile.Configs["Engines"][engine.Key] == true)
+					{
+						engine.Value.EngineState = State.Enabled;
+						engine.Value.setRedis(redisConnection.GetDatabase);
+						engine.Value.setOptions(options);
+						engine.Value.setMovingAverage(MovingAverage);
+						engine.Value.setMovingAverageDownloadSpeed(DownloadSpeed);
+					}
+				}
 			}
 		}
 
 		private void LogPrintData()
 		{
+
 			while (true)
 			{
-				Thread.Sleep(TimeSpan.FromSeconds(1));
+				Thread.Sleep(TimeSpan.FromMilliseconds(1000));
 				Console.Clear();
 				Console.WriteLine(FiggleFonts.Standard.Render("Crawler"));
+
 				try
 				{
+
+					string line = string.Concat(Enumerable.Repeat("=", Console.WindowWidth));
+					Console.WriteLine(line);
+
 					string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
-					printData(
+					Console.WriteLine(
 						$"Uptime\t\t{uptimeFormated}\n" +
 						$"Thread\t\t{Program.nbThread}\n" +
 						$"Sleep\t\t{Program.waittime}\n" +
 						$"Request/sec\t{Program.requestMaxPerSec}\n" +
-						$"Total Push\t{SettingsDll.nbPushTotal}\n" +
-						$"Alamy\t\t{SettingsDll.TotalPushAlamy}\n" +
-						$"Bing\t\t{SettingsDll.TotalPushBing}\n" +
-						$"Getty\t\t{SettingsDll.TotalPushGetty}\n" +
-						$"Google\t\t{SettingsDll.TotalPushGoogle}\n" +
-						$"Immerse\t\t{SettingsDll.TotalPushImmerse}\tDisable this shit\n" +
-						$"Open\t\t{SettingsDll.TotalPushOpen}\n" +
-						$"Pixel\t\t{SettingsDll.TotalPushPixel}\n" +
-						$"Qwant\t\t{SettingsDll.TotalPushQwant}\n" +
-						$"Shutterstock\t{SettingsDll.TotalPushShutterstock}\n" +
-						$"Unsplash\t{SettingsDll.TotalPushUnsplash}\n" +
-						$"Yahoo\t\t{SettingsDll.TotalPushYahoo}");
+						$"Total Push\t{SettingsDll.nbPushTotal}");
+
+					foreach (var engine in dicoEngine)
+					{
+						switch (engine.Value.EngineState)
+						{
+							case State.Enabled:
+								Console.ForegroundColor = ConsoleColor.Green;
+								Console.WriteLine($"{engine.Key}\t\t{engine.Value.TotalPush}");
+								Console.ResetColor();
+								break;
+							case State.Disabled:
+								Console.ForegroundColor = ConsoleColor.Gray;
+								Console.WriteLine($"{engine.Key}\t\t{engine.Value.TotalPush}");
+								Console.ResetColor();
+								break;
+							case State.Error:
+								Console.ForegroundColor = ConsoleColor.Red;
+								Console.WriteLine($"{engine.Key}\t\t{engine.Value.TotalPush}");
+								Console.ResetColor();
+								break;
+						}
+
+						//stringBuilder.Append($"{engine.Key}\t\t{engine.Value.TotalPush}\n");
+					}
+
+					Console.WriteLine(line);
 				}
 				catch { }
 			}
@@ -144,7 +152,7 @@ namespace ImageFakeScraperExample
 			{
 				Console.Write($"\rTotal Push {SettingsDll.nbPushTotal}, [ {ratesPrint}/s ] Total DL {ConvertBytes(SettingsDll.downloadTotal)}, [{ConvertBytes(ratesSpeed)}/s] ");
 				Console.Title = $"Push {SettingsDll.nbPushTotal}";
-				Thread.Sleep(TimeSpan.FromMilliseconds(100));
+				Thread.Sleep(TimeSpan.FromMilliseconds(101));
 			}
 		}
 
@@ -176,6 +184,8 @@ namespace ImageFakeScraperExample
 
 					for (int i = 0; i < dicoEngine.Count; i++)
 					{
+						if (dicoEngine.ElementAt(i).Value.EngineState == State.Disabled)
+							continue;
 						object[] args = new object[] { keywords.ToString(), 1, 1_500, false, redisConnection.GetDatabase };
 						AsyncCallback callBack = new AsyncCallback(onRequestFinih);
 						var (rate, dlspeed) = dicoEngine.ElementAt(i).Value.GetImages(callBack, args).Result;
