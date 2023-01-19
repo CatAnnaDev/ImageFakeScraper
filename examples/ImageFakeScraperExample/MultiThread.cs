@@ -42,7 +42,7 @@ namespace ImageFakeScraperExample
 				{"redis_queue_limit_count",  Program.ConfigFile.Configs["settings"]["stopAfter"] }
 			};
 
-			// if ((bool)Program.ConfigFile.Configs["settings"]["BingRun"]) 
+			// if ((bool)Program.ConfigFile.Configs["settings"]["DepositphotosRun"]) 
 			// 	dicoEngine.Add("Deposit", new DepositphotosScraper());
 
 			if ((bool)Program.ConfigFile.Configs["settings"]["ShutterstockRun"]) 
@@ -96,7 +96,7 @@ namespace ImageFakeScraperExample
 			{
 				Thread.Sleep(TimeSpan.FromMinutes(1));
 				Console.Clear();
-				Console.WriteLine(FiggleFonts.Standard.Render("Scraper"));
+				Console.WriteLine(FiggleFonts.Standard.Render("Crawler"));
 				try
 				{
 					string uptimeFormated = $"{uptime.Elapsed.Days} days {uptime.Elapsed.Hours:00}:{uptime.Elapsed.Minutes:00}:{uptime.Elapsed.Seconds:00}";
@@ -107,10 +107,10 @@ namespace ImageFakeScraperExample
 						$"Request/sec\t{Program.requestMaxPerSec}\n" +
 						$"Total Push\t{SettingsDll.nbPushTotal}\n" +
 						$"Alamy\t\t{SettingsDll.TotalPushAlamy}\n" +
-						$"Bing\t\t{SettingsDll.TotalPushBing} Need Fix\n" +
+						$"Bing\t\t{SettingsDll.TotalPushBing}\tNeed Fix\n" +
 						$"Getty\t\t{SettingsDll.TotalPushGetty}\n" +
 						$"Google\t\t{SettingsDll.TotalPushGoogle}\n" +
-						$"Immerse\t\t{SettingsDll.TotalPushImmerse} Disable this shit\n" +
+						$"Immerse\t\t{SettingsDll.TotalPushImmerse}\tDisable this shit\n" +
 						$"Open\t\t{SettingsDll.TotalPushOpen}\n" +
 						$"Pixel\t\t{SettingsDll.TotalPushPixel}\n" +
 						$"Qwant\t\t{SettingsDll.TotalPushQwant}\n" +

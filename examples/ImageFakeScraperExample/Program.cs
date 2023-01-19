@@ -44,8 +44,7 @@ internal static class Program
 		if (redis.IsConnected)
 		{
 			Console.Clear();
-			Console.WriteLine(FiggleFonts.Standard.Render("Scraper"));
-			Console.WriteLine("Redis Connected");
+			Console.WriteLine(FiggleFonts.Standard.Render("Crawler"));
 
 			MultiThread multi = new((bool)ConfigFile.Configs["settings"]["PrintLog"], (bool)ConfigFile.Configs["settings"]["PrintLogTag"], nbThread, QueueLimit);
 
@@ -53,7 +52,7 @@ internal static class Program
 			multi.SpawnThreads();
 
 		}
-		Console.WriteLine("Done");
+		Console.WriteLine("");
 	}
 	#endregion
 

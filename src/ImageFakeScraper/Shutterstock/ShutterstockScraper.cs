@@ -1,9 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ImageFakeScraper.Shutterstock
 {
@@ -23,7 +18,7 @@ namespace ImageFakeScraper.Shutterstock
 
 				Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(jsonGet);
 
-				if (myDeserializedClass == null || myDeserializedClass.pageProps == null || myDeserializedClass.pageProps.assets.Count == 0)
+				if (myDeserializedClass == null || myDeserializedClass.pageProps == null || myDeserializedClass.pageProps.assets == null)
 				{
 					return (tmp, 0);
 				}
