@@ -94,7 +94,7 @@ namespace ImageFakeScraperExample
 		{
 			while (true)
 			{
-				Thread.Sleep(TimeSpan.FromMinutes(1));
+				Thread.Sleep(TimeSpan.FromSeconds(1));
 				Console.Clear();
 				Console.WriteLine(FiggleFonts.Standard.Render("Crawler"));
 				try
