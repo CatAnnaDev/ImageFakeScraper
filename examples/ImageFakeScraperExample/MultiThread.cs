@@ -107,7 +107,7 @@ namespace ImageFakeScraperExample
 						$"Request/sec\t{Program.requestMaxPerSec}\n" +
 						$"Total Push\t{SettingsDll.nbPushTotal}\n" +
 						$"Alamy\t\t{SettingsDll.TotalPushAlamy}\n" +
-						$"Bing\t\t{SettingsDll.TotalPushBing}\tNeed Fix\n" +
+						$"Bing\t\t{SettingsDll.TotalPushBing}\n" +
 						$"Getty\t\t{SettingsDll.TotalPushGetty}\n" +
 						$"Google\t\t{SettingsDll.TotalPushGoogle}\n" +
 						$"Immerse\t\t{SettingsDll.TotalPushImmerse}\tDisable this shit\n" +

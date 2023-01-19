@@ -56,16 +56,6 @@ internal static class Program
 	}
 	#endregion
 
-	#region redisGetNewTag
-	private static async Task<RedisValue> redisGetNewTag(IDatabase redis)
-	{
-		try
-		{
-			return await redis.ListLeftPopAsync(ConfigFile.Configs["words_list"].ToString());
-		}
-		catch { return RedisValue.Null; }
-	}
-	#endregion
 	private static async Task InitializeGlobalDataAsync()
 	{
 		await ConfigFile.InitializeAsync();

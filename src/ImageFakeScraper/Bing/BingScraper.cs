@@ -1,8 +1,12 @@
-﻿namespace ImageFakeScraper.Bing;
+﻿using static System.Net.WebRequestMethods;
+
+namespace ImageFakeScraper.Bing;
 
 public class BingImageFakeScraper : Scraper
 {
 	private const string uri = "https://www.bing.com/images/search?q={0}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&adlt=off&cw=2543&ch=1289";
+
+	private const string uri2 = "https://www.bing.com/images/async?q={0}&first=0&count=5000&cw=1177&ch=1289&relp=5000&datsrc=I&layout=RowBased&apc=0&relo=1&relr=6&rely=959&mmasync=1"; // need fix encore ( c'est pas ouf ça ) 
 
 	public async Task<(List<string>, double)> GetImagesAsync(string query, IDatabase redis)
 	{
@@ -10,13 +14,12 @@ public class BingImageFakeScraper : Scraper
 		double dlspeedreturn = 0;
 		try
 		{
+			// get Tag
 			string[] args = new string[] { query };
 			(HtmlDocument doc, double dlspeed) = await http.Get(uri, args);
-			dlspeedreturn = dlspeed;
-			IEnumerable<string> urls = doc.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !string.IsNullOrEmpty(s)); // parse url img changer
+			dlspeedreturn += dlspeed;
 
 			HtmlNodeCollection tag = doc.DocumentNode.SelectNodes("//span[@class='suggestion-title']");
-
 			if (tag != null)
 			{
 				foreach (HtmlNode? item in tag)
@@ -25,6 +28,10 @@ public class BingImageFakeScraper : Scraper
 				}
 			}
 
+			// Get Img
+			(HtmlDocument docs, double dlspeeds) = await http.Get(uri2, args);
+			dlspeedreturn += dlspeeds;
+			IEnumerable<string> urls = docs.DocumentNode.Descendants("img").Select(e => e.GetAttributeValue("src", null)).Where(s => !string.IsNullOrEmpty(s)); // parse url img changer
 			for (int i = 0; i < urls.Count(); i++)
 			{
 				string cleanUrl = Regex.Replace(urls.ElementAt(i), @"[?&][^?&]+=[^?&]+", "");
