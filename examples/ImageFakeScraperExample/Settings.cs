@@ -12,6 +12,9 @@ public class Settings
 	// QwantRun
 	public bool QwantRun { get; set; }
 
+	// Shutterstock
+	public bool ShutterstockRun { get; set; }
+
 	// OpenVerse
 	public bool OpenVerseRun { get; set; }
 
@@ -32,6 +35,9 @@ public class Settings
 
 	// EveryPixel
 	public bool EveryPixelRun { get; set; }
+
+
+
 
 	// Redis image push
 	public int stopAfter { get; set; }

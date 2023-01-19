@@ -1,13 +1,13 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-#pragma warning disable
+
 namespace ImageFakeScraperExample.config
 {
 	internal class buildJsonFile
 	{
 		public string ConfigPath { get; set; } = "Config.json";
 		public jsonConfigFile? Config { get; set; }
-		public JObject Configs { get; set; }
+		public JObject? Configs { get; set; }
 
 		public async Task InitializeAsync()
 		{
@@ -47,16 +47,16 @@ namespace ImageFakeScraperExample.config
 				Credential = "Redis Login",
 				requestMaxPerSec = 8,
 				nbThread = 4,
-				QueueLimit = 30,
 				words_list = "words_list",
 				images_jobs = "image_jobs",
 				to_download = "to_download",
 
 				settings = new()
 				{
-					GoogleRun = false,
+					GoogleRun = true,
 					UnsplashRun = true,
 					QwantRun = true,
+					ShutterstockRun = true,
 					AlamyRun = true,
 					OpenVerseRun = true,
 					BingRun = true,

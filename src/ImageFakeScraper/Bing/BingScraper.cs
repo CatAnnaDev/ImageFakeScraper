@@ -1,6 +1,6 @@
 ﻿namespace ImageFakeScraper.Bing;
 
-public class BinImageFakeScraper : Scraper
+public class BingImageFakeScraper : Scraper
 {
 	private const string uri = "https://www.bing.com/images/search?q={0}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&adlt=off&cw=2543&ch=1289";
 

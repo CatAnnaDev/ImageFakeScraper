@@ -42,6 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove=".DS_Store" />
     <None Remove="Alamy\" />
     <None Remove="Qwant\" />
     <None Remove="Unsplash\" />
@@ -49,6 +50,5 @@
   <ItemGroup>
     <Folder Include="Alamy\" />
     <Folder Include="Qwant\" />
-    <Folder Include="Unsplash\" />
   </ItemGroup>
 </Project>

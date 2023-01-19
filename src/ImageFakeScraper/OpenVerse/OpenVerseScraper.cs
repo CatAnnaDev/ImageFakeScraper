@@ -24,7 +24,7 @@ public class OpenVerseScraper : Scraper
 					break;
 				}
 
-				page = jsonparsed.page_count;
+				//page = jsonparsed.page_count;
 
 				for (int j = 0; j < jsonparsed.results.Count; j++)
 				{

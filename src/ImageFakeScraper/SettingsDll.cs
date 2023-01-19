@@ -10,6 +10,7 @@ public class SettingsDll
 	public static long TotalPushImmerse { get; set; } = 0;
 	public static long TotalPushOpen { get; set; } = 0;
 	public static long TotalPushPixel { get; set; } = 0;
+	public static long TotalPushShutterstock { get; set; } = 0;
 	public static long TotalPushQwant { get; set; } = 0;
 	public static long TotalPushUnsplash { get; set; } = 0;
 	public static long TotalPushYahoo { get; set; } = 0;

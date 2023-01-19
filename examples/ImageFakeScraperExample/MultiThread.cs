@@ -41,24 +41,43 @@ namespace ImageFakeScraperExample
 				{"redis_queue_limit_name", Program.ConfigFile.Configs["to_download"] },
 				{"redis_queue_limit_count",  Program.ConfigFile.Configs["settings"]["stopAfter"] }
 			};
+
+			// if ((bool)Program.ConfigFile.Configs["settings"]["BingRun"]) 
+			// 	dicoEngine.Add("Deposit", new DepositphotosScraper());
+
+			if ((bool)Program.ConfigFile.Configs["settings"]["ShutterstockRun"]) 
+				dicoEngine.Add("Shutterstock", new ShutterstockScraper());
+
 			if ((bool)Program.ConfigFile.Configs["settings"]["BingRun"])
-				dicoEngine.Add("Bing", new BinImageFakeScraper());
+				dicoEngine.Add("Bing", new BingImageFakeScraper());
+
 			if ((bool)Program.ConfigFile.Configs["settings"]["QwantRun"])
 				dicoEngine.Add("Qwant", new QwantScraper());
+
 			if ((bool)Program.ConfigFile.Configs["settings"]["UnsplashRun"])
-				dicoEngine.Add("Unsplash", new UnsplashScraper());
+				dicoEngine.Add("UnsplashNapi", new UnsplashNapiScraper());
+
+			if ((bool)Program.ConfigFile.Configs["settings"]["UnsplashRun"])
+				dicoEngine.Add("UnsplashNgetty", new UnsplashScraperngetty());
+
 			if ((bool)Program.ConfigFile.Configs["settings"]["GoogleRun"])
 				dicoEngine.Add("Google", new GoogleScraper());
+
 			if ((bool)Program.ConfigFile.Configs["settings"]["AlamyRun"])
 				dicoEngine.Add("Alamy", new AlamyScraper());
+
 			if ((bool)Program.ConfigFile.Configs["settings"]["OpenVerseRun"])
 				dicoEngine.Add("Open", new OpenVerseScraper());
+
 			if ((bool)Program.ConfigFile.Configs["settings"]["YahooRun"])
 				dicoEngine.Add("Yahoo", new YahooScraper());
+
 			if ((bool)Program.ConfigFile.Configs["settings"]["GettyImageRun"])
 				dicoEngine.Add("Getty", new GettyScraper());
+
 			if ((bool)Program.ConfigFile.Configs["settings"]["EveryPixelRun"])
 				dicoEngine.Add("Pixel", new PixelScraper());
+
 			if ((bool)Program.ConfigFile.Configs["settings"]["ImmerseRun"])
 				dicoEngine.Add("Immerse", new ImmerseScraper());
 
@@ -88,13 +107,14 @@ namespace ImageFakeScraperExample
 						$"Request/sec\t{Program.requestMaxPerSec}\n" +
 						$"Total Push\t{SettingsDll.nbPushTotal}\n" +
 						$"Alamy\t\t{SettingsDll.TotalPushAlamy}\n" +
-						$"Bing\t\t{SettingsDll.TotalPushBing}\n" +
+						$"Bing\t\t{SettingsDll.TotalPushBing} Need Fix\n" +
 						$"Getty\t\t{SettingsDll.TotalPushGetty}\n" +
 						$"Google\t\t{SettingsDll.TotalPushGoogle}\n" +
-						$"Immerse\t\t{SettingsDll.TotalPushImmerse}\n" +
+						$"Immerse\t\t{SettingsDll.TotalPushImmerse} Disable this shit\n" +
 						$"Open\t\t{SettingsDll.TotalPushOpen}\n" +
 						$"Pixel\t\t{SettingsDll.TotalPushPixel}\n" +
 						$"Qwant\t\t{SettingsDll.TotalPushQwant}\n" +
+						$"Shutterstock\t{SettingsDll.TotalPushShutterstock}\n" +
 						$"Unsplash\t{SettingsDll.TotalPushUnsplash}\n" +
 						$"Yahoo\t\t{SettingsDll.TotalPushYahoo}");
 				}

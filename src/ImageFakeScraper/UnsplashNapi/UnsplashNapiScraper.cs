@@ -1,8 +1,8 @@
 ﻿#pragma warning disable CS8602, CS8604, CS8618, CS1634, CS8600
 
-namespace ImageFakeScraper.Unsplash
+namespace ImageFakeScraper.UnsplashNapi
 {
-	public class UnsplashScraper : Scraper
+	public class UnsplashNapiScraper : Scraper
 	{
 		private const string uri = "https://unsplash.com/napi/search/photos?query={0}&page=1&per_page=100000";
 
@@ -37,7 +37,7 @@ namespace ImageFakeScraper.Unsplash
 			catch (Exception e)
 			{
 				if (e.GetType().Name != "UriFormatException") { }
-				if (settings.printErrorLog) { Console.WriteLine("Unsplash" + e); }
+				if (settings.printErrorLog) { Console.WriteLine("UnsplashNapi" + e); }
 			}
 			return (tmp, dlspeedreturn);
 		}
@@ -58,7 +58,7 @@ namespace ImageFakeScraper.Unsplash
 			SettingsDll.nbPushTotal += result;
 			if (settings.printLog)
 			{
-				Console.WriteLine("Qwant " + result);
+				Console.WriteLine("UnsplashNapi " + result);
 			}
 
 			return ((int)result, dlspeed);
