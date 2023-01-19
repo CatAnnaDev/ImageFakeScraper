@@ -18,6 +18,9 @@ public class GoogleScraper : Scraper
 			string jspnUpdate = jsonGet[5..];
 
 			Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(jspnUpdate);
+			if(myDeserializedClass == null || myDeserializedClass.ischj == null || myDeserializedClass.ischj.metadata == null)
+				return(tmp,0);
+
 			foreach (Metadata metadata in myDeserializedClass.ischj.metadata)
 			{
 				Uri truc = new(metadata.original_image.url);

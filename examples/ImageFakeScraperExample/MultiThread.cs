@@ -2,6 +2,7 @@
 
 #pragma warning disable
 using Newtonsoft.Json.Linq;
+using StackExchange.Redis;
 using System.Linq;
 using System.Text;
 
@@ -15,6 +16,7 @@ namespace ImageFakeScraperExample
 		private SimpleMovingAverageLong DownloadSpeed = new(15);
 		private AutoResetEvent auto = new(false);
 		private Dictionary<string, Scraper> dicoEngine = new();
+		private Dictionary<string, long> tmpOrder = new();
 		private static Object _lock = new();
 		private List<Thread> threadList = new();
 		private static readonly List<Task> tasks = new();
@@ -100,7 +102,7 @@ namespace ImageFakeScraperExample
 						$"Request/sec\t{Program.requestMaxPerSec}\n" +
 						$"Total Push\t{SettingsDll.nbPushTotal}");
 
-					foreach (var engine in dicoEngine)
+					foreach (var engine in dicoEngine.OrderByDescending(x => x.Value.TotalPush).ToDictionary(k => k.Key, v => v.Value))
 					{
 						switch (engine.Value.EngineState)
 						{
@@ -120,8 +122,6 @@ namespace ImageFakeScraperExample
 								Console.ResetColor();
 								break;
 						}
-
-						//stringBuilder.Append($"{engine.Key}\t\t{engine.Value.TotalPush}\n");
 					}
 
 					Console.WriteLine(line);
