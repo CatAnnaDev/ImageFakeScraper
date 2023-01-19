@@ -53,31 +53,31 @@ namespace ImageFakeScraperExample
 
 			if ((bool)Program.ConfigFile.Configs["settings"]["QwantRun"])
 				dicoEngine.Add("Qwant", new QwantScraper());
-
+			
 			if ((bool)Program.ConfigFile.Configs["settings"]["UnsplashRun"])
 				dicoEngine.Add("UnsplashNapi", new UnsplashNapiScraper());
-
+			
 			if ((bool)Program.ConfigFile.Configs["settings"]["UnsplashRun"])
 				dicoEngine.Add("UnsplashNgetty", new UnsplashScraperngetty());
-
+			
 			if ((bool)Program.ConfigFile.Configs["settings"]["GoogleRun"])
 				dicoEngine.Add("Google", new GoogleScraper());
-
+			
 			if ((bool)Program.ConfigFile.Configs["settings"]["AlamyRun"])
 				dicoEngine.Add("Alamy", new AlamyScraper());
-
+			
 			if ((bool)Program.ConfigFile.Configs["settings"]["OpenVerseRun"])
 				dicoEngine.Add("Open", new OpenVerseScraper());
-
+			
 			if ((bool)Program.ConfigFile.Configs["settings"]["YahooRun"])
 				dicoEngine.Add("Yahoo", new YahooScraper());
-
+			
 			if ((bool)Program.ConfigFile.Configs["settings"]["GettyImageRun"])
 				dicoEngine.Add("Getty", new GettyScraper());
-
+			
 			if ((bool)Program.ConfigFile.Configs["settings"]["EveryPixelRun"])
 				dicoEngine.Add("Pixel", new PixelScraper());
-
+			
 			if ((bool)Program.ConfigFile.Configs["settings"]["ImmerseRun"])
 				dicoEngine.Add("Immerse", new ImmerseScraper());
 
@@ -124,7 +124,7 @@ namespace ImageFakeScraperExample
 
 		public void SpawnThreads()
 		{
-			for (int i = 0; i < ThreadCount; i++)
+			for (int i = 0; i <= ThreadCount; i++)
 			{
 				Thread thread1 = new Thread(Worker);
 				threadList.Add(thread1);
@@ -143,6 +143,7 @@ namespace ImageFakeScraperExample
 			while (true)
 			{
 				Console.Write($"\rTotal Push {SettingsDll.nbPushTotal}, [ {ratesPrint}/s ] Total DL {ConvertBytes(SettingsDll.downloadTotal)}, [{ConvertBytes(ratesSpeed)}/s] ");
+				Console.Title = $"Push {SettingsDll.nbPushTotal}";
 				Thread.Sleep(TimeSpan.FromMilliseconds(100));
 			}
 		}
@@ -169,6 +170,7 @@ namespace ImageFakeScraperExample
 				try
 				{
 					RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Configs["words_list"].ToString());
+					//RedisValue keywords = "asian pussy";
 					Random rand = new Random();
 					dicoEngine = dicoEngine.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
 
