@@ -99,8 +99,7 @@ namespace ImageFakeScraperExample
 						$"Uptime\t\t{uptimeFormated}\n" +
 						$"Thread\t\t{Program.nbThread}\n" +
 						$"Sleep\t\t{Program.waittime}\n" +
-						$"Request/sec\t{Program.requestMaxPerSec}\n" +
-						$"Total Push\t{SettingsDll.nbPushTotal}");
+						$"Request/sec\t{Program.requestMaxPerSec}\n");
 
 					foreach (var engine in dicoEngine.OrderByDescending(x => x.Value.TotalPush).ToDictionary(k => k.Key, v => v.Value))
 					{
