@@ -1,10 +1,5 @@
-﻿
-
-#pragma warning disable
+﻿#pragma warning disable
 using Newtonsoft.Json.Linq;
-using StackExchange.Redis;
-using System.Linq;
-using System.Text;
 
 namespace ImageFakeScraperExample
 {

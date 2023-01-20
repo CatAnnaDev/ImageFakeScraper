@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+#pragma warning disable
+
 namespace ImageFakeScraperExample.config
 {
 	internal class buildJsonFile
