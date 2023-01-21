@@ -181,8 +181,7 @@ namespace ImageFakeScraperExample
 			{
 				try
 				{
-					//RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Configs["words_list"].ToString());
-					RedisValue keywords = "héhéhé";
+					RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Configs["words_list"].ToString());
                     Random rand = new Random();
 					dicoEngine = dicoEngine.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
 
