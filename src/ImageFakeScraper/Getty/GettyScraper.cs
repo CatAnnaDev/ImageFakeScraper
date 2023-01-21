@@ -2,7 +2,7 @@
 
 public class GettyScraper : Scraper
 {
-	private const string uri = "https://www.gettyimages.fr/photos/{0}?assettype=image&excludenudity=false&license=rf&family=creative&phrase={1}&sort=mostpopular&page={2}";
+	private const string uri = "https://www.gettyimages.fr/photos/{0}?assettype=image&excludenudity=true&license=rf&family=creative&phrase={1}&sort=mostpopular&page={2}";
 
 	public async Task<(List<string>, double)> GetImagesAsync(string query, int GettyMaxPage)
 	{

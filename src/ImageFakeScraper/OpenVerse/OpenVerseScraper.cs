@@ -4,7 +4,7 @@ namespace ImageFakeScraper.OpenVerse;
 
 public class OpenVerseScraper : Scraper
 {
-	private const string uri = "https://api.openverse.engineering/v1/images/?format=json&q={0}&page={1}&mature=true";
+	private const string uri = "https://api.openverse.engineering/v1/images/?format=json&q={0}&page={1}&mature=false";
 
 	public async Task<(List<string>, double)> GetImagesAsync(string query, int OpenVerseMaxPage)
 	{

@@ -16,7 +16,7 @@ public class BingImageFakeScraper : Scraper
 		try
 		{
 			// get Tag
-			string[] args = new string[] { query.Replace("&#", "") };
+			string[] args = new string[] { query };
 			(HtmlDocument doc, double dlspeed) = await http.Get(uri, args);
 			dlspeedreturn = dlspeed;
 
