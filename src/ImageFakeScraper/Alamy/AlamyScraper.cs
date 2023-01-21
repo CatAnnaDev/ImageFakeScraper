@@ -46,7 +46,7 @@ namespace ImageFakeScraper.Alamy
 
 			}
 			catch (Exception e) { if (e.GetType().Name != "UriFormatException") { } if (settings.printErrorLog) { Console.WriteLine("Alamy" + e); } }
-			return (tmp, dlspeedreturn / (AlamyMaxPage + 1));
+			return (tmp, dlspeedreturn);
 		}
 
 		public override async Task<(int, double)> GetImages(AsyncCallback ac, params object[] args)

@@ -20,11 +20,14 @@ public class BingImageFakeScraper : Scraper
 			dlspeedreturn = dlspeed;
 
 			HtmlNodeCollection tag = doc.DocumentNode.SelectNodes("//span[@class='suggestion-title']");
-			if (tag != null)
+
+            if (tag != null)
 			{
 				foreach (HtmlNode? item in tag)
 				{
-					_ = redis.SetAdd("words_list", item.FirstChild.InnerText);
+					var keyWordClear = HtmlEntity.DeEntitize(item.FirstChild.InnerText);
+
+                    _ = redis.SetAdd("words_list", keyWordClear);
 				}
 			}
 

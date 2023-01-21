@@ -79,7 +79,7 @@ namespace ImageFakeScraperExample
 			{
 				Thread.Sleep(TimeSpan.FromMilliseconds(1000));
 				Console.Clear();
-				Console.WriteLine(FiggleFonts.Standard.Render("Crawler"));
+                Console.WriteLine(FiggleFonts.Standard.Render("Crawler"));
 
 				try
 				{
@@ -118,7 +118,7 @@ namespace ImageFakeScraperExample
 					Console.WriteLine(line);
 				}
 				catch { }
-			}
+            }
 		}
 
 		public void SpawnThreads()
@@ -181,8 +181,9 @@ namespace ImageFakeScraperExample
 			{
 				try
 				{
-					RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Configs["words_list"].ToString());
-					Random rand = new Random();
+					//RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Configs["words_list"].ToString());
+					RedisValue keywords = "héhéhé";
+                    Random rand = new Random();
 					dicoEngine = dicoEngine.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
 
 					for (int i = 0; i < dicoEngine.Count; i++)

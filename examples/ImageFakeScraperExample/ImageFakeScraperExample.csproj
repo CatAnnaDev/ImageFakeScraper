@@ -9,6 +9,9 @@
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <LangVersion>preview</LangVersion>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <LangVersion>preview</LangVersion>
