@@ -4,9 +4,10 @@ namespace ImageFakeScraper.Bing;
 
 public class BingImageFakeScraper : Scraper
 {
-	private const string uri = "https://www.bing.com/images/search?q={0}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&adlt=off&cw=2543&ch=1289";
+	private const string uri = "https://www.bing.com/images/search?q={0}&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle&cw=2543&ch=1289";
+    // &adlt=off
 
-	private const string uri2 = "https://www.bing.com/images/async?q={0}&first=0&count=5000&cw=1177&ch=1289&relp=5000&datsrc=I&layout=RowBased&apc=0&relo=1&relr=6&rely=959&mmasync=1"; // need fix encore ( c'est pas ouf ça ) 
+    private const string uri2 = "https://www.bing.com/images/async?q={0}&first=0&count=5000&cw=1177&ch=1289&relp=5000&datsrc=I&layout=RowBased&apc=0&relo=1&relr=6&rely=959&mmasync=1"; // need fix encore ( c'est pas ouf ça ) 
 
 	public async Task<(List<string>, double)> GetImagesAsync(string query, IDatabase redis)
 	{
