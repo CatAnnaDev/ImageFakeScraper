@@ -7,7 +7,7 @@ namespace ImageFakeScraperExample
 	{
 		private SettingsDll settings = new();
 		private SemaphoreSlim mySemaphoreSlim = new SemaphoreSlim(1, 1);
-		private SimpleMovingAverage MovingAverage = new SimpleMovingAverage(5);
+		private SimpleMovingAverage MovingAverage = new(5);
 		private SimpleMovingAverageLong DownloadSpeed = new(5);
 		private AutoResetEvent auto = new(false);
 		private Dictionary<string, Scraper> dicoEngine = new();
@@ -154,7 +154,7 @@ namespace ImageFakeScraperExample
 		{
 			while (true)
 			{
-				Console.Write($"\rTotal Push {SettingsDll.nbPushTotal}, [ {ratesPrint}/s ] Total DL {ConvertBytes(SettingsDll.downloadTotal)}, [{ConvertBytes(ratesSpeed)}/s] ");
+				Console.Write($"\rTotal Push {SettingsDll.nbPushTotal}, [ {MovingAverage.Average()}/s ] Total DL {ConvertBytes(SettingsDll.downloadTotal)}, [{ConvertBytes((long)DownloadSpeed.Average())}/s] ");
 				Console.Title = $"Push {SettingsDll.nbPushTotal}";
 				Thread.Sleep(TimeSpan.FromMilliseconds(101));
 			}
@@ -196,8 +196,8 @@ namespace ImageFakeScraperExample
 						ratesTmp += rate;
 						//ratesDLTmp += dlspeed;
 						// set
-						ratesPrint = (int)MovingAverage.Update(ratesTmp);
-						ratesSpeed = (long)DownloadSpeed.Update((long)dlspeed);
+						MovingAverage.Add((double)ratesTmp);
+						DownloadSpeed.Add(dlspeed);
 
 						Thread.Sleep(TimeSpan.FromSeconds(Program.waittime));
 					}
