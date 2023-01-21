@@ -154,7 +154,7 @@ namespace ImageFakeScraperExample
 		{
 			while (true)
 			{
-				Console.Write($"\rTotal Push {SettingsDll.nbPushTotal}, [ {MovingAverage.Average()}/s ] Total DL {ConvertBytes(SettingsDll.downloadTotal)}, [{ConvertBytes((long)DownloadSpeed.Average())}/s] ");
+				Console.Write($"\rTotal Push {SettingsDll.nbPushTotal}, [{MovingAverage.Average()}/s] Total DL {ConvertBytes(SettingsDll.downloadTotal)}, [{ConvertBytes((long)DownloadSpeed.Average())}/s] ");
 				Console.Title = $"Push {SettingsDll.nbPushTotal}";
 				Thread.Sleep(TimeSpan.FromMilliseconds(101));
 			}
@@ -174,9 +174,6 @@ namespace ImageFakeScraperExample
 
 		private async void Worker()
 		{
-			var ratesTmp = 0;
-			var ratesDLTmp = 0.0;
-
 			while (true)
 			{
 				try
@@ -193,30 +190,16 @@ namespace ImageFakeScraperExample
 						AsyncCallback callBack = new AsyncCallback(onRequestFinih);
 						var (rate, dlspeed) = dicoEngine.ElementAt(i).Value.GetImages(callBack, args).Result;
 
-						ratesTmp += rate;
-						//ratesDLTmp += dlspeed;
-						// set
-						MovingAverage.Add((double)ratesTmp);
+						MovingAverage.Add(rate);
 						DownloadSpeed.Add(dlspeed);
-
 						Thread.Sleep(TimeSpan.FromSeconds(Program.waittime));
 					}
-
-					// reset
-					ratesTmp = 0;
-					ratesPrint = 0;
-					ratesSpeed = 0;
 				}
 				catch (Exception e) { Console.WriteLine(e); }
-
-
 			}
 		}
 
-		private void onRequestFinih(IAsyncResult ar)
-		{
-
-		}
+		private void onRequestFinih(IAsyncResult ar) { }
 
 		private static void printData(string text)
 		{
