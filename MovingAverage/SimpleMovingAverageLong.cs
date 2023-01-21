@@ -2,36 +2,27 @@
 {
 	public class SimpleMovingAverageLong
 	{
-		private readonly long _k;
-		private readonly long[] _values;
+        private readonly int _windowSize;
+        private readonly Queue<double> _window;
+        private double _sum;
 
-		private long _index = 0;
-		private long _sum = 0;
+        public SimpleMovingAverageLong(int windowSize)
+        {
+            _windowSize = windowSize;
+            _window = new Queue<double>(windowSize);
+        }
 
-		public SimpleMovingAverageLong(long k)
-		{
-			if (k <= 0)
-			{
-				throw new ArgumentOutOfRangeException(nameof(k), "Must be greater than 0");
-			}
+        public double Update(double value)
+        {
+            _sum += value;
+            _window.Enqueue(value);
 
-			_k = k;
-			_values = new long[k];
-		}
+            if (_window.Count > _windowSize)
+            {
+                _sum -= _window.Dequeue();
+            }
 
-		public double Update(long nextInput)
-		{
-			// calculate the new sum
-			_sum = _sum - _values[_index] + nextInput;
-
-			// overwrite the old value with the new one
-			_values[_index] = nextInput;
-
-			// increment the index (wrapping back to 0)
-			_index = (_index + 1) % _k;
-
-			// calculate the average
-			return ((double)_sum) / _k;
-		}
-	}
+            return _sum / _window.Count;
+        }
+    }
 }

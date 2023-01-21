@@ -15,9 +15,9 @@ public class BingImageFakeScraper : Scraper
 		try
 		{
 			// get Tag
-			string[] args = new string[] { query };
+			string[] args = new string[] { query.Replace("&#", "") };
 			(HtmlDocument doc, double dlspeed) = await http.Get(uri, args);
-			dlspeedreturn += dlspeed;
+			dlspeedreturn = dlspeed;
 
 			HtmlNodeCollection tag = doc.DocumentNode.SelectNodes("//span[@class='suggestion-title']");
 			if (tag != null)

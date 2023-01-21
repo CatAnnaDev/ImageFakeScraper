@@ -7,8 +7,8 @@ namespace ImageFakeScraperExample
 	{
 		private SettingsDll settings = new();
 		private SemaphoreSlim mySemaphoreSlim = new SemaphoreSlim(1, 1);
-		private SimpleMovingAverage MovingAverage = new SimpleMovingAverage(30);
-		private SimpleMovingAverageLong DownloadSpeed = new(15);
+		private SimpleMovingAverage MovingAverage = new SimpleMovingAverage(5);
+		private SimpleMovingAverageLong DownloadSpeed = new(5);
 		private AutoResetEvent auto = new(false);
 		private Dictionary<string, Scraper> dicoEngine = new();
 		private Dictionary<string, long> tmpOrder = new();
@@ -75,7 +75,6 @@ namespace ImageFakeScraperExample
 
 		private void LogPrintData()
 		{
-
 			while (true)
 			{
 				Thread.Sleep(TimeSpan.FromMilliseconds(1000));
@@ -84,7 +83,6 @@ namespace ImageFakeScraperExample
 
 				try
 				{
-
 					string line = string.Concat(Enumerable.Repeat("=", Console.WindowWidth));
 					Console.WriteLine(line);
 
@@ -184,7 +182,6 @@ namespace ImageFakeScraperExample
 				try
 				{
 					RedisValue keywords = await redisConnection.GetDatabase.SetPopAsync(Program.ConfigFile.Configs["words_list"].ToString());
-					//RedisValue keywords = "asian pussy";
 					Random rand = new Random();
 					dicoEngine = dicoEngine.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
 
@@ -220,7 +217,6 @@ namespace ImageFakeScraperExample
 		{
 
 		}
-
 
 		private static void printData(string text)
 		{
