@@ -15,6 +15,7 @@ internal static class Program
 	public static int nbThread;
 	public static int QueueLimit;
 	public static int requestMaxPerSec = 8;
+	public static Settings ConfigSettings;
 
 	#endregion
 	#region Start
@@ -24,15 +25,16 @@ internal static class Program
 		ConfigFile = new();
 		await InitializeGlobalDataAsync();
 
-		Credential = ConfigFile.Configs["Credential"].ToString();
-		requestMaxPerSec = (int)ConfigFile.Configs["requestMaxPerSec"];
-		nbThread = (int)ConfigFile.Configs["nbThread"];
-		waittime = 1.0 / requestMaxPerSec * nbThread;
-		QueueLimit = (int)ConfigFile.Configs["QueueLimit"];
-		key = ConfigFile.Configs["images_jobs"].ToString();
-		key_to_dl = ConfigFile.Configs["to_download"].ToString();
 
-		if (Credential == "Redis Login")
+        Credential = ConfigFile.Configs["Credential"].ToString();
+        requestMaxPerSec = (int)ConfigFile.Configs["requestMaxPerSec"];
+        nbThread = (int)ConfigFile.Configs["nbThread"];
+        waittime = 1.0 / requestMaxPerSec * nbThread;
+        QueueLimit = (int)ConfigFile.Configs["QueueLimit"];
+        key = ConfigFile.Configs["images_jobs"].ToString();
+        key_to_dl = ConfigFile.Configs["to_download"].ToString();
+
+        if (Credential == "Redis Login")
 		{
 			Console.WriteLine($"Update config file \n{Directory.GetCurrentDirectory()}\\Config.json");
 			return;
@@ -56,8 +58,8 @@ internal static class Program
 	}
 	#endregion
 
-	private static async Task InitializeGlobalDataAsync()
+	public static async Task InitializeGlobalDataAsync()
 	{
 		await ConfigFile.InitializeAsync();
-	}
+    }
 }

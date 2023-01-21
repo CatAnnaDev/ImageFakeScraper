@@ -43,8 +43,7 @@ namespace ImageFakeScraperExample
 				{"redis_queue_limit_count",  Program.ConfigFile.Configs["settings"]["stopAfter"] }
 			};
 
-			// if ((bool)Program.ConfigFile.Configs["settings"]["DepositphotosRun"]) 
-			// 	dicoEngine.Add("Deposit", new DepositphotosScraper());
+			// dicoEngine.Add("Deposit", new DepositphotosScraper());
 			dicoEngine.Add("Google", new GoogleScraper());
 			dicoEngine.Add("UnsNapi", new UnsplashNapiScraper());
 			dicoEngine.Add("UnsNge", new UnsplashScraperngetty());
@@ -138,9 +137,22 @@ namespace ImageFakeScraperExample
 
 			Thread GlobalLog = new Thread(LogPrintData);
 			GlobalLog.Start();
-		}
 
-		private void PrintTotalpersec(object? obj)
+
+            // Thread dynConfig = new Thread(DynamicConfigFile);
+            // dynConfig.Start();
+        }
+
+        private void DynamicConfigFile(object? obj)
+        {
+			while (true)
+			{
+				Program.InitializeGlobalDataAsync();
+				Thread.Sleep(15000);
+            }
+        }
+
+        private void PrintTotalpersec(object? obj)
 		{
 			while (true)
 			{

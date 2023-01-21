@@ -31,14 +31,12 @@ public class GoogleScraper : Scraper
 
 				tmp.Add(metadata.original_image.url);
 			}
-
 		}
 		catch (Exception e)
 		{
 			if (e.GetType().Name != "UriFormatException") { }
 			if (settings.printErrorLog) { Console.WriteLine("Google" + e); }
 		}
-
 		return (tmp, dlspeedreturn);
 	}
 
